@@ -132,6 +132,11 @@ jobs:
         with:
           name: lighthouse-json-${{ github.sha }}
           path: artifacts/*.json
+      - name: Upload Lighthouse HTML reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-html-${{ github.sha }}
+          path: artifacts/*.html
 
   a11y:
     needs: setup
@@ -152,34 +157,36 @@ jobs:
         run: |
           test -n "${BASE_URL}" || { echo "BASE_URL is empty"; exit 1; }
           echo "Using BASE_URL=${BASE_URL}"
-      - name: Create pa11y config with BASE_URL
+      - name: Replace BASE_URL in pa11y config (optional)
         run: |
-          echo "Using BASE_URL: ${BASE_URL}"
-          cat > .pa11yci.json << EOF
-          {
-            "defaults": {
-              "standard": "WCAG2AA",
-              "timeout": 120000,
-              "screenCapture": "artifacts/pa11y/screenshot.png",
-              "hideElements": ".sr-only,[aria-hidden='true']"
-            },
-            "urls": [
-              "${BASE_URL}",
-              "${BASE_URL}/admin",
-              "${BASE_URL}/admin?tab=malls",
-              "${BASE_URL}/admin?tab=stores"
-            ]
-          }
-          EOF
-          echo "Created .pa11yci.json with BASE_URL: ${BASE_URL}"
-      - name: Run Pa11y
-        run: npm run pa11y
+          if [ "${BASE_URL}" != "https://hanaihang.netlify.app" ]; then
+            sed -i 's#https://hanaihang.netlify.app#'${BASE_URL}'#g' .pa11yci.json
+          fi
+
+      # ✅ เก็บผลแม้ล้ม: ไม่ให้ workflow ตันก่อนอัปโหลดหลักฐาน
+      - name: Run Pa11y (verbose)
+        id: pa11y
+        run: |
+          set +e
+          npx pa11y-ci -c .pa11yci.json --verbose
+          EXIT=$?
+          echo "PA11Y_EXIT=$EXIT" >> $GITHUB_ENV
+          exit 0
+
       - name: Upload Pa11y artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pa11y-artifacts
+          name: pa11y-artifacts-${{ github.sha }}
           path: artifacts/pa11y/
-          if-no-files-found: ignore
+          if-no-files-found: warn
+
+      # ✅ ให้ job fail ถ้าจริง ๆ pa11y ล้ม
+      - name: Fail if Pa11y had errors
+        if: env.PA11Y_EXIT != '0'
+        run: |
+          echo "Pa11y reported errors. See artifacts for details."
+          exit 1
 
   gate:
     needs: [e2e, audits, a11y]
