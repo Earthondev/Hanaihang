@@ -202,8 +202,7 @@ jobs:
           set +e
           mkdir -p artifacts/pa11y
           npx pa11y-ci -c .pa11yci.json \
-            --chrome-arg="--no-sandbox" \
-            --chrome-arg="--disable-setuid-sandbox" \
+            --chrome-launcher-flags="--no-sandbox --disable-setuid-sandbox" \
             --reporter json > artifacts/pa11y/results.json
           EXIT=$?
           echo "exit_code=$EXIT" >> $GITHUB_OUTPUT
