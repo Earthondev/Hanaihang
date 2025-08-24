@@ -37,7 +37,6 @@ jobs:
         with:
           script: |
             const { owner, repo } = context.repo;
-
             // 1) Try to find Netlify preview URL in PR comments (only on pull_request)
             let preview = '';
             if (context.eventName === 'pull_request') {
@@ -58,16 +57,13 @@ jobs:
                 core.info('No Netlify preview URL found in PR comments.');
               }
             }
-
             // 2) Fallback: secret → var → default
             const secret = process.env.QA_BASE_URL_SECRET || '';
             const vari   = process.env.QA_BASE_URL_VAR    || '';
             const base   = preview || secret || vari || 'https://hanaihang.netlify.app';
             const src    = preview ? 'netlify-preview' : (secret ? 'secret' : (vari ? 'var' : 'default'));
-
             core.info(`Resolved BASE_URL from ${src}: ${base}`);
             core.setOutput('base_url', base);
-
 
   e2e:
     needs: setup
@@ -93,14 +89,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ github.sha }}
           path: playwright-report/
           if-no-files-found: ignore
       - name: Upload Playwright traces
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-traces
+          name: playwright-traces-${{ github.sha }}
           path: test-results/
           if-no-files-found: ignore
 
@@ -122,27 +118,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: 'npm' }
+        with: 
+          node-version: 20
+          cache: 'npm'
       - run: npm ci
-      - run: mkdir -p artifacts/pa11y artifacts/lh
-
+      - name: Ensure artifacts directory
+        run: mkdir -p artifacts/pa11y artifacts/lh
       - name: Assert BASE_URL not empty
         run: |
           test -n "${BASE_URL}" || { echo "BASE_URL is empty"; exit 1; }
           echo "Using BASE_URL=${BASE_URL}"
-
       - name: Lighthouse (mobile)
         run: npm run lh:mobile
       - name: Lighthouse (desktop)
         run: npm run lh:desktop
-
       - name: Upload Lighthouse artifacts
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-json-${{ github.sha }}
           path: artifacts/*
-
-      # ✅ ดึงคะแนนออกมาเป็น outputs ของ job (gate จะเรียกใช้ได้)
       - name: Extract Lighthouse scores
         id: score
         run: |
@@ -202,8 +196,6 @@ jobs:
           }
           EOF
           echo "Created .pa11yci.json with Chrome launch args"
-
-      # ✅ เก็บผลแม้ล้ม: ไม่ให้ workflow ตันก่อนอัปโหลดหลักฐาน
       - name: Run Pa11y (verbose)
         id: pa11y
         run: |
@@ -212,7 +204,6 @@ jobs:
           EXIT=$?
           echo "PA11Y_EXIT=$EXIT" >> $GITHUB_ENV
           exit 0
-
       - name: Upload Pa11y artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -220,8 +211,6 @@ jobs:
           name: pa11y-artifacts-${{ github.sha }}
           path: artifacts/pa11y/
           if-no-files-found: warn
-
-      # ✅ ให้ job fail ถ้าจริง ๆ pa11y ล้ม
       - name: Fail if Pa11y had errors
         if: env.PA11Y_EXIT != '0'
         run: |
@@ -234,7 +223,6 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-
       - name: Compute & enforce thresholds
         id: enforce
         env:
@@ -253,7 +241,7 @@ jobs:
         run: |
           echo "Mobile  -> Perf:$MP  A11y:$MA  BP:$MBP  SEO:$MS"
           echo "Desktop -> Perf:$DP  A11y:$DA  BP:$DBP  SEO:$DS"
-
+          
           fail=0
           check () { name=$1 val=$2 th=$3; [ "${val:-0}" -ge "$th" ] || { echo "❌ $name < $th (got $val)"; fail=1; }; }
           check "Mobile Performance"      "$MP"  "$TH_PERF"
@@ -282,7 +270,7 @@ jobs:
               ['Desktop', o.DP,  o.DA,  o.DBP,  o.DS],
             ]);
             await core.summary.write();
-
+      
       - name: Comment QA result to PR
         if: github.event_name == 'pull_request'
         uses: thollander/actions-comment-pull-request@v2
