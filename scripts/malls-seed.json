@@ -1,0 +1,102 @@
+[
+  {
+    "displayName": "Siam Paragon",
+    "slug": "siam-paragon",
+    "address": "991 Rama I Rd, Pathum Wan, Bangkok 10330",
+    "district": "Pathum Wan",
+    "location": {"lat": 13.7466, "lng": 100.5347},
+    "phone": "",
+    "website": "",
+    "source": "seed-manual"
+  },
+  {
+    "displayName": "CentralWorld",
+    "slug": "centralworld",
+    "address": "999/9 Rama I Rd, Pathum Wan, Bangkok 10330",
+    "district": "Pathum Wan",
+    "location": {"lat": 13.7460, "lng": 100.5390},
+    "phone": "",
+    "website": "",
+    "source": "seed-manual"
+  },
+  {
+    "displayName": "MBK Center",
+    "slug": "mbk-center",
+    "address": "444 Phaya Thai Rd, Wang Mai, Pathum Wan, Bangkok 10330",
+    "district": "Pathum Wan",
+    "location": {"lat": 13.7446, "lng": 100.5296},
+    "phone": "",
+    "website": "",
+    "source": "seed-manual"
+  },
+  {
+    "displayName": "ICONSIAM",
+    "slug": "iconsiam",
+    "address": "299 Charoen Nakhon Rd, Khlong Ton Sai, Khlong San, Bangkok 10600",
+    "district": "Khlong San",
+    "location": {"lat": 13.7261, "lng": 100.5100},
+    "phone": "",
+    "website": "",
+    "source": "seed-manual"
+  },
+  {
+    "displayName": "Terminal 21 Asok",
+    "slug": "terminal-21-asok",
+    "address": "2,88 Sukhumvit Rd, Khlong Toei Nuea, Watthana, Bangkok 10110",
+    "district": "Watthana",
+    "location": {"lat": 13.7369, "lng": 100.5603},
+    "phone": "",
+    "website": "",
+    "source": "seed-manual"
+  },
+  {
+    "displayName": "The Emporium",
+    "slug": "the-emporium",
+    "address": "622 Sukhumvit Rd, Khlong Tan, Khlong Toei, Bangkok 10110",
+    "district": "Khlong Toei",
+    "location": {"lat": 13.7300, "lng": 100.5690},
+    "phone": "",
+    "website": "",
+    "source": "seed-manual"
+  },
+  {
+    "displayName": "EmQuartier",
+    "slug": "emquartier",
+    "address": "693, 695 Sukhumvit Rd, Khlong Tan Nuea, Watthana, Bangkok 10110",
+    "district": "Watthana",
+    "location": {"lat": 13.7308, "lng": 100.5695},
+    "phone": "",
+    "website": "",
+    "source": "seed-manual"
+  },
+  {
+    "displayName": "Central Plaza Ladprao",
+    "slug": "central-plaza-ladprao",
+    "address": "1693 Phahon Yothin Rd, Chatuchak, Bangkok 10900",
+    "district": "Chatuchak",
+    "location": {"lat": 13.8150, "lng": 100.5600},
+    "phone": "",
+    "website": "",
+    "source": "seed-manual"
+  },
+  {
+    "displayName": "Central Plaza Grand Rama 9",
+    "slug": "central-plaza-grand-rama-9",
+    "address": "9/9 Rama IX Rd, Huai Khwang, Bangkok 10310",
+    "district": "Huai Khwang",
+    "location": {"lat": 13.7588, "lng": 100.5662},
+    "phone": "",
+    "website": "",
+    "source": "seed-manual"
+  },
+  {
+    "displayName": "Mega Bangna",
+    "slug": "mega-bangna",
+    "address": "39 Moo 6, Bang Na-Trat Rd, Bang Kaeo, Bang Phli, Samut Prakan 10540",
+    "district": "Bang Phli",
+    "location": {"lat": 13.6469, "lng": 100.6800},
+    "phone": "",
+    "website": "",
+    "source": "seed-manual"
+  }
+]

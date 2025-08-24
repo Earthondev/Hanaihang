@@ -19,7 +19,8 @@
     "lh:mobile": "lighthouse ${BASE_URL:-https://hanaihang.netlify.app} --preset=perf --output=json --output=html --output-path=./artifacts/lh-mobile --timeout=120000 --max-wait-for-load=60000 --wait-for-load=5000 --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --disable-features=VizDisplayCompositor'",
     "lh:desktop": "lighthouse ${BASE_URL:-https://hanaihang.netlify.app} --preset=desktop --output=json --output=html --output-path=./artifacts/lh-desktop --timeout=120000 --max-wait-for-load=60000 --wait-for-load=5000 --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --disable-features=VizDisplayCompositor'",
     "pa11y": "pa11y-ci -c .pa11yci.json",
-    "qa:ci": "npm run lh:mobile && npm run lh:desktop && npm run pa11y && playwright test"
+    "qa:ci": "npm run lh:mobile && npm run lh:desktop && npm run pa11y && playwright test",
+    "import:malls": "node scripts/import-malls.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
