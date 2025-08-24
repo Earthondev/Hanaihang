@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import MallForm from '../components/forms/MallForm';
 import { MallInput } from '../validation/mall.schema';
-import { useToast } from '../components/feedback/useToast';
+import { useToast } from '../components/feedback/Toast';
 import { updateMall } from '../lib/firestore';
 import { ArrowLeft } from 'lucide-react';
 
@@ -30,11 +30,7 @@ export default function MallEditPage() {
         const mallDoc = await getDoc(doc(db, 'malls', slug));
         
         if (!mallDoc.exists()) {
-          toast({
-            title: "ไม่พบห้าง",
-            description: "เอกสารนี้ถูกลบหรือไม่มีอยู่",
-            variant: "error"
-          });
+                  toast.push("ไม่พบห้าง: เอกสารนี้ถูกลบหรือไม่มีอยู่", "error");
           navigate("/admin?tab=malls");
           return;
         }
@@ -82,19 +78,11 @@ export default function MallEditPage() {
     
     try {
       await updateMall(slug, values);
-      toast({ 
-        title: "อัปเดตสำเร็จ 🎉", 
-        description: "ข้อมูลห้างถูกอัปเดตเรียบร้อยแล้ว",
-        variant: "success" 
-      });
+      toast.push("อัปเดตสำเร็จ 🎉 ข้อมูลห้างถูกอัปเดตเรียบร้อยแล้ว", "success");
       navigate("/admin?tab=malls");
     } catch (err) {
       console.error('Error updating mall:', err);
-      toast({ 
-        title: "เกิดข้อผิดพลาด", 
-        description: "ไม่สามารถอัปเดตข้อมูลห้างได้",
-        variant: "error" 
-      });
+      toast.push("เกิดข้อผิดพลาด: ไม่สามารถอัปเดตข้อมูลห้างได้", "error");
     }
   };
 
