@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Clock, Building, Search, Store, Settings } from "lucide-react";
+import { MapPin, Clock, Building, Search, Store, Settings, Navigation } from "lucide-react";
 import { listMalls } from "../lib/firestore";
 import { haversineKm } from "../lib/geo";
 import { searchMallsAndBrands } from "../lib/search";
@@ -137,6 +137,7 @@ const Home: React.FC = () => {
           }
         }
         showToast('พบห้างใกล้คุณแล้ว!');
+        trackEvent('use_location', 'user_actions', 'location_button');
       },
       () => {
         setIsLoading(false);
@@ -203,10 +204,10 @@ const Home: React.FC = () => {
               </div>
               <Link 
                 to="/admin"
-                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Admin Panel"
               >
-                <Settings className="w-4 h-4" />
-                <span>Admin Panel</span>
+                <Settings className="w-5 h-5" />
               </Link>
             </div>
           </div>
@@ -237,32 +238,21 @@ const Home: React.FC = () => {
               </div>
             </div>
             
-            {/* Right side - Admin Actions */}
+            {/* Right side - Search and Admin */}
             <div className="flex items-center space-x-3">
               <Link 
-                to="/admin"
-                className="bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 shadow-sm hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 active:scale-[0.98] min-h-[44px]"
-                aria-label="สร้างห้างสรรพสินค้าใหม่ (ไปหน้าแอดมิน)"
-                data-testid="create-mall-btn"
-                onClick={() => {
-                  trackEvent('click_create_mall', 'admin_actions', 'header_button');
-                }}
+                to="/search"
+                className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="ค้นหาขั้นสูง"
               >
-                <Building className="w-4 h-4" aria-hidden="true" />
-                <span className="hidden sm:inline">สร้างห้าง</span>
+                <Search className="w-5 h-5" />
               </Link>
-              
               <Link 
-                to="/admin?tab=stores"
-                className="bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 shadow-sm hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 active:scale-[0.98] min-h-[44px]"
-                aria-label="เพิ่มร้านค้าใหม่ (ไปแท็บ Stores)"
-                data-testid="add-store-btn"
-                onClick={() => {
-                  trackEvent('click_add_store', 'admin_actions', 'header_button');
-                }}
+                to="/admin"
+                className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Admin Panel"
               >
-                <Store className="w-4 h-4" aria-hidden="true" />
-                <span className="hidden sm:inline">เพิ่มร้าน</span>
+                <Settings className="w-5 h-5" />
               </Link>
             </div>
           </div>
@@ -271,35 +261,20 @@ const Home: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Title Section */}
+        {/* Hero Section */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-2">
-            เลือกห้างสรรพสินค้า
+          <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
+            หาห้างใกล้คุณ
           </h1>
-          <p className="text-gray-600 text-lg">
-            {userLoc ? 'เรียงจากระยะทางใกล้คุณที่สุด' : 'กดปุ่ม "ใช้ตำแหน่งของฉัน" เพื่อดูระยะทาง'}
+          <p className="text-gray-600 text-lg mb-6">
+            {userLoc ? 'เรียงจากระยะทางใกล้คุณที่สุด' : 'ค้นหาห้างสรรพสินค้าใกล้ตำแหน่งของคุณ'}
           </p>
-        </div>
-
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative max-w-2xl mx-auto">
-            <input
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="ค้นหาหรือแบรนด์ เช่น Central Rama 3, Zara, Starbucks…"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
-            />
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-8">
+          
+          {/* Primary CTA - Use My Location */}
           <button 
             onClick={handleUseMyLocation}
             disabled={isLoading}
-            className="flex items-center space-x-2 bg-white hover:bg-green-50 border border-gray-200 hover:border-green-500 text-gray-900 hover:text-green-600 px-6 py-3 rounded-2xl font-medium transition-all duration-200 shadow-sm disabled:opacity-50"
+            className="inline-flex items-center space-x-3 bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-8 py-4 rounded-2xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
           >
             {isLoading ? (
               <>
@@ -308,39 +283,23 @@ const Home: React.FC = () => {
               </>
             ) : (
               <>
-                <MapPin className="w-5 h-5" />
+                <Navigation className="w-5 h-5" />
                 <span>ใช้ตำแหน่งของฉัน</span>
               </>
             )}
           </button>
-          
-          {/* Admin Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link 
-              to="/admin"
-              className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-4 py-3 rounded-2xl font-medium transition-all duration-200 shadow-sm hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 active:scale-[0.98]"
-              aria-label="สร้างห้างสรรพสินค้าใหม่ (ไปหน้าแอดมิน)"
-              data-testid="create-mall-action-btn"
-              onClick={() => {
-                trackEvent('click_create_mall', 'admin_actions', 'action_section');
-              }}
-            >
-              <Building className="w-5 h-5" aria-hidden="true" />
-              <span>สร้างห้าง</span>
-            </Link>
-            
-            <Link 
-              to="/admin?tab=stores"
-              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white px-4 py-3 rounded-2xl font-medium transition-all duration-200 shadow-sm hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 active:scale-[0.98]"
-              aria-label="เพิ่มร้านค้าใหม่ (ไปแท็บ Stores)"
-              data-testid="add-store-action-btn"
-              onClick={() => {
-                trackEvent('click_add_store', 'admin_actions', 'action_section');
-              }}
-            >
-              <Store className="w-5 h-5" aria-hidden="true" />
-              <span>เพิ่มร้าน</span>
-            </Link>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-8">
+          <div className="relative max-w-2xl mx-auto">
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="ค้นหาห้างหรือแบรนด์ เช่น Central Rama 3, Zara, Starbucks…"
+              className="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-100 outline-none text-lg"
+            />
+            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
           </div>
         </div>
 
@@ -370,11 +329,11 @@ const Home: React.FC = () => {
         )}
 
         {/* Results */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Mall Results */}
           {loadingMalls ? (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">ห้างสรรพสินค้า</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6">ห้างสรรพสินค้า</h2>
               <SkeletonList rows={6} />
             </div>
           ) : error ? (
@@ -400,7 +359,7 @@ const Home: React.FC = () => {
             />
           ) : results.length > 0 ? (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">ห้างสรรพสินค้า</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6">ห้างสรรพสินค้า</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {withDistance.map((mall) => (
                   <Link 
@@ -463,17 +422,17 @@ const Home: React.FC = () => {
           ) : (
             <EmptyState
               type="malls"
-              title="ไม่พบห้างสรรพสินค้า"
-              description="ยังไม่มีข้อมูลห้างสรรพสินค้าในระบบ"
-              actionLabel="สร้างห้างแรก"
-              onAction={() => window.location.href = '/admin'}
+              title="ยังไม่มีห้างในพื้นที่นี้"
+              description="ลองใช้ตำแหน่งอื่น หรือค้นหาด้วยชื่อห้าง"
+              actionLabel="🔍 ค้นหาห้าง"
+              onAction={() => setQuery('Central')}
             />
           )}
 
           {/* Store Results */}
           {storeResults.length > 0 && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">ร้านค้า</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6">ร้านค้า</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {storeResults.map((store) => (
                   <div key={store.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -493,17 +452,6 @@ const Home: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">ไม่พบผลลัพธ์</h3>
               <p className="text-gray-600">ลองค้นหาด้วยคำอื่น หรือเลือกห้างสรรพสินค้าจากรายการด้านล่าง</p>
             </div>
-          )}
-
-          {/* No Malls Available */}
-          {results.length === 0 && !query && !loadingMalls && !error && (
-            <EmptyState
-              type="malls"
-              title="ไม่พบห้างสรรพสินค้า"
-              description="ยังไม่มีข้อมูลห้างสรรพสินค้าในระบบ"
-              actionLabel="สร้างห้างแรก"
-              onAction={() => window.location.href = '/admin'}
-            />
           )}
         </div>
       </main>
