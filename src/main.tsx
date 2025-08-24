@@ -15,6 +15,7 @@ import StoreDetail from './pages/StoreDetail'
 import FloorDetail from './pages/FloorDetail'
 import Favorites from './pages/Favorites'
 import AdminPanel from './pages/AdminPanel'
+import MallEditPage from './pages/MallEditPage'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 import AuthTest from './pages/AuthTest'
@@ -51,6 +52,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <AdminPanel />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
+    path: '/admin/malls/:slug/edit', 
+    element: (
+      <ProtectedRoute>
+        <MallEditPage />
       </ProtectedRoute>
     ) 
   },

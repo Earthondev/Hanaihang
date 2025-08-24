@@ -17,6 +17,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Mall, Floor, Store, MallFormData, StoreFormData } from '../types/mall-system';
+import { MallInput } from '../validation/mall.schema';
 
 // Helper to create slug from display name
 export function toSlug(displayName: string): string {
@@ -136,34 +137,38 @@ export async function getMallByName(name: string): Promise<Mall | null> {
 /**
  * อัปเดตข้อมูลห้าง
  */
-export async function updateMall(mallId: string, data: Partial<MallFormData>): Promise<void> {
+export async function updateMall(mallId: string, data: Partial<MallInput>): Promise<void> {
   const updateData: any = {
     updatedAt: serverTimestamp()
   };
 
-  if (data.displayName) updateData.displayName = data.displayName;
-  if (data.address) updateData.address = data.address;
-  if (data.district) updateData.district = data.district;
+  // Basic fields
+  if (data.displayName !== undefined) updateData.displayName = data.displayName;
+  if (data.slug !== undefined) updateData.slug = data.slug;
+  if (data.category !== undefined) updateData.category = data.category;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.address !== undefined) updateData.address = data.address;
+  if (data.district !== undefined) updateData.district = data.district;
+  if (data.floors !== undefined) updateData.floors = data.floors;
+  if (data.holidayNotice !== undefined) updateData.holidayNotice = data.holidayNotice;
+  if (data.phone !== undefined) updateData.phone = data.phone;
+  if (data.website !== undefined) updateData.website = data.website;
+  if (data.facebook !== undefined) updateData.facebook = data.facebook;
+  if (data.line !== undefined) updateData.line = data.line;
+  if (data.status !== undefined) updateData.status = data.status;
+  if (data.source !== undefined) updateData.source = data.source;
   
-  if (data.phone || data.website) {
-    updateData.contact = {
-      phone: data.phone,
-      website: data.website
+  // Location
+  if (data.location) {
+    updateData.location = {
+      lat: typeof data.location.lat === 'string' ? parseFloat(data.location.lat) : data.location.lat,
+      lng: typeof data.location.lng === 'string' ? parseFloat(data.location.lng) : data.location.lng
     };
   }
   
-  if (data.lat && data.lng) {
-    updateData.coords = {
-      lat: typeof data.lat === 'string' ? parseFloat(data.lat) : data.lat,
-      lng: typeof data.lng === 'string' ? parseFloat(data.lng) : data.lng
-    };
-  }
-  
-  if (data.openTime && data.closeTime) {
-    updateData.hours = {
-      open: data.openTime,
-      close: data.closeTime
-    };
+  // Hours
+  if (data.hours) {
+    updateData.hours = data.hours;
   }
 
   const docRef = doc(db, 'malls', mallId);

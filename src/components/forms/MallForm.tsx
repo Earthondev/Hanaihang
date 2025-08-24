@@ -89,13 +89,26 @@ export default function MallForm({
     errorMessage: mode === "create" ? "ไม่สามารถสร้างห้างสรรพสินค้าได้" : "ไม่สามารถอัปเดตห้างสรรพสินค้าได้"
   });
 
-  // Auto-generate slug from displayName
+  // Auto-generate slug from displayName (only in create mode)
   const displayName = form.watch("displayName");
   useEffect(() => {
     if (displayName && mode === "create") {
       form.setValue("slug", toSlug(displayName));
     }
   }, [displayName, form, mode]);
+
+  // Reset form when defaultValues change (for edit mode)
+  useEffect(() => {
+    if (defaultValues && mode === "edit") {
+      form.reset(defaultValues);
+      // Set hours mode based on data
+      if (defaultValues.hours?.mode === "byDay") {
+        setIsEveryday(false);
+      } else {
+        setIsEveryday(true);
+      }
+    }
+  }, [defaultValues, form, mode]);
 
   // Auto-https for website
   const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -145,7 +158,7 @@ export default function MallForm({
                 label="Slug"
                 placeholder="central-rama-9"
                 helper="URL-friendly name (auto-generated)"
-                disabled
+                disabled={mode === "create"}
               />
               
               <SelectField

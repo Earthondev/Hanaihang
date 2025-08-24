@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Edit, Building } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import DataTable, { Column } from '../table/DataTable';
 import TableToolbar from '../table/TableToolbar';
 import Pagination from '../table/Pagination';
@@ -225,19 +226,17 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
     {
       key: "actions",
       header: "",
-      width: "120px",
+      width: "140px",
       render: (mall) => (
         <div className="flex justify-end gap-2">
-          <button
-            onClick={() => {
-              // TODO: Implement edit functionality
-              alert('ฟีเจอร์แก้ไขจะเปิดใช้งานเร็วๆ นี้');
-            }}
-            className="rounded-xl border px-3 py-2 hover:bg-gray-50 transition-colors"
-            aria-label={`แก้ไขห้างสรรพสินค้า ${mall.displayName}`}
+          <Link
+            to={`/admin/malls/${mall.slug || mall.id}/edit`}
+            className="inline-flex items-center space-x-1 px-3 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+            aria-label={`แก้ไขห้าง: ${mall.displayName}`}
           >
             <Edit className="h-4 w-4" />
-          </button>
+            <span className="text-sm">แก้ไข</span>
+          </Link>
           <DeleteButton
             id={mall.id}
             name={mall.displayName || mall.name}
@@ -284,6 +283,7 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
         sort={sort.dir ? { key: sort.key, dir: sort.dir } : undefined}
         onSortChange={(key, dir) => setSort({ key, dir })}
         rowKey={(mall) => mall.id}
+        data-testid="malls-table"
         footer={
           <Pagination
             page={page}
