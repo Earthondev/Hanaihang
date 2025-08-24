@@ -1,0 +1,14 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "timeout": 120000,
+    "screenCapture": "artifacts/pa11y/screenshot.png",
+    "hideElements": ".sr-only,[aria-hidden='true']"
+  },
+  "urls": [
+    "https://hanaihang.netlify.app",
+    "https://hanaihang.netlify.app/admin",
+    "https://hanaihang.netlify.app/admin?tab=malls",
+    "https://hanaihang.netlify.app/admin?tab=stores"
+  ]
+}

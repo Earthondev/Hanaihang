@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { return isSignedIn() && request.auth.token.role == 'admin'; }
+
+    match /{document=**} {
+      allow read: if true;                 // เว็บอ่านได้ทุกคน
+    }
+
+    // สำหรับการทดสอบ - อนุญาตให้เขียนได้ถ้าเข้าสู่ระบบแล้ว
+    match /malls/{mallId} {
+      allow write: if isSignedIn();
+      match /floors/{floorId} {
+        allow write: if isSignedIn();
+      }
+      match /stores/{storeId} {
+        allow write: if isSignedIn() && request.resource.data.mallId == mallId;
+      }
+    }
+
+    match /stores/{storeId} {              // global stores
+      allow write: if isSignedIn();
+    }
+
+    match /brands/{brandId} {
+      allow write: if isSignedIn();
+    }
+
+    match /promotions/{promoId} {
+      allow write: if isSignedIn();
+    }
+
+    match /events/{eventId} {
+      allow write: if isSignedIn();
+    }
+  }
+}

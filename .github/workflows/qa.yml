@@ -1,0 +1,228 @@
+name: QA
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: qa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      base_url: ${{ steps.resolve.outputs.base_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+
+      # 🧠 ตัดสินใจ BASE_URL ใน shell แล้วส่งออกเป็น "outputs"
+      # Prefer Netlify Deploy Preview URL from PR comments, then fallback:
+      #   secret → var → default
+      - name: Resolve BASE_URL (prefer Netlify Preview)
+        id: resolve
+        env:
+          QA_BASE_URL_SECRET: ${{ secrets.QA_BASE_URL || '' }}
+          QA_BASE_URL_VAR:    ${{ vars.QA_BASE_URL    || '' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+
+            // 1) Try to find Netlify preview URL in PR comments (only on pull_request)
+            let preview = '';
+            if (context.eventName === 'pull_request') {
+              const pr = context.payload.pull_request.number;
+              const comments = await github.paginate(
+                github.rest.issues.listComments,
+                { owner, repo, issue_number: pr, per_page: 100 }
+              );
+              const body = comments.map(c => c.body || '').join('\n');
+              // Match patterns like: https://deploy-preview-123--site-name.netlify.app
+              // or https://feat-abc--site-name.netlify.app
+              const re = /https:\/\/[a-z0-9-]+--[a-z0-9-]+\.netlify\.app/gi;
+              const matches = body.match(re);
+              if (matches && matches.length) {
+                preview = matches[matches.length - 1]; // use the last (most recent) match
+                core.info(`Found Netlify preview in PR comments: ${preview}`);
+              } else {
+                core.info('No Netlify preview URL found in PR comments.');
+              }
+            }
+
+            // 2) Fallback: secret → var → default
+            const secret = process.env.QA_BASE_URL_SECRET || '';
+            const vari   = process.env.QA_BASE_URL_VAR    || '';
+            const base   = preview || secret || vari || 'https://hanaihang.netlify.app';
+            const src    = preview ? 'netlify-preview' : (secret ? 'secret' : (vari ? 'var' : 'default'));
+
+            core.info(`Resolved BASE_URL from ${src}: ${base}`);
+            core.setOutput('base_url', base);
+
+
+  e2e:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_URL: ${{ needs.setup.outputs.base_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: 
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - name: Assert BASE_URL not empty
+        run: |
+          test -n "${BASE_URL}" || { echo "BASE_URL is empty"; exit 1; }
+          echo "Using BASE_URL=${BASE_URL}"
+      - name: Run Playwright E2E
+        run: npm run test:e2e
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: ignore
+      - name: Upload Playwright traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          if-no-files-found: ignore
+
+  audits:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BASE_URL: ${{ needs.setup.outputs.base_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: 
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - name: Ensure artifacts directory
+        run: mkdir -p artifacts/pa11y artifacts/lh
+      - name: Assert BASE_URL not empty
+        run: |
+          test -n "${BASE_URL}" || { echo "BASE_URL is empty"; exit 1; }
+          echo "Using BASE_URL=${BASE_URL}"
+      - name: Lighthouse (mobile)
+        run: npm run lh:mobile
+      - name: Lighthouse (desktop)
+        run: npm run lh:desktop
+      - name: Upload Lighthouse artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-json-${{ github.sha }}
+          path: artifacts/*.json
+
+  a11y:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BASE_URL: ${{ needs.setup.outputs.base_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: 
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - name: Ensure artifacts directory
+        run: mkdir -p artifacts/pa11y artifacts/lh
+      - name: Assert BASE_URL not empty
+        run: |
+          test -n "${BASE_URL}" || { echo "BASE_URL is empty"; exit 1; }
+          echo "Using BASE_URL=${BASE_URL}"
+      - name: Replace BASE_URL in pa11y config (optional)
+        run: |
+          if [ "${BASE_URL}" != "https://hanaihang.netlify.app" ]; then
+            sed -i 's#https://hanaihang.netlify.app#'${BASE_URL}'#g' .pa11yci.json
+          fi
+      - name: Run Pa11y
+        run: npm run pa11y
+      - name: Upload Pa11y artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pa11y-artifacts
+          path: artifacts/pa11y/
+          if-no-files-found: ignore
+
+  gate:
+    needs: [e2e, audits, a11y]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y jq
+      - uses: actions/setup-node@v4
+        with: 
+          node-version: 20
+      - name: Download Lighthouse artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouse-json-${{ github.sha }}
+          path: artifacts
+      - name: Check Lighthouse thresholds
+        run: |
+          MOBILE=artifacts/lh-mobile.json
+          DESKTOP=artifacts/lh-desktop.json
+
+          check() {
+            FILE=$1
+            PERF=$(jq '.categories.performance.score * 100' "$FILE")
+            A11Y=$(jq '.categories.accessibility.score * 100' "$FILE")
+            BP=$(jq '.categories["best-practices"].score * 100' "$FILE")
+            SEO=$(jq '.categories.seo.score * 100' "$FILE")
+
+            echo "Scores for $FILE -> Perf:$PERF A11y:$A11Y BP:$BP SEO:$SEO"
+
+            [ "${PERF%.*}" -ge 85 ] || { echo "❌ Performance < 85"; exit 1; }
+            [ "${A11Y%.*}" -ge 90 ] || { echo "❌ Accessibility < 90"; exit 1; }
+            [ "${BP%.*}"  -ge 90 ] || { echo "❌ Best Practices < 90"; exit 1; }
+            [ "${SEO%.*}" -ge 90 ] || { echo "❌ SEO < 90"; exit 1; }
+          }
+
+          check "$MOBILE"
+          check "$DESKTOP"
+      - name: Post QA summary to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.summary.addHeading('QA Checks ✅')
+            core.summary.addList([
+              'Playwright E2E passed',
+              'Lighthouse thresholds passed (Mobile & Desktop)',
+              'Pa11y accessibility checks passed'
+            ])
+            await core.summary.write()
+      
+      - name: Comment QA result to PR
+        if: github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            **QA Checks ✅**
+            - Playwright E2E: PASSED
+            - Lighthouse: Mobile & Desktop thresholds PASSED
+            - Pa11y: PASSED
+

@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ring: rgba(22,163,74,.4);
+}
+
+.btn-primary {
+  @apply px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-hover transition;
+}
+.btn {
+  @apply px-4 py-2 rounded-xl border hover:bg-primary-soft transition;
+}
+.card {
+  @apply p-4 rounded-xl bg-white border shadow-sm;
+}

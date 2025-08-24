@@ -1,0 +1,44 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - button "กลับไปหน้าหลัก" [ref=e6] [cursor=pointer]:
+    - img [ref=e7] [cursor=pointer]
+    - generic [ref=e9] [cursor=pointer]: กลับไปหน้าหลัก
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - img [ref=e13]
+      - generic [ref=e16]:
+        - generic [ref=e17]: HaaNai
+        - generic [ref=e18]: Hang
+    - heading "แผงควบคุมผู้ดูแลระบบ" [level=1] [ref=e19]
+    - paragraph [ref=e20]: เข้าสู่ระบบเพื่อจัดการข้อมูลศูนย์การค้า
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e24]: อีเมล
+        - generic [ref=e25]:
+          - generic:
+            - img
+          - textbox "กรอกอีเมลของคุณ" [ref=e26]
+      - generic [ref=e27]:
+        - generic [ref=e28]: รหัสผ่าน
+        - generic [ref=e29]:
+          - generic:
+            - img
+          - textbox "กรอกรหัสผ่านของคุณ" [ref=e30]
+          - button [ref=e31] [cursor=pointer]:
+            - img [ref=e32] [cursor=pointer]
+      - button "ลืมรหัสผ่าน?" [ref=e36] [cursor=pointer]
+      - button "เข้าสู่ระบบ" [ref=e37] [cursor=pointer]:
+        - img [ref=e38] [cursor=pointer]
+        - generic [ref=e41] [cursor=pointer]: เข้าสู่ระบบ
+    - generic [ref=e43]:
+      - img [ref=e45]
+      - generic [ref=e48]:
+        - heading "ความปลอดภัย" [level=3] [ref=e49]
+        - paragraph [ref=e50]: ข้อมูลการเข้าสู่ระบบของคุณจะถูกเข้ารหัสและเก็บรักษาอย่างปลอดภัย เราใช้มาตรการความปลอดภัยระดับสูงเพื่อปกป้องข้อมูลของคุณ
+  - generic [ref=e51]:
+    - paragraph [ref=e52]: © 2024 HaaNaiHang. All rights reserved.
+    - paragraph [ref=e53]: Powered by Firebase Authentication
+```
