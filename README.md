@@ -1,4 +1,3 @@
-
 # 🏬 Mall & Store Finder System
 
 ระบบค้นหาห้างสรรพสินค้าและร้านค้าที่พัฒนาด้วย React + TypeScript + Firebase
@@ -93,7 +92,7 @@ src/
 ```
 
 #### 2. Stores Collection
-```typescript
+```type
 {
   id: string;                    // Auto-generated
   name: string;                  // ชื่อร้านค้า
