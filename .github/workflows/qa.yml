@@ -110,33 +110,55 @@ jobs:
     timeout-minutes: 15
     env:
       BASE_URL: ${{ needs.setup.outputs.base_url }}
+    outputs:
+      mobile_perf: ${{ steps.score.outputs.mobile_perf }}
+      mobile_a11y: ${{ steps.score.outputs.mobile_a11y }}
+      mobile_bp:   ${{ steps.score.outputs.mobile_bp }}
+      mobile_seo:  ${{ steps.score.outputs.mobile_seo }}
+      desktop_perf: ${{ steps.score.outputs.desktop_perf }}
+      desktop_a11y: ${{ steps.score.outputs.desktop_a11y }}
+      desktop_bp:   ${{ steps.score.outputs.desktop_bp }}
+      desktop_seo:  ${{ steps.score.outputs.desktop_seo }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: 
-          node-version: 20
-          cache: 'npm'
+        with: { node-version: 20, cache: 'npm' }
       - run: npm ci
-      - name: Ensure artifacts directory
-        run: mkdir -p artifacts/pa11y artifacts/lh
+      - run: mkdir -p artifacts/pa11y artifacts/lh
+
       - name: Assert BASE_URL not empty
         run: |
           test -n "${BASE_URL}" || { echo "BASE_URL is empty"; exit 1; }
           echo "Using BASE_URL=${BASE_URL}"
+
       - name: Lighthouse (mobile)
         run: npm run lh:mobile
       - name: Lighthouse (desktop)
         run: npm run lh:desktop
+
       - name: Upload Lighthouse artifacts
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-json-${{ github.sha }}
-          path: artifacts/*.json
-      - name: Upload Lighthouse HTML reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: lighthouse-html-${{ github.sha }}
-          path: artifacts/*.html
+          path: artifacts/*
+
+      # ✅ ดึงคะแนนออกมาเป็น outputs ของ job (gate จะเรียกใช้ได้)
+      - name: Extract Lighthouse scores
+        id: score
+        run: |
+          MOBILE=artifacts/lh-mobile.json
+          DESKTOP=artifacts/lh-desktop.json
+          parse () {
+            jq -r '
+              (.categories.performance.score        *100|round) as $perf |
+              (.categories.accessibility.score      *100|round) as $a11y |
+              (.categories["best-practices"].score  *100|round) as $bp   |
+              (.categories.seo.score                *100|round) as $seo  |
+              @sh "PERF=\($perf) A11Y=\($a11y) BP=\($bp) SEO=\($seo)"
+            ' "$1"
+          }
+          eval "$(parse "$MOBILE")"; echo "mobile_perf=$PERF"   >> $GITHUB_OUTPUT; echo "mobile_a11y=$A11Y" >> $GITHUB_OUTPUT; echo "mobile_bp=$BP" >> $GITHUB_OUTPUT; echo "mobile_seo=$SEO" >> $GITHUB_OUTPUT
+          eval "$(parse "$DESKTOP")"; echo "desktop_perf=$PERF" >> $GITHUB_OUTPUT; echo "desktop_a11y=$A11Y" >> $GITHUB_OUTPUT; echo "desktop_bp=$BP" >> $GITHUB_OUTPUT; echo "desktop_seo=$SEO" >> $GITHUB_OUTPUT
 
   a11y:
     needs: setup
@@ -194,57 +216,63 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update && sudo apt-get install -y jq
-      - uses: actions/setup-node@v4
-        with: 
-          node-version: 20
-      - name: Download Lighthouse artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: lighthouse-json-${{ github.sha }}
-          path: artifacts
-      - name: Check Lighthouse thresholds
+
+      - name: Compute & enforce thresholds
+        id: enforce
+        env:
+          MP:  ${{ needs.audits.outputs.mobile_perf }}
+          MA:  ${{ needs.audits.outputs.mobile_a11y }}
+          MBP: ${{ needs.audits.outputs.mobile_bp }}
+          MS:  ${{ needs.audits.outputs.mobile_seo }}
+          DP:  ${{ needs.audits.outputs.desktop_perf }}
+          DA:  ${{ needs.audits.outputs.desktop_a11y }}
+          DBP: ${{ needs.audits.outputs.desktop_bp }}
+          DS:  ${{ needs.audits.outputs.desktop_seo }}
+          TH_PERF: 85
+          TH_A11Y: 90
+          TH_BP:   90
+          TH_SEO:  90
         run: |
-          MOBILE=artifacts/lh-mobile.json
-          DESKTOP=artifacts/lh-desktop.json
+          echo "Mobile  -> Perf:$MP  A11y:$MA  BP:$MBP  SEO:$MS"
+          echo "Desktop -> Perf:$DP  A11y:$DA  BP:$DBP  SEO:$DS"
 
-          check() {
-            FILE=$1
-            PERF=$(jq '.categories.performance.score * 100' "$FILE")
-            A11Y=$(jq '.categories.accessibility.score * 100' "$FILE")
-            BP=$(jq '.categories["best-practices"].score * 100' "$FILE")
-            SEO=$(jq '.categories.seo.score * 100' "$FILE")
+          fail=0
+          check () { name=$1 val=$2 th=$3; [ "${val:-0}" -ge "$th" ] || { echo "❌ $name < $th (got $val)"; fail=1; }; }
+          check "Mobile Performance"      "$MP"  "$TH_PERF"
+          check "Mobile Accessibility"    "$MA"  "$TH_A11Y"
+          check "Mobile Best Practices"   "$MBP" "$TH_BP"
+          check "Mobile SEO"              "$MS"  "$TH_SEO"
+          check "Desktop Performance"     "$DP"  "$TH_PERF"
+          check "Desktop Accessibility"   "$DA"  "$TH_A11Y"
+          check "Desktop Best Practices"  "$DBP" "$TH_BP"
+          check "Desktop SEO"             "$DS"  "$TH_SEO"
+          [ $fail -eq 0 ] || exit 1
 
-            echo "Scores for $FILE -> Perf:$PERF A11y:$A11Y BP:$BP SEO:$SEO"
-
-            [ "${PERF%.*}" -ge 85 ] || { echo "❌ Performance < 85"; exit 1; }
-            [ "${A11Y%.*}" -ge 90 ] || { echo "❌ Accessibility < 90"; exit 1; }
-            [ "${BP%.*}"  -ge 90 ] || { echo "❌ Best Practices < 90"; exit 1; }
-            [ "${SEO%.*}" -ge 90 ] || { echo "❌ SEO < 90"; exit 1; }
-          }
-
-          check "$MOBILE"
-          check "$DESKTOP"
       - name: Post QA summary to PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
-            core.summary.addHeading('QA Checks ✅')
-            core.summary.addList([
-              'Playwright E2E passed',
-              'Lighthouse thresholds passed (Mobile & Desktop)',
-              'Pa11y accessibility checks passed'
-            ])
-            await core.summary.write()
-      
+            const o = {
+              MP:  process.env.MP,  MA:  process.env.MA,  MBP: process.env.MBP, MS:  process.env.MS,
+              DP:  process.env.DP,  DA:  process.env.DA,  DBP: process.env.DBP, DS:  process.env.DS
+            };
+            core.summary.addHeading('QA Checks ✅');
+            core.summary.addTable([
+              [{data:'Target',header:true},{data:'Perf',header:true},{data:'A11y',header:true},{data:'BP',header:true},{data:'SEO',header:true}],
+              ['Mobile',  o.MP,  o.MA,  o.MBP,  o.MS],
+              ['Desktop', o.DP,  o.DA,  o.DBP,  o.DS],
+            ]);
+            await core.summary.write();
+
       - name: Comment QA result to PR
         if: github.event_name == 'pull_request'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             **QA Checks ✅**
-            - Playwright E2E: PASSED
-            - Lighthouse: Mobile & Desktop thresholds PASSED
-            - Pa11y: PASSED
+            | Target  | Perf | A11y | BP | SEO |
+            |---------|------|------|----|-----|
+            | Mobile  | ${{ needs.audits.outputs.mobile_perf }} | ${{ needs.audits.outputs.mobile_a11y }} | ${{ needs.audits.outputs.mobile_bp }} | ${{ needs.audits.outputs.mobile_seo }} |
+            | Desktop | ${{ needs.audits.outputs.desktop_perf }} | ${{ needs.audits.outputs.desktop_a11y }} | ${{ needs.audits.outputs.desktop_bp }} | ${{ needs.audits.outputs.desktop_seo }} |
 
