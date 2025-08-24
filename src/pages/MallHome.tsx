@@ -4,7 +4,7 @@ import { Search, Clock, Building, Store, MapPin, ArrowRight, Heart } from 'lucid
 import { getStores, getFloors, getActivePromotions } from '../services/api';
 import { malls } from '../data/malls';
 import { isStoreOpen } from '../utils';
-import Card, { CardContent } from '../components/ui/Card';
+import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import MallHeroCampaign from '../components/MallHeroCampaign';
