@@ -170,10 +170,10 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
             <p className="text-sm font-medium text-gray-900 truncate">
               {mall.displayName || mall.name || 'ไม่มีชื่อ'}
             </p>
-            {mall.slug && (
-              <p className="text-xs text-gray-500 truncate">
-                {mall.slug}
-              </p>
+            {mall.name && (
+              <div className="text-sm text-gray-500">
+                <span className="font-medium">Slug:</span> {mall.name}
+              </div>
             )}
           </div>
         </div>
@@ -230,7 +230,7 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
       render: (mall) => (
         <div className="flex justify-end gap-2">
           <Link
-            to={`/admin/malls/${mall.slug || mall.id}/edit`}
+            to={`/admin/malls/${mall.id}/edit`}
             className="inline-flex items-center space-x-1 px-3 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
             aria-label={`แก้ไขห้าง: ${mall.displayName}`}
           >

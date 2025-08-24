@@ -274,6 +274,7 @@ const Home: React.FC = () => {
           <button 
             onClick={handleUseMyLocation}
             disabled={isLoading}
+            data-testid="use-my-location"
             className="inline-flex items-center space-x-3 bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-8 py-4 rounded-2xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
           >
             {isLoading ? (
@@ -297,6 +298,7 @@ const Home: React.FC = () => {
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="ค้นหาห้างหรือแบรนด์ เช่น Central Rama 3, Zara, Starbucks…"
+              data-testid="search-mall"
               className="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-100 outline-none text-lg"
             />
             <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
@@ -365,6 +367,7 @@ const Home: React.FC = () => {
                   <Link 
                     key={mall.id}
                     to={`/malls/${mall.name}`}
+                    data-testid="mall-card"
                     className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
                   >
                     <div className="flex items-start justify-between mb-4">

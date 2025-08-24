@@ -1,116 +1,62 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../config/firebase';
-import MallForm from '../components/forms/MallForm';
-import { MallInput } from '../validation/mall.schema';
 import { useToast } from '../components/feedback/Toast';
-import { updateMall } from '../lib/firestore';
-import { ArrowLeft } from 'lucide-react';
+import MallForm from '../components/forms/MallForm';
+import { getMall, updateMall } from '../lib/firestore';
+import { Mall } from '../types/mall-system';
 
 export default function MallEditPage() {
-  const { slug } = useParams<{ slug: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [initial, setInitial] = useState<MallInput | null>(null);
+  const { push: toast } = useToast();
+  const [mall, setMall] = useState<Mall | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let alive = true;
-    
     const loadMall = async () => {
-      if (!slug) {
-        setError('ไม่พบ slug ของห้าง');
-        setLoading(false);
-        return;
-      }
-
+      if (!id) return;
+      
       try {
-        const mallDoc = await getDoc(doc(db, 'malls', slug));
-        
-        if (!mallDoc.exists()) {
-                  toast.push("ไม่พบห้าง: เอกสารนี้ถูกลบหรือไม่มีอยู่", "error");
-          navigate("/admin?tab=malls");
-          return;
-        }
-
-        const data = mallDoc.data();
-        const normalized: MallInput = {
-          displayName: data.displayName ?? "",
-          slug: data.slug ?? slug,
-          category: data.category ?? "shopping_mall",
-          description: data.description ?? "",
-          address: data.address ?? "",
-          district: data.district ?? "",
-          location: data.location ?? { lat: 0, lng: 0 },
-          floors: data.floors,
-          hours: normalizeHours(data.hours),
-          holidayNotice: data.holidayNotice ?? "",
-          phone: data.phone ?? "",
-          website: data.website ?? "",
-          facebook: data.facebook ?? "",
-          line: data.line ?? "",
-          status: data.status ?? "open",
-          source: data.source ?? "manual",
-        };
-
-        if (alive) {
-          setInitial(normalized);
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error('Error loading mall:', err);
-        setError('ไม่สามารถโหลดข้อมูลห้างได้');
+        const mallData = await getMall(id);
+        setMall(mallData);
+      } catch (error) {
+        console.error('Error loading mall:', error);
+        toast('ไม่สามารถโหลดข้อมูลห้างได้', 'error');
+      } finally {
         setLoading(false);
       }
     };
 
     loadMall();
-    
-    return () => { 
-      alive = false; 
-    };
-  }, [slug, navigate, toast]);
+  }, [id, toast]);
 
-  const handleSubmit = async (values: MallInput) => {
-    if (!slug) return;
-    
-    try {
-      await updateMall(slug, values);
-      toast.push("อัปเดตสำเร็จ 🎉 ข้อมูลห้างถูกอัปเดตเรียบร้อยแล้ว", "success");
-      navigate("/admin?tab=malls");
-    } catch (err) {
-      console.error('Error updating mall:', err);
-      toast.push("เกิดข้อผิดพลาด: ไม่สามารถอัปเดตข้อมูลห้างได้", "error");
-    }
-  };
-
-  const handleCancel = () => {
-    navigate("/admin?tab=malls");
+  const handleSubmit = async () => {
+    toast('อัปเดตห้างสรรพสินค้าสำเร็จ ✅', 'success');
+    navigate('/admin/malls');
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">กำลังโหลดข้อมูลห้าง...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">กำลังโหลดข้อมูลห้าง...</p>
         </div>
       </div>
     );
   }
 
-  if (error || !initial) {
+  if (!mall) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error || 'ไม่พบข้อมูลห้าง'}</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">ไม่พบข้อมูลห้าง</h1>
+          <p className="text-gray-600 mb-6">ห้างที่คุณกำลังค้นหาอาจถูกลบหรือไม่เคยมีอยู่</p>
           <button
-            onClick={() => navigate("/admin?tab=malls")}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            onClick={() => navigate('/admin/malls')}
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
           >
-            กลับไปรายการห้าง
+            กลับไปหน้าห้าง
           </button>
         </div>
       </div>
@@ -118,73 +64,19 @@ export default function MallEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={handleCancel}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
-              aria-label="กลับไปรายการห้าง"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">
-                แก้ไขห้าง: {initial.displayName}
-              </h1>
-              <p className="text-sm text-gray-600">
-                แก้ไขข้อมูลห้างสรรพสินค้า
-              </p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">แก้ไขห้างสรรพสินค้า</h1>
+          <p className="mt-2 text-gray-600">อัปเดตข้อมูลห้าง {mall.displayName}</p>
         </div>
-      </div>
 
-      {/* Form */}
-      <div className="max-w-6xl mx-auto p-6">
-        <MallForm 
-          mode="edit" 
-          defaultValues={initial} 
+        <MallForm
+          mode="edit"
+          mall={mall}
           onSuccess={handleSubmit}
-          onCancel={handleCancel}
         />
       </div>
     </div>
   );
-}
-
-// Helper function to normalize hours data
-function normalizeHours(hours: any): MallInput['hours'] {
-  if (!hours) {
-    return { 
-      mode: "everyday", 
-      open: "10:00", 
-      close: "22:00" 
-    };
-  }
-
-  // If already in correct format
-  if (hours.mode === "everyday" || hours.mode === "byDay") {
-    return hours;
-  }
-
-  // If it's a string like "10:00-22:00"
-  if (typeof hours === "string" && hours.includes("-")) {
-    const [open, close] = hours.split("-").map((s: string) => s.trim());
-    return { mode: "everyday", open, close };
-  }
-
-  // If it's an object with open/close
-  if (hours.open && hours.close) {
-    return { mode: "everyday", open: hours.open, close: hours.close };
-  }
-
-  // Default fallback
-  return { 
-    mode: "everyday", 
-    open: "10:00", 
-    close: "22:00" 
-  };
 }

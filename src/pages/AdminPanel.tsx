@@ -8,7 +8,7 @@ import {
   createStore, 
   seedMalls 
 } from '../lib/firestore';
-import { MallCreateDrawer } from '../components/admin/MallCreateDrawer';
+import MallCreateDrawer from '../components/admin/MallCreateDrawer';
 import { StoreCreateDrawer } from '../components/admin/StoreCreateDrawer';
 import MallsTableView from '../components/admin/MallsTableView';
 import StoresTable from '../components/admin/StoresTable';
@@ -284,7 +284,7 @@ const AdminPanel: React.FC = () => {
                     }}
                     className="bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98]"
                     aria-label="เปิดฟอร์มเพิ่มห้างใหม่"
-                    data-testid="add-mall-form-btn"
+                    data-testid="open-create-mall"
                   >
                     สร้างห้าง
                   </button>
@@ -306,6 +306,7 @@ const AdminPanel: React.FC = () => {
                   onClick={() => setShowStoreForm(true)}
                   className="bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98]"
                   aria-label="เปิดฟอร์มเพิ่มร้านค้าใหม่"
+                  data-testid="open-create-store"
                 >
                   เพิ่มร้าน
                 </button>
@@ -321,7 +322,6 @@ const AdminPanel: React.FC = () => {
       <MallCreateDrawer
         open={showMallForm}
         onOpenChange={setShowMallForm}
-        onCreated={loadData}
       />
 
       <StoreCreateDrawer

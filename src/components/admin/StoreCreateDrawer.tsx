@@ -1,5 +1,5 @@
 import React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SlideOver } from '../ui/SlideOver';
 import TextField from '../ui/form/fields/TextField';
@@ -162,7 +162,8 @@ export function StoreCreateDrawer({
       description="เลือกรายการห้างที่ร้านตั้งอยู่"
       className="w-full sm:max-w-lg"
     >
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <SelectField
           name="mallId"
           label="ห้างสรรพสินค้า"
@@ -243,7 +244,8 @@ export function StoreCreateDrawer({
             ยกเลิก
           </button>
         </div>
-      </form>
+        </form>
+      </FormProvider>
     </SlideOver>
   );
 }

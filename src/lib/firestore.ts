@@ -137,42 +137,38 @@ export async function getMallByName(name: string): Promise<Mall | null> {
 /**
  * อัปเดตข้อมูลห้าง
  */
-export async function updateMall(mallId: string, data: Partial<MallInput>): Promise<void> {
+export async function updateMall(id: string, data: Partial<MallInput>): Promise<void> {
   const updateData: any = {
-    updatedAt: serverTimestamp()
+    updatedAt: serverTimestamp(),
   };
 
-  // Basic fields
   if (data.displayName !== undefined) updateData.displayName = data.displayName;
-  if (data.slug !== undefined) updateData.slug = data.slug;
-  if (data.category !== undefined) updateData.category = data.category;
-  if (data.description !== undefined) updateData.description = data.description;
+  if (data.name !== undefined) updateData.name = data.name;
   if (data.address !== undefined) updateData.address = data.address;
   if (data.district !== undefined) updateData.district = data.district;
-  if (data.floors !== undefined) updateData.floors = data.floors;
-  if (data.holidayNotice !== undefined) updateData.holidayNotice = data.holidayNotice;
   if (data.phone !== undefined) updateData.phone = data.phone;
   if (data.website !== undefined) updateData.website = data.website;
-  if (data.facebook !== undefined) updateData.facebook = data.facebook;
-  if (data.line !== undefined) updateData.line = data.line;
-  if (data.status !== undefined) updateData.status = data.status;
-  if (data.source !== undefined) updateData.source = data.source;
-  
-  // Location
-  if (data.location) {
-    updateData.location = {
-      lat: typeof data.location.lat === 'string' ? parseFloat(data.location.lat) : data.location.lat,
-      lng: typeof data.location.lng === 'string' ? parseFloat(data.location.lng) : data.location.lng
+  if (data.social !== undefined) updateData.social = data.social;
+  if (data.openTime !== undefined) updateData.openTime = data.openTime;
+  if (data.closeTime !== undefined) updateData.closeTime = data.closeTime;
+
+  // Handle coordinates
+  if (data.lat !== undefined || data.lng !== undefined) {
+    updateData.coords = {
+      lat: data.lat || 0,
+      lng: data.lng || 0,
     };
   }
-  
-  // Hours
-  if (data.hours) {
-    updateData.hours = data.hours;
+
+  // Handle hours
+  if (data.openTime || data.closeTime) {
+    updateData.hours = {
+      open: data.openTime || '10:00',
+      close: data.closeTime || '22:00',
+    };
   }
 
-  const docRef = doc(db, 'malls', mallId);
-  await updateDoc(docRef, updateData);
+  await updateDoc(doc(db, 'malls', id), updateData);
 }
 
 /**
