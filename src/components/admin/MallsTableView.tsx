@@ -11,6 +11,55 @@ interface MallsTableViewProps {
   onRefresh?: () => void;
 }
 
+// Helper function to format date safely
+const formatDate = (date: any): string => {
+  if (!date) return '—';
+  
+  try {
+    let dateObj: Date;
+    
+    // Handle Firestore Timestamp
+    if (date.toDate && typeof date.toDate === 'function') {
+      dateObj = date.toDate();
+    }
+    // Handle timestamp with seconds
+    else if (date.seconds) {
+      dateObj = new Date(date.seconds * 1000);
+    }
+    // Handle Date object or ISO string
+    else if (date instanceof Date) {
+      dateObj = date;
+    }
+    // Handle ISO string
+    else if (typeof date === 'string') {
+      dateObj = new Date(date);
+    }
+    // Handle number (timestamp)
+    else if (typeof date === 'number') {
+      dateObj = new Date(date);
+    }
+    else {
+      return '—';
+    }
+    
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return '—';
+    }
+    
+    return dateObj.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return '—';
+  }
+};
+
 export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -102,43 +151,29 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
       onRefresh?.();
     } catch (err) {
       console.error('Error deleting mall:', err);
-      throw err; // Let DeleteButton handle the error
     }
   };
 
-  // Table columns
   const columns: Column<Mall>[] = useMemo(() => [
     {
       key: "displayName",
       header: "ชื่อห้างสรรพสินค้า",
       sortable: true,
+      width: "200px",
       render: (mall) => (
-        <div className="flex items-center">
-          <div className="flex-shrink-0 h-10 w-10">
-            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-              <Building className="h-5 w-5 text-green-600" />
-            </div>
+        <div className="flex items-center space-x-3">
+          <div className="flex-shrink-0">
+            <Building className="h-5 w-5 text-gray-400" />
           </div>
-          <div className="ml-3">
-            <div className="text-sm font-medium text-gray-900">
-              {mall.displayName || mall.name}
-            </div>
-            <div className="text-sm text-gray-500">
-              {mall.contact?.phone || 'ไม่มีเบอร์โทร'}
-            </div>
-          </div>
-        </div>
-      )
-    },
-    {
-      key: "address",
-      header: "ที่อยู่",
-      sortable: true,
-      render: (mall) => (
-        <div>
-          <div className="text-sm text-gray-900">{mall.address}</div>
-          <div className="text-sm text-gray-500">
-            {mall.contact?.website || 'ไม่มีเว็บไซต์'}
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {mall.displayName || mall.name || 'ไม่มีชื่อ'}
+            </p>
+            {mall.slug && (
+              <p className="text-xs text-gray-500 truncate">
+                {mall.slug}
+              </p>
+            )}
           </div>
         </div>
       )
@@ -147,7 +182,23 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
       key: "district",
       header: "เขต",
       sortable: true,
-      width: "120px"
+      width: "120px",
+      render: (mall) => (
+        <span className="text-sm text-gray-900">
+          {mall.district || 'ไม่ระบุ'}
+        </span>
+      )
+    },
+    {
+      key: "address",
+      header: "ที่อยู่",
+      sortable: false,
+      width: "250px",
+      render: (mall) => (
+        <span className="text-sm text-gray-900 truncate block">
+          {mall.address || 'ไม่ระบุ'}
+        </span>
+      )
     },
     {
       key: "hours",
@@ -167,7 +218,7 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
       width: "160px",
       render: (mall) => (
         <span className="text-sm text-gray-500">
-          {mall.updatedAt ? new Date(mall.updatedAt.seconds * 1000).toLocaleDateString('th-TH') : '-'}
+          {formatDate(mall.updatedAt)}
         </span>
       )
     },
