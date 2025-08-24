@@ -26,7 +26,14 @@ export default function TextAreaField({
   const error = (errors as any)[name]?.message as string | undefined;
   const value = watch(name);
   const id = `f-${name}`;
-  const descId = helper || error ? `${id}-desc` : undefined;
+  const helpId = helper ? `${id}-help` : undefined;
+  const errorId = error ? `${id}-error` : undefined;
+  const counterId = maxLength ? `${id}-counter` : undefined;
+  
+  const describedBy = [];
+  if (helper) describedBy.push(helpId);
+  if (error) describedBy.push(errorId);
+  if (maxLength) describedBy.push(counterId);
 
   // Analytics tracking for field changes
   const handleFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -53,7 +60,9 @@ export default function TextAreaField({
         id={id}
         rows={rows}
         maxLength={maxLength}
-        aria-describedby={descId}
+        aria-describedby={describedBy.length > 0 ? describedBy.join(' ') : undefined}
+        aria-invalid={error ? 'true' : undefined}
+        required={required}
         placeholder={placeholder}
         className={`w-full rounded-xl border px-3 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none ${
           error 
@@ -65,18 +74,25 @@ export default function TextAreaField({
         })}
       />
       <div className="flex justify-between items-center">
-        {(helper || error) && (
+        {helper && (
           <p 
-            id={descId} 
-            className={`text-sm ${
-              error ? "text-red-600" : "text-gray-500"
-            }`}
+            id={helpId} 
+            className="text-sm text-gray-500"
           >
-            {error || helper}
+            {helper}
+          </p>
+        )}
+        {error && (
+          <p 
+            id={errorId} 
+            className="text-sm text-red-600"
+            role="alert"
+          >
+            {error}
           </p>
         )}
         {maxLength && (
-          <span className="text-xs text-gray-400 ml-auto">
+          <span id={counterId} className="text-xs text-gray-400 ml-auto">
             {value?.length || 0}/{maxLength}
           </span>
         )}

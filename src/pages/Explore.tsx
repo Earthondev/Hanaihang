@@ -356,6 +356,7 @@ const Explore: React.FC = () => {
               <button 
                 onClick={clearFilters}
                 className="w-full px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl font-medium transition-colors"
+                aria-label="ล้างตัวกรองทั้งหมด"
               >
                 ล้างตัวกรอง
               </button>
@@ -367,6 +368,7 @@ const Explore: React.FC = () => {
             <button 
               onClick={() => setShowMobileFilters(true)}
               className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+              aria-label="เปิดตัวกรองการค้นหา"
             >
               <Filter className="w-5 h-5 text-gray-600" />
               <span className="font-medium text-gray-600">ตัวกรอง</span>
@@ -534,6 +536,7 @@ const Explore: React.FC = () => {
               <button 
                 onClick={() => setShowMobileFilters(false)}
                 className="p-2 hover:bg-gray-100 rounded-lg"
+                aria-label="ปิดตัวกรอง"
               >
                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
@@ -571,6 +574,7 @@ const Explore: React.FC = () => {
                         : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
                     }`}
                     onClick={() => setSelectedFloor('all')}
+                    aria-label="แสดงร้านค้าทุกชั้น"
                   >
                     ทั้งหมด
                   </button>
@@ -583,6 +587,7 @@ const Explore: React.FC = () => {
                           : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
                       }`}
                       onClick={() => setSelectedFloor(floor.id)}
+                      aria-label={`แสดงร้านค้าชั้น ${floor.id}`}
                     >
                       {floor.id}
                     </button>
@@ -612,12 +617,14 @@ const Explore: React.FC = () => {
               <button 
                 onClick={clearFilters}
                 className="flex-1 px-4 py-3 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl font-medium transition-colors"
+                aria-label="ล้างตัวกรองทั้งหมด"
               >
                 ล้างตัวกรอง
               </button>
               <button 
                 onClick={() => setShowMobileFilters(false)}
                 className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors"
+                aria-label="ใช้ตัวกรองที่เลือก"
               >
                 ใช้ตัวกรอง
               </button>

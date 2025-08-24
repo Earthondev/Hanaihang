@@ -139,6 +139,7 @@ const MallHome: React.FC = () => {
                   <button 
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
                     onClick={() => setSearchQuery('')}
+                    aria-label="ล้างข้อความค้นหา"
                   >
                     <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
@@ -151,6 +152,7 @@ const MallHome: React.FC = () => {
               <Link 
                 to={`/mall/${mallId}/explore`}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl font-medium transition-colors whitespace-nowrap"
+                aria-label="สำรวจร้านค้าในห้างสรรพสินค้า"
               >
                 สำรวจร้าน
               </Link>
@@ -308,7 +310,7 @@ const MallHome: React.FC = () => {
                          store.floor === '6' ? '6th Floor' : `ชั้น ${store.floor}`} • {store.category}
                      </p>
                    </div>
-                  <button className="p-2 hover:bg-green-50 rounded-lg transition-colors">
+                  <button className="p-2 hover:bg-green-50 rounded-lg transition-colors" aria-label={`เพิ่ม ${store.name} ลงในรายการโปรด`}>
                     <Heart className="w-4 h-4 text-gray-500" />
                   </button>
                 </div>
@@ -343,6 +345,7 @@ const MallHome: React.FC = () => {
                   setSelectedFloor('all');
                 }}
                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl font-medium transition-colors shadow-sm"
+                aria-label="ล้างการค้นหาและตัวกรองทั้งหมด"
               >
                 ล้างการค้นหา
               </button>

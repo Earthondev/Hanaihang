@@ -34,7 +34,7 @@ const MallLayout: React.FC = () => {
           {/* Main Navigation */}
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-6">
-              <Link to="/" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+              <Link to="/" className="flex items-center gap-2 text-gray-600 hover:text-gray-900" aria-label="กลับหน้าแรก">
                 <Home className="h-5 w-5" />
                 <span className="hidden sm:inline">หน้าหลัก</span>
               </Link>
@@ -54,6 +54,7 @@ const MallLayout: React.FC = () => {
                   variant={isActive('/explore') ? 'primary' : 'ghost'}
                   size="sm"
                   leftIcon={<Search className="h-4 w-4" />}
+                  aria-label="สำรวจร้านค้าในห้างสรรพสินค้า"
                 >
                   <span className="hidden sm:inline">สำรวจ</span>
                 </Button>
@@ -64,6 +65,7 @@ const MallLayout: React.FC = () => {
                   variant={isActive('/favorites') ? 'primary' : 'ghost'}
                   size="sm"
                   leftIcon={<Heart className="h-4 w-4" />}
+                  aria-label="ดูร้านค้าที่โปรด"
                 >
                   <span className="hidden sm:inline">โปรด</span>
                 </Button>
@@ -77,6 +79,7 @@ const MallLayout: React.FC = () => {
               variant={getCurrentFloor() === 'all' ? 'primary' : 'outline'}
               size="sm"
               onClick={() => setSelectedFloor('all')}
+              aria-label="แสดงร้านค้าทุกชั้น"
             >
               ทั้งหมด
             </Button>
@@ -86,6 +89,7 @@ const MallLayout: React.FC = () => {
                   variant={getCurrentFloor() === floor.id ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedFloor(floor.id)}
+                  aria-label={`แสดงร้านค้าชั้น ${floor.label}`}
                 >
                   {floor.label}
                 </Button>
@@ -98,28 +102,28 @@ const MallLayout: React.FC = () => {
       {/* Mobile Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden z-50">
         <div className="flex items-center justify-around py-2">
-          <Link to={`/${mallId}`} className="flex flex-col items-center p-2">
+          <Link to={`/${mallId}`} className="flex flex-col items-center p-2" aria-label="หน้าแรก">
             <Home className={`h-5 w-5 ${isActive(`/${mallId}$`) ? 'text-blue-600' : 'text-gray-400'}`} />
             <span className={`text-xs mt-1 ${isActive(`/${mallId}$`) ? 'text-blue-600' : 'text-gray-400'}`}>
               หน้าแรก
             </span>
           </Link>
           
-          <Link to={`/${mallId}/explore`} className="flex flex-col items-center p-2">
+          <Link to={`/${mallId}/explore`} className="flex flex-col items-center p-2" aria-label="สำรวจร้านค้า">
             <Search className={`h-5 w-5 ${isActive('/explore') ? 'text-blue-600' : 'text-gray-400'}`} />
             <span className={`text-xs mt-1 ${isActive('/explore') ? 'text-blue-600' : 'text-gray-400'}`}>
               สำรวจ
             </span>
           </Link>
           
-          <Link to={`/${mallId}/floors/G`} className="flex flex-col items-center p-2">
+          <Link to={`/${mallId}/floors/G`} className="flex flex-col items-center p-2" aria-label="แผนที่ห้างสรรพสินค้า">
             <MapPin className={`h-5 w-5 ${isActive('/floors') ? 'text-blue-600' : 'text-gray-400'}`} />
             <span className={`text-xs mt-1 ${isActive('/floors') ? 'text-blue-600' : 'text-gray-400'}`}>
               แผนที่
             </span>
           </Link>
           
-          <Link to={`/${mallId}/favorites`} className="flex flex-col items-center p-2">
+          <Link to={`/${mallId}/favorites`} className="flex flex-col items-center p-2" aria-label="ร้านค้าที่โปรด">
             <Heart className={`h-5 w-5 ${isActive('/favorites') ? 'text-blue-600' : 'text-gray-400'}`} />
             <span className={`text-xs mt-1 ${isActive('/favorites') ? 'text-blue-600' : 'text-gray-400'}`}>
               โปรด

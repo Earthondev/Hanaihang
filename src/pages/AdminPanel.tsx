@@ -287,6 +287,7 @@ const AdminPanel: React.FC = () => {
                 <button
                   onClick={() => setShowStoreForm(true)}
                   className="bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98]"
+                  aria-label="เปิดฟอร์มเพิ่มร้านค้าใหม่"
                 >
                   เพิ่มร้านค้าใหม่
                 </button>

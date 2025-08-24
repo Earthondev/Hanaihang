@@ -233,6 +233,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
                       onClick={() => handleDuplicate(store)}
                       className="text-green-600 hover:text-green-900 transition-colors"
                       title="ทำสำเนา"
+                      aria-label={`ทำสำเนาร้านค้า ${store.name}`}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -245,6 +246,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
                       }}
                       className="text-blue-600 hover:text-blue-900 transition-colors"
                       title="แก้ไข"
+                      aria-label={`แก้ไขร้านค้า ${store.name}`}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -255,6 +257,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
                       disabled={deletingId === store.id}
                       className="text-red-600 hover:text-red-900 transition-colors disabled:opacity-50"
                       title="ลบ"
+                      aria-label={`ลบร้านค้า ${store.name}`}
                     >
                       {deletingId === store.id ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>

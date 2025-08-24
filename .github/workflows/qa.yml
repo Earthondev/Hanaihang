@@ -31,8 +31,8 @@ jobs:
       - name: Resolve BASE_URL (prefer Netlify Preview)
         id: resolve
         env:
-          QA_BASE_URL_SECRET: ${{ secrets.QA_BASE_URL || '' }}
-          QA_BASE_URL_VAR:    ${{ vars.QA_BASE_URL    || '' }}
+          QA_BASE_URL_SECRET: ${{ secrets.QA_BASE_URL }}
+          QA_BASE_URL_VAR:    ${{ vars.QA_BASE_URL }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -196,11 +196,14 @@ jobs:
           }
           EOF
           echo "Created .pa11yci.json with Chrome launch args"
-      - name: Run Pa11y (verbose)
+      - name: Run Pa11y (with no-sandbox & JSON)
         id: pa11y
         run: |
           set +e
-          npm run pa11y
+          npx pa11y-ci -c .pa11yci.json \
+            --chrome-arg="--no-sandbox" \
+            --chrome-arg="--disable-setuid-sandbox" \
+            --reporter json > artifacts/pa11y/results.json
           EXIT=$?
           echo "PA11Y_EXIT=$EXIT" >> $GITHUB_ENV
           exit 0
@@ -214,7 +217,11 @@ jobs:
       - name: Fail if Pa11y had errors
         if: env.PA11Y_EXIT != '0'
         run: |
-          echo "Pa11y reported errors. See artifacts for details."
+          echo "Pa11y reported errors. See artifacts/results.json for details."
+          if [ -f artifacts/pa11y/results.json ]; then
+            echo "=== Pa11y Results Summary ==="
+            jq -r '.results[] | "URL: \(.documentTitle)\nErrors: \(.issues.errors | length)\nWarnings: \(.issues.warnings | length)\nNotices: \(.issues.notices | length)\n"' artifacts/pa11y/results.json
+          fi
           exit 1
 
   gate:

@@ -53,6 +53,7 @@ const LocationButton: React.FC<LocationButtonProps> = ({
         ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
         ${className}
       `}
+      aria-label={isLoading ? "กำลังขอตำแหน่ง..." : hasLocationPermission ? "ใช้ตำแหน่งปัจจุบัน" : "ขอใช้ตำแหน่งปัจจุบัน"}
     >
       {isLoading ? (
         <>

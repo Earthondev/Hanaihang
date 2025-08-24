@@ -180,6 +180,7 @@ const StoreDetail: React.FC = () => {
               <button 
                 onClick={() => navigate(-1)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="กลับไปหน้าก่อนหน้า"
               >
                 <ChevronLeft className="w-5 h-5 text-gray-600" />
               </button>
@@ -433,6 +434,7 @@ const StoreDetail: React.FC = () => {
                   className={`w-2 h-2 rounded-full transition-all ${
                     index === currentSlide ? 'bg-white' : 'bg-white/50'
                   }`}
+                  aria-label={`ไปที่รูปภาพที่ ${index + 1}`}
                 />
               ))}
             </div>
@@ -443,7 +445,7 @@ const StoreDetail: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-sm border p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900">ร้านใกล้เคียง</h2>
-            <button className="text-green-600 hover:text-green-700 font-medium text-sm">ดูทั้งหมด</button>
+            <button className="text-green-600 hover:text-green-700 font-medium text-sm" aria-label="ดูร้านใกล้เคียงทั้งหมด">ดูทั้งหมด</button>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -479,7 +481,7 @@ const StoreDetail: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-sm border p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900">โปรโมชั่นที่เกี่ยวข้อง</h2>
-            <button className="text-green-600 hover:text-green-700 font-medium text-sm">ดูทั้งหมด</button>
+            <button className="text-green-600 hover:text-green-700 font-medium text-sm" aria-label="ดูโปรโมชั่นทั้งหมด">ดูทั้งหมด</button>
           </div>
           
           <div className="space-y-4">
@@ -509,6 +511,7 @@ const StoreDetail: React.FC = () => {
                     <button 
                       onClick={() => showToast('กำลังเปิดรายละเอียดโปรโมชั่น...')}
                       className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors"
+                      aria-label={`ดูรายละเอียดโปรโมชั่น ${promotion.title}`}
                     >
                       ดูเพิ่มเติม
                     </button>

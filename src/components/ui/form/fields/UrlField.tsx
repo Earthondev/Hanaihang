@@ -21,7 +21,12 @@ export default function UrlField({
   const { register, formState: { errors } } = useFormContext();
   const error = (errors as any)[name]?.message as string | undefined;
   const id = `f-${name}`;
-  const descId = helper || error ? `${id}-desc` : undefined;
+  const helpId = helper ? `${id}-help` : undefined;
+  const errorId = error ? `${id}-error` : undefined;
+  
+  const describedBy = [];
+  if (helper) describedBy.push(helpId);
+  if (error) describedBy.push(errorId);
 
   // Format URL
   const formatUrl = (value: string) => {
@@ -59,7 +64,9 @@ export default function UrlField({
       <input
         id={id}
         type="url"
-        aria-describedby={descId}
+        aria-describedby={describedBy.length > 0 ? describedBy.join(' ') : undefined}
+        aria-invalid={error ? 'true' : undefined}
+        required={required}
         autoComplete="url"
         placeholder={placeholder}
         className={`w-full rounded-xl border px-3 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
@@ -76,14 +83,21 @@ export default function UrlField({
           }
         })}
       />
-      {(helper || error) && (
+      {helper && (
         <p 
-          id={descId} 
-          className={`text-sm ${
-            error ? "text-red-600" : "text-gray-500"
-          }`}
+          id={helpId} 
+          className="text-sm text-gray-500"
         >
-          {error || helper}
+          {helper}
+        </p>
+      )}
+      {error && (
+        <p 
+          id={errorId} 
+          className="text-sm text-red-600"
+          role="alert"
+        >
+          {error}
         </p>
       )}
     </div>

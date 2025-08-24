@@ -118,6 +118,7 @@ const Login: React.FC = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 transition-colors"
+                  aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5 text-gray-400" />
@@ -134,6 +135,7 @@ const Login: React.FC = () => {
                 type="button"
                 onClick={handleForgotPassword}
                 className="text-sm text-green-600 hover:text-green-700 font-medium transition-colors"
+                aria-label="ลืมรหัสผ่าน - ส่งอีเมลรีเซ็ตรหัสผ่าน"
               >
                 ลืมรหัสผ่าน?
               </button>

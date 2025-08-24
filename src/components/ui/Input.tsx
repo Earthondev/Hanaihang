@@ -7,6 +7,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   helperText?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  required?: boolean;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -18,9 +19,16 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     leftIcon, 
     rightIcon, 
     id, 
+    required = false,
     ...props 
   }, ref) => {
     const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+    const helpId = `${inputId}-help`;
+    const errorId = `${inputId}-error`;
+    
+    const describedBy = [];
+    if (helperText) describedBy.push(helpId);
+    if (error) describedBy.push(errorId);
     
     return (
       <div className="w-full">
@@ -30,6 +38,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className="block text-sm font-medium text-gray-700 mb-1"
           >
             {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
           </label>
         )}
         <div className="relative">
@@ -42,6 +51,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
           <input
             id={inputId}
+            aria-describedby={describedBy.length > 0 ? describedBy.join(' ') : undefined}
+            aria-invalid={error ? 'true' : undefined}
+            required={required}
             className={clsx(
               'block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
               leftIcon && 'pl-10',
@@ -61,10 +73,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {error && (
-          <p className="mt-1 text-sm text-red-600">{error}</p>
+          <p id={errorId} className="mt-1 text-sm text-red-600" role="alert">{error}</p>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm text-gray-500">{helperText}</p>
+          <p id={helpId} className="mt-1 text-sm text-gray-500">{helperText}</p>
         )}
       </div>
     );
