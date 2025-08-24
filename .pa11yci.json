@@ -5,6 +5,9 @@
     "screenCapture": "artifacts/pa11y/screenshot.png",
     "hideElements": ".sr-only,[aria-hidden='true']"
   },
+  "chromeLaunchConfig": {
+    "args": ["--no-sandbox", "--disable-setuid-sandbox"]
+  },
   "urls": [
     "https://hanaihang.netlify.app",
     "https://hanaihang.netlify.app/admin",
