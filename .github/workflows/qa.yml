@@ -200,7 +200,7 @@ jobs:
         id: pa11y
         run: |
           set +e
-          npm run pa11y
+          npx pa11y-ci -c .pa11yci.json --chrome-arg="--no-sandbox" --chrome-arg="--disable-setuid-sandbox" --chrome-arg="--disable-dev-shm-usage" --chrome-arg="--disable-gpu"
           EXIT=$?
           echo "PA11Y_EXIT=$EXIT" >> $GITHUB_ENV
           exit 0
