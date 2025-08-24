@@ -8,8 +8,8 @@ import {
   createStore, 
   seedMalls 
 } from '../lib/firestore';
-import MallForm from '../components/forms/MallForm';
-import StoreForm from '../components/forms/StoreForm';
+import { MallCreateDrawer } from '../components/admin/MallCreateDrawer';
+import { StoreCreateDrawer } from '../components/admin/StoreCreateDrawer';
 import MallsTableView from '../components/admin/MallsTableView';
 import StoresTable from '../components/admin/StoresTable';
 
@@ -41,6 +41,24 @@ const AdminPanel: React.FC = () => {
       setSearchParams({ tab: 'stores' });
     }
   }, [searchParams, validTabs, setSearchParams]);
+
+  // Handle deep-link for drawers
+  useEffect(() => {
+    const drawerParam = searchParams.get('drawer');
+    if (drawerParam === 'create-mall') {
+      setShowMallForm(true);
+      // Remove drawer param from URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('drawer');
+      setSearchParams(newParams);
+    } else if (drawerParam === 'create-store') {
+      setShowStoreForm(true);
+      // Remove drawer param from URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('drawer');
+      setSearchParams(newParams);
+    }
+  }, [searchParams, setSearchParams]);
 
   // Sync state with URL when tab changes
   const handleTabChange = (tab: 'malls' | 'stores') => {
@@ -268,7 +286,7 @@ const AdminPanel: React.FC = () => {
                     aria-label="เปิดฟอร์มเพิ่มห้างใหม่"
                     data-testid="add-mall-form-btn"
                   >
-                    เพิ่มห้างใหม่
+                    สร้างห้าง
                   </button>
                 </div>
               </div>
@@ -289,7 +307,7 @@ const AdminPanel: React.FC = () => {
                   className="bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98]"
                   aria-label="เปิดฟอร์มเพิ่มร้านค้าใหม่"
                 >
-                  เพิ่มร้านค้าใหม่
+                  เพิ่มร้าน
                 </button>
               </div>
               
@@ -299,26 +317,18 @@ const AdminPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Modals */}
-      {showMallForm && (
-        <MallForm
-          onCancel={() => setShowMallForm(false)}
-          onSuccess={() => {
-            setShowMallForm(false);
-            loadData();
-          }}
-        />
-      )}
+      {/* Drawers */}
+      <MallCreateDrawer
+        open={showMallForm}
+        onOpenChange={setShowMallForm}
+        onCreated={loadData}
+      />
 
-      {showStoreForm && (
-        <StoreForm
-          onCancel={() => setShowStoreForm(false)}
-          onSuccess={() => {
-            setShowStoreForm(false);
-            loadData();
-          }}
-        />
-      )}
+      <StoreCreateDrawer
+        open={showStoreForm}
+        onOpenChange={setShowStoreForm}
+        onCreated={loadData}
+      />
     </div>
   );
 };
