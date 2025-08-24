@@ -200,6 +200,7 @@ jobs:
         id: pa11y
         run: |
           set +e
+          mkdir -p artifacts/pa11y
           npx pa11y-ci -c .pa11yci.json \
             --chrome-arg="--no-sandbox" \
             --chrome-arg="--disable-setuid-sandbox" \
