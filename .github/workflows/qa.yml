@@ -179,17 +179,37 @@ jobs:
         run: |
           test -n "${BASE_URL}" || { echo "BASE_URL is empty"; exit 1; }
           echo "Using BASE_URL=${BASE_URL}"
-      - name: Replace BASE_URL in pa11y config (optional)
+      - name: Create pa11y config with Chrome launch args
         run: |
-          if [ "${BASE_URL}" != "https://hanaihang.netlify.app" ]; then
-            sed -i 's#https://hanaihang.netlify.app#'${BASE_URL}'#g' .pa11yci.json
-          fi
+          echo "Using BASE_URL: ${BASE_URL}"
+          cat > .pa11yci.json << EOF
+          {
+            "defaults": {
+              "standard": "WCAG2AA",
+              "timeout": 120000,
+              "screenCapture": "artifacts/pa11y/screenshot.png",
+              "hideElements": ".sr-only,[aria-hidden='true']",
+              "chromeLaunchConfig": {
+                "args": ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
+              }
+            },
+            "urls": [
+              "${BASE_URL}",
+              "${BASE_URL}/admin",
+              "${BASE_URL}/admin?tab=malls",
+              "${BASE_URL}/admin?tab=stores"
+            ]
+          }
+          EOF
+          echo "Created .pa11yci.json with Chrome launch args"
 
       # ✅ เก็บผลแม้ล้ม: ไม่ให้ workflow ตันก่อนอัปโหลดหลักฐาน
       - name: Run Pa11y (verbose)
         id: pa11y
         run: |
           set +e
+          # Force Chrome to run without sandbox
+          export PUPPETEER_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu"
           npx pa11y-ci -c .pa11yci.json --verbose
           EXIT=$?
           echo "PA11Y_EXIT=$EXIT" >> $GITHUB_ENV
