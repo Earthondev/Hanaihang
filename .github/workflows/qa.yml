@@ -208,9 +208,7 @@ jobs:
         id: pa11y
         run: |
           set +e
-          # Force Chrome to run without sandbox
-          export PUPPETEER_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu"
-          npx pa11y-ci -c .pa11yci.json --verbose
+          npm run pa11y
           EXIT=$?
           echo "PA11Y_EXIT=$EXIT" >> $GITHUB_ENV
           exit 0
