@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { listMalls } from '../lib/firestore';
-import { Mall } from '../types/mall-system';
+
+import { listMalls } from '@/services/firebase/firestore';
+import { Mall } from '@/types/mall-system';
 
 const MallPicker: React.FC = () => {
   const [malls, setMalls] = useState<Mall[]>([]);

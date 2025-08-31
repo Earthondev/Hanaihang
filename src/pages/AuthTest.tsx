@@ -1,6 +1,7 @@
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { debugAuth } from '../utils/debugAuth';
+
+import { useAuth } from '@/config/contexts/AuthContext';
+import { debugAuth } from '@/legacy/utils/debugAuth';
 
 const AuthTest: React.FC = () => {
   const { user, isAuthenticated, isLoading } = useAuth();

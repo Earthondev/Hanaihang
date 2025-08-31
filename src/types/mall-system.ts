@@ -5,6 +5,8 @@ export interface Mall {
   id?: string;
   name: string;          // slug เช่น "central-rama-3"
   displayName: string;   // ชื่อโชว์
+  nameLower?: string;    // ชื่อพิมพ์เล็กสำหรับค้นหา
+  searchKeywords?: string[]; // คีย์เวิร์ดสำหรับค้นหา
   address?: string;
   contact?: {
     phone?: string;
@@ -15,11 +17,15 @@ export interface Mall {
     lat: number;
     lng: number;
   };
+  geohash?: string;      // สำหรับ geosearch
   hours?: {
     open: string;
     close: string;
   };
   district?: string;
+  storeCount?: number;   // จำนวนร้านในห้าง (denormalized)
+  floorCount?: number;   // จำนวนชั้นในห้าง (denormalized)
+  status?: "Active" | "Closed";
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }
@@ -35,12 +41,22 @@ export interface Floor {
 export interface Store {
   id?: string;
   name: string;
+  nameLower?: string;    // ชื่อพิมพ์เล็กสำหรับค้นหา
+  brandSlug?: string;    // slug ของแบรนด์ เช่น "uniqlo", "zara"
   category: StoreCategory;      // "Fashion" | "Food & Beverage" | ...
   floorId: string;       // อ้างอิง floors.{floorId}
   unit?: string;         // "2-22"
   phone?: string | null;
   hours?: string | null; // "10:00-22:00"
   status: StoreStatus;
+  // Location info
+  mallId?: string;       // FK to malls.id
+  mallSlug?: string;     // denormalized mall slug
+  location?: {
+    lat?: number;
+    lng?: number;
+    geohash?: string;
+  };
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }
@@ -91,6 +107,20 @@ export interface SearchFilters {
   query?: string;
 }
 
+// Enhanced Search Types
+export interface SearchResult {
+  malls: Mall[];
+  stores: (Store & { mallName?: string; mallSlug?: string; distanceKm?: number })[];
+}
+
+export interface SearchOptions {
+  keyword: string;
+  userLocation?: UserLocation;
+  limit?: number;
+  includeMalls?: boolean;
+  includeStores?: boolean;
+}
+
 // Form Types
 export interface MallFormData {
   displayName: string;
@@ -114,6 +144,7 @@ export interface StoreFormData {
   phone?: string;
   hours?: string;
   status: StoreStatus;
+  brandSlug?: string;
 }
 
 // API Response Types

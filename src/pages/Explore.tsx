@@ -9,9 +9,10 @@ import {
   ChevronRight,
   Building
 } from 'lucide-react';
-import { getStores, getFloors } from '../services/api';
-import { malls } from '../data/malls';
-import { isStoreOpen } from '../utils';
+
+import { getStores, getFloors } from '@/legacy/services/api';
+import { malls } from '@/test/fixtures/data/malls';
+import { isStoreOpen } from '@/legacy/utils';
 
 const Explore: React.FC = () => {
   const { mallId } = useParams<{ mallId: string }>();
