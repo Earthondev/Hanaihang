@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+
+import { useAuth } from '@/config/contexts/AuthContext';
 import { 
   listMalls, 
   listStores, 
   createMall, 
-  createStore, 
-  seedMalls 
-} from '../lib/firestore';
-import MallCreateDrawer from '../components/admin/MallCreateDrawer';
-import { StoreCreateDrawer } from '../components/admin/StoreCreateDrawer';
-import MallsTableView from '../components/admin/MallsTableView';
-import StoresTable from '../components/admin/StoresTable';
+  createStore
+} from '@/services/firebase/firestore';
+import MallCreateDrawer from '@/legacy/admin/MallCreateDrawer';
+import { StoreCreateDrawer } from '@/legacy/admin/StoreCreateDrawer';
+import MallsTableView from '@/legacy/admin/MallsTableView';
+import StoresTable from '@/legacy/admin/StoresTable';
 
 const AdminPanel: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -152,16 +152,7 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const handleSeedMalls = async () => {
-    try {
-      await seedMalls();
-      loadData(); // Reload data
-      alert('✅ เพิ่มข้อมูลตัวอย่างสำเร็จ!');
-    } catch (error) {
-      console.error('❌ Error seeding malls:', error);
-      alert('❌ เกิดข้อผิดพลาดในการเพิ่มข้อมูลตัวอย่าง');
-    }
-  };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -254,23 +245,6 @@ const AdminPanel: React.FC = () => {
                   <p className="text-gray-600">เพิ่ม แก้ไข และลบข้อมูลห้างสรรพสินค้า</p>
                 </div>
                 <div className="flex space-x-3">
-                  <button
-                    onClick={() => {
-                      handleSeedMalls();
-                      // Analytics tracking
-                      if (typeof window !== 'undefined' && (window as any).gtag) {
-                        (window as any).gtag('event', 'click_seed_malls', {
-                          event_category: 'admin_actions',
-                          event_label: 'seed_data'
-                        });
-                      }
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:scale-[0.98]"
-                    aria-label="เพิ่มข้อมูลตัวอย่าง 10 ห้าง"
-                    data-testid="seed-malls-btn"
-                  >
-                    เพิ่มข้อมูลตัวอย่าง (10 ห้าง)
-                  </button>
                   <button
                     onClick={() => {
                       setShowMallForm(true);

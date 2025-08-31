@@ -54,3 +54,17 @@ serviceAccountKey.json
 
 # Local Netlify folder
 .netlify
+
+# Large files and unnecessary folders
+*.dmg
+*.mp4
+*.mov
+*.avi
+*.mkv
+DJI_*/
+hanaihang/
+cloud-functions-example/
+branch1_floor*.jpg
+*.png
+!favicon.png
+!public/*.png
