@@ -71,33 +71,115 @@ async function main() {
   try {
     console.log('🚀 เริ่มต้นเพิ่มร้านค้าเข้า Firebase...');
     
-    // ข้อมูลร้านค้าจะถูกเพิ่มที่นี่
-    // คุณสามารถแก้ไขข้อมูลในส่วนนี้
-    
-    // ตัวอย่าง: เพิ่มร้านค้าให้ Central Rama 3
-    const centralRama3Stores = [
+    // ข้อมูลร้านค้าที่คุณส่งมา
+    const stores = [
       {
-        name: "Zara",
-        floor: "1",
-        category: "Fashion",
-        unit: "1-22",
-        phone: "02-000-0000",
-        hours: "10:00-22:00",
-        status: "Active"
+        "name": "PomeloFashion",
+        "floor": "1",
+        "category": "Fashion – Women",
+        "unit": "125-127",
+        "phone": "02-000-9300",
+        "hours": "Mon–Fri 11:00–21:00, Sat–Sun 10:00–21:00",
+        "status": "Active"
       },
       {
-        name: "H&M",
-        floor: "1", 
-        category: "Fashion",
-        unit: "1-23",
-        phone: "02-000-0001",
-        hours: "10:00-22:00",
-        status: "Active"
+        "name": "Portland",
+        "floor": "2",
+        "category": "Fashion – Clothes",
+        "unit": "",
+        "phone": "",
+        "hours": "",
+        "status": "Active"
+      },
+      {
+        "name": "UNIQLO",
+        "floor": "",
+        "category": "Fashion – Apparel",
+        "unit": "",
+        "phone": "",
+        "hours": "",
+        "status": "Active"
+      },
+      {
+        "name": "AllZ",
+        "floor": "",
+        "category": "Fashion – Apparel",
+        "unit": "",
+        "phone": "",
+        "hours": "",
+        "status": "Active"
+      },
+      {
+        "name": "Lyn Around",
+        "floor": "",
+        "category": "Fashion – Apparel",
+        "unit": "",
+        "phone": "",
+        "hours": "",
+        "status": "Active"
+      },
+      {
+        "name": "CPS",
+        "floor": "",
+        "category": "Fashion – Apparel",
+        "unit": "",
+        "phone": "",
+        "hours": "",
+        "status": "Active"
+      },
+      {
+        "name": "with.it",
+        "floor": "1",
+        "category": "Fashion – Apparel",
+        "unit": "",
+        "phone": "",
+        "hours": "",
+        "status": "Active"
+      },
+      {
+        "name": "Seoulbeige",
+        "floor": "2",
+        "category": "Fashion – Apparel",
+        "unit": "",
+        "phone": "",
+        "hours": "",
+        "status": "Active"
       }
     ];
     
+    // ตรวจสอบว่ามีห้างอะไรในระบบบ้าง
+    console.log('📋 ตรวจสอบห้างที่มีอยู่ในระบบ...');
+    const mallsRef = collection(db, 'malls');
+    const mallsSnapshot = await getDocs(mallsRef);
+    
+    if (mallsSnapshot.empty) {
+      console.log('❌ ไม่มีห้างในระบบ กรุณาเพิ่มห้างก่อน');
+      return;
+    }
+    
+    console.log('🏢 ห้างที่มีอยู่ในระบบ:');
+    const validMalls = [];
+    mallsSnapshot.forEach(doc => {
+      const mall = doc.data();
+      if (mall.displayName) {
+        console.log(`- ${mall.displayName} (ID: ${doc.id})`);
+        validMalls.push({ id: doc.id, displayName: mall.displayName });
+      }
+    });
+    
+    if (validMalls.length === 0) {
+      console.log('❌ ไม่มีห้างที่มีชื่อที่ถูกต้องในระบบ');
+      return;
+    }
+    
+    // เลือก Central Plaza Rama 3
+    const selectedMall = validMalls.find(mall => mall.displayName === 'Central Plaza Rama 3') || validMalls[0];
+    const mallName = selectedMall.displayName;
+    
+    console.log(`🎯 จะเพิ่มร้านค้าให้ห้าง: ${mallName}`);
+    
     // เพิ่มร้านค้า
-    await addStoresToMall("Central Rama 3", centralRama3Stores);
+    await addStoresToMall(mallName, stores);
     
     console.log('✅ เสร็จสิ้นการเพิ่มร้านค้า');
     

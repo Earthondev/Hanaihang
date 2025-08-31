@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMall, listFloors, listStores } from '../lib/firestore';
-import { Mall, Floor, Store } from '../types/mall-system';
+
+import { getMall, listFloors, listStores } from '@/services/firebase/firestore';
+import { Mall, Floor, Store } from '@/types/mall-system';
 
 const FloorDetail: React.FC = () => {
   const { mallId, floorId } = useParams<{ mallId: string; floorId: string }>();
