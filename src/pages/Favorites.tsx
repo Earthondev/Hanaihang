@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMall, getStore } from '../lib/firestore';
-import { Store, Mall } from '../types/mall-system';
+
+import { getMall, getStore } from '@/services/firebase/firestore';
+import { Store, Mall } from '@/types/mall-system';
 
 interface FavoriteStore {
   store: Store;

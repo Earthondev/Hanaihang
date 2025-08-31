@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Search, Clock, Building, Store, MapPin, ArrowRight, Heart } from 'lucide-react';
-import { getStores, getFloors, getActivePromotions } from '../services/api';
-import { malls } from '../data/malls';
-import { isStoreOpen } from '../utils';
-import Card from '../components/ui/Card';
-import Input from '../components/ui/Input';
-import Button from '../components/ui/Button';
-import MallHeroCampaign from '../components/MallHeroCampaign';
+
+import { getStores, getFloors, getActivePromotions } from '@/legacy/services/api';
+import { malls } from '@/test/fixtures/data/malls';
+import { isStoreOpen } from '@/legacy/utils';
+import Card from '@/ui/Card';
+import Input from '@/ui/Input';
+import Button from '@/ui/Button';
+import MallHeroCampaign from '@/legacy/components/MallHeroCampaign';
 
 const MallHome: React.FC = () => {
   const { mallId } = useParams<{ mallId: string }>();

@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { MapPin, Clock, Building, Search, Store, Settings, Navigation } from "lucide-react";
-import { listMalls } from "../lib/firestore";
-import { haversineKm } from "../lib/geo";
-import { searchMallsAndBrands } from "../lib/search";
-import { Mall } from "../types/mall-system";
-import SkeletonList from "../components/feedback/SkeletonList";
-import { ErrorState } from "../components/feedback/ErrorState";
-import { EmptyState } from "../components/ui/EmptyState";
+import { Link, useNavigate } from "react-router-dom";
+import { MapPin, Clock, Building, Store, Settings, Navigation } from "lucide-react";
+
+import { listMalls } from "../services/firebase/firestore";
+import { distanceKm } from "@/services/geoutils/geo-utils";
+import { Mall, Store as StoreType } from "@/types/mall-system";
+import { SkeletonList, ErrorState } from "@/ui";
+import { EmptyState } from "@/ui/EmptyState";
+import { GlobalSearchBox } from "@/features/search";
 
 // Analytics tracking function with device info
 const trackEvent = (eventName: string, category: string, label: string) => {
@@ -75,28 +75,18 @@ const Home: React.FC = () => {
     loadMalls();
   }, []);
 
-  useEffect(() => {
-    if (!query) {
-      setResults(malls);
-      setStoreResults([]);
-    } else {
-      searchMallsAndBrands(query).then(({ malls: mallMatches, stores: storeMatches }) => {
-        setResults(mallMatches);
-        setStoreResults(storeMatches);
-      });
-    }
-  }, [query, malls]);
+  // Remove the old search effect since we're using GlobalSearchBox now
 
   const withDistance = useMemo(() => {
     return results.map(m => {
-      let distanceKm = null;
+      let distance = null;
       if (userLoc && m.coords) {
-        distanceKm = haversineKm(userLoc, m.coords);
+        distance = distanceKm(userLoc, m.coords);
       }
       
       return {
         ...m,
-        distanceKm,
+        distanceKm: distance,
         hasActiveCampaign: false // TODO: Load promotions from Firebase
       };
     }).sort((a,b) => {
@@ -131,7 +121,7 @@ const Home: React.FC = () => {
         // Show smart alert if Central Rama 3 is nearby
         const centralRama3 = malls.find(m => m.id === "central-rama-3");
         if (centralRama3 && centralRama3.coords) {
-          const distance = haversineKm(newLoc, centralRama3.coords);
+          const distance = distanceKm(newLoc, centralRama3.coords);
           if (distance < 1) { // Within 1km
             setShowSmartAlert(true);
           }
@@ -238,15 +228,8 @@ const Home: React.FC = () => {
               </div>
             </div>
             
-            {/* Right side - Search and Admin */}
+            {/* Right side - Admin */}
             <div className="flex items-center space-x-3">
-              <Link 
-                to="/search"
-                className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                aria-label="ค้นหาขั้นสูง"
-              >
-                <Search className="w-5 h-5" />
-              </Link>
               <Link 
                 to="/admin"
                 className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -291,18 +274,22 @@ const Home: React.FC = () => {
           </button>
         </div>
 
-        {/* Search Bar */}
+        {/* Global Search Box */}
         <div className="mb-8">
-          <div className="relative max-w-2xl mx-auto">
-            <input
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="ค้นหาห้างหรือแบรนด์ เช่น Central Rama 3, Zara, Starbucks…"
-              data-testid="search-mall"
-              className="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-100 outline-none text-lg"
-            />
-            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
-          </div>
+          <GlobalSearchBox
+            onMallSelect={(mall) => {
+              // Navigate to mall page
+              window.location.href = `/malls/${mall.name}`;
+            }}
+            onStoreSelect={(store) => {
+              // Navigate to store page
+              if (store.mallSlug) {
+                window.location.href = `/malls/${store.mallSlug}/stores/${store.id}`;
+              }
+            }}
+            className="max-w-2xl mx-auto"
+            placeholder="ค้นหาห้างหรือแบรนด์ เช่น Central Rama 3, Zara, Starbucks…"
+          />
         </div>
 
         {/* Smart Location Alert */}
@@ -316,7 +303,7 @@ const Home: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-green-900">คุณอยู่ใกล้ Central Rama 3!</h3>
-                    <p className="text-green-700 text-sm">ห่างเพียง {Math.round(haversineKm(userLoc!, { lat: 13.6891, lng: 100.5441 }) * 1000)} เมตร</p>
+                    <p className="text-green-700 text-sm">ห่างเพียง {Math.round(distanceKm(userLoc!, { lat: 13.6891, lng: 100.5441 }) * 1000)} เมตร</p>
                   </div>
                 </div>
                 <button 
@@ -451,7 +438,9 @@ const Home: React.FC = () => {
           {/* No Results */}
           {results.length === 0 && storeResults.length === 0 && query && !loadingMalls && !error && (
             <div className="text-center py-12">
-              <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MapPin className="w-6 h-6 text-gray-400" />
+              </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">ไม่พบผลลัพธ์</h3>
               <p className="text-gray-600">ลองค้นหาด้วยคำอื่น หรือเลือกห้างสรรพสินค้าจากรายการด้านล่าง</p>
             </div>
