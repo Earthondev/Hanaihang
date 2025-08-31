@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { Outlet, useParams, Link, useLocation } from 'react-router-dom';
 import { Home, Search, MapPin, Heart, Building } from 'lucide-react';
-import { useFloors } from '../hooks/useApi';
-import Button from '../components/ui/Button';
+
+import { useFloors } from '@/legacy/hooks/useApi';
+import Button from '@/ui/Button';
 
 const MallLayout: React.FC = () => {
   const { mallId } = useParams<{ mallId: string }>();

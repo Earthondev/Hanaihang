@@ -15,9 +15,10 @@ import {
   Tag,
   Truck
 } from 'lucide-react';
-import { getStores } from '../services/api';
-import { malls } from '../data/malls';
-import { isStoreOpen } from '../utils';
+
+import { getStores } from '@/legacy/services/api';
+import { malls } from '@/test/fixtures/data/malls';
+import { isStoreOpen } from '@/legacy/utils';
 
 const StoreDetail: React.FC = () => {
   const { mallId, storeId } = useParams<{ mallId: string; storeId: string }>();

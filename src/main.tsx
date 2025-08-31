@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client'
 import './styles/index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
 import Home from './pages/Home'
 import MallPicker from './pages/MallPicker'
 import GlobalSearch from './pages/GlobalSearch'
@@ -16,13 +17,14 @@ import FloorDetail from './pages/FloorDetail'
 import Favorites from './pages/Favorites'
 import AdminPanel from './pages/AdminPanel'
 import MallEditPage from './pages/MallEditPage'
+import MallDetail from './pages/MallDetail'
 import Login from './pages/Login'
-import ProtectedRoute from './components/ProtectedRoute'
+import ProtectedRoute from './legacy/components/ProtectedRoute'
 import AuthTest from './pages/AuthTest'
-import { AuthProvider } from './contexts/AuthContext'
-import { ToastProvider } from './components/feedback/Toast'
-import { ErrorBoundary } from './components/feedback/ErrorBoundary'
-import './utils/debugAuth'
+import { AuthProvider } from './config/contexts/AuthContext'
+import { ToastProvider } from './ui/feedback/Toast'
+import { ErrorBoundary } from './ui/feedback/ErrorBoundary'
+import './legacy/utils/debugAuth'
 
 // Debug: Check if we can access the root element
 const rootElement = document.getElementById('root')
@@ -45,6 +47,7 @@ const queryClient = new QueryClient({
 const router = createBrowserRouter([
   { path: '/', element: <Home /> },
   { path: '/search', element: <GlobalSearch /> },
+  { path: '/malls/:mallId', element: <MallDetail /> },
   { path: '/login', element: <Login /> },
   { path: '/auth-test', element: <AuthTest /> },
   { 
@@ -56,7 +59,7 @@ const router = createBrowserRouter([
     ) 
   },
   { 
-    path: '/admin/malls/:slug/edit', 
+    path: '/admin/malls/:id/edit', 
     element: (
       <ProtectedRoute>
         <MallEditPage />

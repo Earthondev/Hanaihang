@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Building, Store, ExternalLink } from 'lucide-react';
-import { searchBrands } from '../services/api';
-import Card from '../components/ui/Card';
-import Input from '../components/ui/Input';
-import Button from '../components/ui/Button';
+
+import { searchBrands } from '@/legacy/services/api';
+import Card from '@/ui/Card';
+import Input from '@/ui/Input';
+import Button from '@/ui/Button';
 
 const GlobalSearch: React.FC = () => {
   const navigate = useNavigate();

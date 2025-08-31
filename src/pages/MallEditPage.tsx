@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useToast } from '../components/feedback/Toast';
-import MallForm from '../components/forms/MallForm';
-import { getMall, updateMall } from '../lib/firestore';
+
+import { useToast } from '../ui/feedback/Toast';
+import MallForm from '../legacy/forms/MallForm';
+import { getMall, updateMall } from '../services/firebase/firestore';
 import { Mall } from '../types/mall-system';
 
 export default function MallEditPage() {
@@ -11,17 +12,28 @@ export default function MallEditPage() {
   const { push: toast } = useToast();
   const [mall, setMall] = useState<Mall | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  console.log('🔍 MallEditPage mounted with ID:', id);
 
   useEffect(() => {
     const loadMall = async () => {
-      if (!id) return;
+      if (!id) {
+        setLoading(false);
+        return;
+      }
       
       try {
+        console.log('🔄 Loading mall data for ID:', id);
         const mallData = await getMall(id);
+        console.log('✅ Mall data loaded:', mallData);
         setMall(mallData);
+        setError(null);
       } catch (error) {
-        console.error('Error loading mall:', error);
-        toast('ไม่สามารถโหลดข้อมูลห้างได้', 'error');
+        console.error('❌ Error loading mall:', error);
+        const errorMessage = error instanceof Error ? error.message : 'ไม่สามารถโหลดข้อมูลห้างได้';
+        setError(errorMessage);
+        toast(errorMessage, 'error');
       } finally {
         setLoading(false);
       }
@@ -41,6 +53,24 @@ export default function MallEditPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">กำลังโหลดข้อมูลห้าง...</p>
+          <p className="mt-2 text-sm text-gray-500">ID: {id}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">เกิดข้อผิดพลาด</h1>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => navigate('/admin/malls')}
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          >
+            กลับไปหน้าห้าง
+          </button>
         </div>
       </div>
     );
