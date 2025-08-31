@@ -1,1 +1,7 @@
 /*  /index.html  200
+
+# Handle React Router routes
+/malls/*  /index.html  200
+/admin/*  /index.html  200
+/search  /index.html  200
+/login  /index.html  200

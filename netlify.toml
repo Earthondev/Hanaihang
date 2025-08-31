@@ -10,6 +10,27 @@
   to = "/index.html"
   status = 200
 
+# Specific routes for better handling
+[[redirects]]
+  from = "/malls/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/search"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/index.html"
+  status = 200
+
 [[headers]]
   for = "/*.js"
   [headers.values]
