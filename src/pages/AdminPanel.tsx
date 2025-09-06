@@ -4,19 +4,20 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/config/contexts/AuthContext';
 import { 
   listMalls, 
-  listStores, 
   createMall, 
   createStore
 } from '@/services/firebase/firestore';
+import { firebaseFirestore } from '@/services/firebaseFirestore';
 import MallCreateDrawer from '@/legacy/admin/MallCreateDrawer';
 import { StoreCreateDrawer } from '@/legacy/admin/StoreCreateDrawer';
 import MallsTableView from '@/legacy/admin/MallsTableView';
 import StoresTable from '@/legacy/admin/StoresTable';
+import MallLogoManager from '@/components/admin/MallLogoManager';
 
 const AdminPanel: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'malls' | 'stores'>('malls');
+  const [activeTab, setActiveTab] = useState<'malls' | 'stores' | 'logos'>('malls');
   const [showMallForm, setShowMallForm] = useState(false);
   const [showStoreForm, setShowStoreForm] = useState(false);
   const [malls, setMalls] = useState<any[]>([]);
@@ -28,17 +29,17 @@ const AdminPanel: React.FC = () => {
   const { user, logout } = useAuth();
 
   // Valid tabs for parameter validation
-  const validTabs = new Set(['stores', 'malls']);
+  const validTabs = new Set(['stores', 'malls', 'logos']);
 
   // Check URL parameter for initial tab with validation
   useEffect(() => {
     const tabParam = searchParams.get('tab')?.toLowerCase();
     if (validTabs.has(tabParam || '')) {
-      setActiveTab(tabParam as 'malls' | 'stores');
+      setActiveTab(tabParam as 'malls' | 'stores' | 'logos');
     } else if (tabParam) {
-      // Invalid tab parameter - fallback to stores
-      setActiveTab('stores');
-      setSearchParams({ tab: 'stores' });
+      // Invalid tab parameter - fallback to malls
+      setActiveTab('malls');
+      setSearchParams({ tab: 'malls' });
     }
   }, [searchParams, validTabs, setSearchParams]);
 
@@ -95,16 +96,8 @@ const AdminPanel: React.FC = () => {
       
       const mallsData = await listMalls();
       
-      // ดึงร้านค้าจากทุกห้าง
-      const allStores: any[] = [];
-      for (const mall of mallsData) {
-        if (mall.id) {
-          const stores = await listStores(mall.id);
-          allStores.push(...stores.map(store => ({ ...store, mallId: mall.id })));
-        }
-      }
-      
-      const storesData = allStores;
+      // ดึงร้านค้าจาก stores collection
+      const storesData = await firebaseFirestore.getStores();
       
       console.log('📊 Malls loaded:', mallsData.length);
       console.log('📊 Stores loaded:', storesData.length);
@@ -233,6 +226,18 @@ const AdminPanel: React.FC = () => {
           >
             ร้านค้า ({stores.length})
           </button>
+          <button
+            onClick={() => handleTabChange('logos')}
+            className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98] ${
+              activeTab === 'logos'
+                ? 'bg-green-100 text-green-700 border border-green-200'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+            aria-label="แท็บจัดการโลโก้"
+            data-testid="logos-tab"
+          >
+            🖼️ โลโก้ห้าง
+          </button>
         </div>
 
         {/* Content */}
@@ -287,6 +292,12 @@ const AdminPanel: React.FC = () => {
               </div>
               
               <StoresTable stores={stores} malls={malls} onRefresh={loadData} />
+            </div>
+          )}
+
+          {activeTab === 'logos' && (
+            <div className="p-6">
+              <MallLogoManager />
             </div>
           )}
         </div>

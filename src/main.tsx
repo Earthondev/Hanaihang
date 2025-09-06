@@ -48,6 +48,7 @@ const router = createBrowserRouter([
   { path: '/', element: <Home /> },
   { path: '/search', element: <GlobalSearch /> },
   { path: '/malls/:mallId', element: <MallDetail /> },
+  { path: '/malls/:mallId/stores/:storeId', element: <StoreDetail /> },
   { path: '/login', element: <Login /> },
   { path: '/auth-test', element: <AuthTest /> },
   { 

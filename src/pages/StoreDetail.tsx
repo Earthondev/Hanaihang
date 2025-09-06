@@ -16,23 +16,54 @@ import {
   Truck
 } from 'lucide-react';
 
-import { getStores } from '@/legacy/services/api';
-import { malls } from '@/test/fixtures/data/malls';
-import { isStoreOpen } from '@/legacy/utils';
+import { firebaseFirestore } from '@/services/firebaseFirestore';
+import { getMall } from '@/services/firebase/firestore';
+import { Store, Mall } from '@/types/mall-system';
 
 const StoreDetail: React.FC = () => {
   const { mallId, storeId } = useParams<{ mallId: string; storeId: string }>();
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [store, setStore] = useState<Store | null>(null);
+  const [mall, setMall] = useState<Mall | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const mall = malls.find(m => m.id === mallId) || null;
-  const stores = getStores(mallId || '');
-  const store = stores.find(s => s.id === storeId) || null;
+  useEffect(() => {
+    if (storeId) {
+      loadStoreData();
+    }
+  }, [storeId]);
+
+  const loadStoreData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Load store data
+      const storeData = await firebaseFirestore.getStore(storeId!);
+      if (!storeData) {
+        throw new Error('Store not found');
+      }
+      setStore(storeData as Store);
+
+      // Load mall data if mallId is provided
+      if (mallId) {
+        const mallData = await getMall(mallId);
+        setMall(mallData);
+      }
+    } catch (err) {
+      console.error('Error loading store data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load store data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Carousel images (placeholder data)
   const carouselImages = [
-    { id: 1, title: 'หน้าร้าน', subtitle: `${store?.name} ชั้น ${store?.floor}`, color: 'from-gray-100 to-gray-200', iconColor: 'bg-gray-300', icon: Building },
+    { id: 1, title: 'หน้าร้าน', subtitle: `${store?.name} ชั้น ${store?.floorId}`, color: 'from-gray-100 to-gray-200', iconColor: 'bg-gray-300', icon: Building },
     { id: 2, title: 'บรรยากาศภายในร้าน', subtitle: 'คอลเลกชั่นใหม่', color: 'from-blue-100 to-blue-200', iconColor: 'bg-blue-300', icon: ShoppingBag },
     { id: 3, title: 'โปรโมชั่นพิเศษ', subtitle: 'ลดสูงสุด 50%', color: 'from-purple-100 to-purple-200', iconColor: 'bg-purple-300', icon: Tag }
   ];
@@ -93,11 +124,22 @@ const StoreDetail: React.FC = () => {
     return () => clearInterval(interval);
   }, [carouselImages.length]);
 
-  if (!store || !mall) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">ไม่พบข้อมูลร้าน</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลดข้อมูลร้าน...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !store) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error || 'ไม่พบข้อมูลร้าน'}</p>
           <button 
             onClick={() => navigate(-1)}
             className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
@@ -111,25 +153,11 @@ const StoreDetail: React.FC = () => {
 
   // Parse store hours
   const storeHours = typeof store.hours === 'string' ? 
-    { open: '10:00', close: '22:00' } : 
-    store.hours;
+    { open: store.hours.split('-')[0] || '10:00', close: store.hours.split('-')[1] || '22:00' } : 
+    { open: '10:00', close: '22:00' };
 
-  // Create a compatible store object for isStoreOpen function
-  const compatibleStore = {
-    ...store,
-    mall_id: mallId || '',
-    zone: '',
-    open_time: storeHours.open,
-    close_time: storeHours.close,
-    images: [],
-    tags: store.tags || [],
-    features: store.features || [],
-    x: 0,
-    y: 0
-  };
-
-  const storeStatus = isStoreOpen(compatibleStore);
-  const isOpen = storeStatus === 'open';
+  // Simple store status check based on current time
+  const isOpen = store.status === 'Active';
 
   const getFloorDisplay = (floor: string) => {
     return floor === 'G' ? 'ชั้น G' : 
@@ -138,7 +166,8 @@ const StoreDetail: React.FC = () => {
       floor === '3' ? '3rd Floor' :
       floor === '4' ? '4th Floor' :
       floor === '5' ? '5th Floor' :
-      floor === '6' ? '6th Floor' : `ชั้น ${floor}`;
+      floor === '6' ? '6th Floor' : 
+      floor === 'M' ? 'ชั้น M' : `ชั้น ${floor}`;
   };
 
   const showToast = (message: string) => {
@@ -236,7 +265,7 @@ const StoreDetail: React.FC = () => {
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
                   <div>
                     <h1 className="text-3xl font-semibold text-gray-900 mb-2">{store.name}</h1>
-                    <p className="text-lg text-gray-600 mb-3">{store.category} • {store.shortDesc || store.description}</p>
+                    <p className="text-lg text-gray-600 mb-3">{store.category} • {mall?.displayName || 'ห้างสรรพสินค้า'}</p>
                     
                     {/* Status Badge */}
                     <div className="flex items-center space-x-3 mb-4">
@@ -286,7 +315,7 @@ const StoreDetail: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">ตำแหน่ง</p>
-                  <p className="font-medium text-gray-900">{getFloorDisplay(store.floor)} • {store.unit}</p>
+                  <p className="font-medium text-gray-900">{getFloorDisplay(store.floorId)} • {store.unit || 'ไม่มีข้อมูลยูนิต'}</p>
                 </div>
               </div>
 
@@ -374,11 +403,11 @@ const StoreDetail: React.FC = () => {
         {/* Main Action Button */}
         <div className="mb-6">
           <button 
-            onClick={() => showToast(`กำลังเปิดแผนที่${getFloorDisplay(store.floor)}...`)}
+            onClick={() => showToast(`กำลังเปิดแผนที่${getFloorDisplay(store.floorId)}...`)}
             className="w-full bg-green-600 hover:bg-green-700 text-white py-4 px-6 rounded-2xl font-medium text-lg flex items-center justify-center space-x-3 transition-colors shadow-lg"
           >
             <MapPin className="w-6 h-6" />
-            <span>ดูตำแหน่งบนแผนที่{getFloorDisplay(store.floor)}</span>
+            <span>ดูตำแหน่งบนแผนที่{getFloorDisplay(store.floorId)}</span>
           </button>
         </div>
 

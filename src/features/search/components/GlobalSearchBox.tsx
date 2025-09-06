@@ -153,7 +153,7 @@ export function GlobalSearchBox({
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+          className="block w-full pl-10 pr-12 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary focus:border-primary bg-white shadow-sm hover:shadow-md transition-all duration-200 text-text-primary placeholder-gray-500 font-prompt"
         />
         
         {/* Location Button */}
@@ -191,7 +191,7 @@ export function GlobalSearchBox({
 
       {/* Search Results Dropdown */}
       {isOpen && (hasResults || isLoading || error) && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl max-h-96 overflow-y-auto">
           {isLoading && (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 text-blue-500 animate-spin mr-2" />
@@ -283,6 +283,31 @@ export function GlobalSearchBox({
           {!isLoading && !error && !hasResults && keyword.trim().length >= 2 && (
             <div className="p-4 text-center text-gray-500">
               ไม่พบผลลัพธ์สำหรับ "{keyword}"
+            </div>
+          )}
+
+          {/* Popular Suggestions */}
+          {!isLoading && !error && !hasResults && keyword.trim().length < 2 && (
+            <div className="py-2">
+              <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50">
+                🔍 คำค้นหายอดนิยม
+              </div>
+              <div className="px-4 py-2">
+                <div className="flex flex-wrap gap-2">
+                  {['Central Rama 3', 'Zara', 'Starbucks', 'Siam Paragon', 'Terminal 21', 'Uniqlo'].map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => {
+                        setKeyword(suggestion);
+                        inputRef.current?.focus();
+                      }}
+                      className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>

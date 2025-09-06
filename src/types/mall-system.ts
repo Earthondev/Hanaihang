@@ -25,6 +25,7 @@ export interface Mall {
   district?: string;
   storeCount?: number;   // จำนวนร้านในห้าง (denormalized)
   floorCount?: number;   // จำนวนชั้นในห้าง (denormalized)
+  logoUrl?: string;      // URL ของโลโก้ห้างจาก Firebase Storage
   status?: "Active" | "Closed";
   createdAt?: Timestamp;
   updatedAt?: Timestamp;

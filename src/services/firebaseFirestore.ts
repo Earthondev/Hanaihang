@@ -214,9 +214,7 @@ export const firebaseFirestore = {
       let q: any = collection(db, 'stores');
       
       if (mallId) {
-        q = query(q, where('mallId', '==', mallId), where('published', '==', true));
-      } else {
-        q = query(q, where('published', '==', true));
+        q = query(q, where('mallId', '==', mallId));
       }
       
       const querySnapshot = await getDocs(q);
@@ -233,7 +231,7 @@ export const firebaseFirestore = {
   // Search stores by brand name
   async searchStoresByBrand(brandName: string): Promise<FirestoreStore[]> {
     try {
-      const q: any = query(collection(db, 'stores'), where('published', '==', true));
+      const q: any = collection(db, 'stores');
       const querySnapshot = await getDocs(q);
       
       const stores = querySnapshot.docs.map(doc => {

@@ -65,19 +65,25 @@ export function useSearchAll() {
             ...doc.data()
           } as Mall));
         } catch (err) {
-          console.warn('Mall search failed:', err);
-          // Fallback to simple query if index doesn't exist
-          const mallsQ = query(
-            collection(db, 'malls'),
-            where('displayName', '>=', keyword),
-            where('displayName', '<=', keyword + '\uf8ff'),
-            limit(20)
-          );
-          const mallsSnap = await getDocs(mallsQ);
-          results.malls = mallsSnap.docs.map(doc => ({
+          console.warn('Mall search failed, using fallback:', err);
+          // Fallback to client-side filtering if index doesn't exist
+          const allMallsQ = query(collection(db, 'malls'), limit(100));
+          const allMallsSnap = await getDocs(allMallsQ);
+          const allMalls = allMallsSnap.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
           } as Mall));
+          
+          // Client-side filtering
+          results.malls = allMalls.filter(mall => {
+            const searchTerm = keyword.toLowerCase();
+            return (
+              mall.displayName?.toLowerCase().includes(searchTerm) ||
+              mall.name?.toLowerCase().includes(searchTerm) ||
+              mall.district?.toLowerCase().includes(searchTerm) ||
+              mall.address?.toLowerCase().includes(searchTerm)
+            );
+          }).slice(0, 20);
         }
       }
 
@@ -160,19 +166,26 @@ export function useSearchAll() {
 
           results.stores = stores;
         } catch (err) {
-          console.warn('Store search failed:', err);
-          // Fallback to simple query if index doesn't exist
-          const storesQ = query(
-            collection(db, 'stores'),
-            where('name', '>=', keyword),
-            where('name', '<=', keyword + '\uf8ff'),
-            limit(limitCount)
-          );
-          const storesSnap = await getDocs(storesQ);
-          results.stores = storesSnap.docs.map(doc => ({
+          console.warn('Store search failed, using fallback:', err);
+          // Fallback to client-side filtering if index doesn't exist
+          const allStoresQ = query(collection(db, 'stores'), limit(200));
+          const allStoresSnap = await getDocs(allStoresQ);
+          const allStores = allStoresSnap.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
           } as Store));
+          
+          // Client-side filtering
+          const filteredStores = allStores.filter(store => {
+            const searchTerm = keyword.toLowerCase();
+            return (
+              store.name?.toLowerCase().includes(searchTerm) ||
+              store.category?.toLowerCase().includes(searchTerm) ||
+              store.brandSlug?.toLowerCase().includes(searchTerm)
+            );
+          }).slice(0, limitCount);
+          
+          results.stores = filteredStores;
         }
       }
 

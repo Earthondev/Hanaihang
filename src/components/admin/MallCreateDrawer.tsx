@@ -58,7 +58,11 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
         closeTime: values.closeTime,
       };
 
-      await createMall(mallData);
+      const newMall = await createMall(mallData);
+      
+      // Note: Logo upload will be handled in the edit form after mall creation
+      // This is because we need the mall ID to upload the logo
+      
       onOpenChange(false);
       form.reset();
     });

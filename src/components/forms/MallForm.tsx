@@ -9,6 +9,7 @@ import UrlField from '../ui/form/fields/UrlField';
 import MapPicker from '../ui/form/fields/MapPicker';
 import TimeField from '../ui/form/fields/TimeField';
 import Switch from '../ui/Switch';
+import LogoUpload from '../ui/LogoUpload';
 import { mallSchema, MallInput } from '../../validation/mall.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createMall, updateMall } from '../../lib/firestore';
@@ -23,6 +24,7 @@ interface MallFormProps {
 
 export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
   const [isEveryday, setIsEveryday] = useState(true);
+  const [logoUrl, setLogoUrl] = useState<string | null>(mall?.logoUrl || null);
   const { isLoading, run } = useSafeSubmit({
     formName: `mall_${mode}`,
     successMessage: mode === 'create' ? "สร้างห้างสรรพสินค้าสำเร็จ 🎉" : "อัปเดตห้างสรรพสินค้าสำเร็จ ✅",
@@ -60,6 +62,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
         lng: values.lng,
         openTime: values.openTime,
         closeTime: values.closeTime,
+        logoUrl: logoUrl,
       };
 
       if (mode === 'create') {
@@ -83,6 +86,15 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
     <Card>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          {/* Logo Upload Section */}
+          {mode === 'edit' && mall?.id && (
+            <LogoUpload
+              mallId={mall.id}
+              currentLogoUrl={mall.logoUrl}
+              onLogoChange={setLogoUrl}
+            />
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <TextField
               name="displayName"

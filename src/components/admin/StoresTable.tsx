@@ -66,28 +66,6 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
     }
   };
 
-  const handleDuplicate = async (store: any) => {
-    try {
-      const duplicateData = {
-        ...store,
-        name: `${store.name} (สำเนา)`,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      delete duplicateData.id; // Remove the original ID
-      
-      if (!duplicateData.mallId) {
-        alert('❌ ไม่พบข้อมูลห้างสรรพสินค้า');
-        return;
-      }
-      await createStore(duplicateData.mallId, duplicateData);
-      onRefresh();
-      alert('✅ ทำสำเนาร้านค้าสำเร็จ!');
-    } catch (error) {
-      console.error('❌ Error duplicating store:', error);
-      alert('❌ เกิดข้อผิดพลาดในการทำสำเนาร้านค้า');
-    }
-  };
 
   // Filter stores
   const filteredStores = stores.filter(store => {
@@ -229,16 +207,6 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleDuplicate(store)}
-                      className="text-green-600 hover:text-green-900 transition-colors"
-                      title="ทำสำเนา"
-                      aria-label={`ทำสำเนาร้านค้า ${store.name}`}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
-                    </button>
                     <button
                       onClick={() => {
                         // TODO: Implement edit functionality

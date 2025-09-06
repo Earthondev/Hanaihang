@@ -114,10 +114,32 @@ const MallCard: React.FC<MallCardProps> = ({
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <h3 className="text-xl font-semibold text-gray-900 mb-1">
-            {mall.displayName}
-          </h3>
+        <div className="flex items-start space-x-3 flex-1">
+          {/* Mall Logo */}
+          {mall.logoUrl ? (
+            <img
+              src={mall.logoUrl}
+              alt={`${mall.displayName} logo`}
+              className="w-12 h-12 rounded-lg object-cover shadow-sm border border-gray-200 flex-shrink-0"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const fallback = target.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div 
+            className={`w-12 h-12 bg-gray-500 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm flex-shrink-0 ${mall.logoUrl ? 'hidden' : ''}`}
+            style={{ display: mall.logoUrl ? 'none' : 'flex' }}
+          >
+            {mall.displayName.charAt(0).toUpperCase()}
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <h3 className="text-xl font-semibold text-gray-900 mb-1">
+              {mall.displayName}
+            </h3>
           
           {mall.address && (
             <p className="text-gray-600 mb-2">{mall.address}</p>
@@ -128,6 +150,7 @@ const MallCard: React.FC<MallCardProps> = ({
               {mall.district}
             </span>
           )}
+          </div>
         </div>
 
         {distance !== undefined && (
