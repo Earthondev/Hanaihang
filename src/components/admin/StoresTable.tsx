@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { deleteStore, createStore } from '../../lib/firestore';
+import { deleteStore } from '../../lib/firestore';
 
 interface StoresTableProps {
   stores: any[];

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
   MapPin, 
   Phone, 
@@ -422,7 +422,7 @@ const StoreDetail: React.FC = () => {
               className="flex transition-transform duration-300 ease-in-out"
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
-              {carouselImages.map((image, index) => {
+              {carouselImages.map((image, _index) => {
                 const IconComponent = image.icon;
                 return (
                   <div key={image.id} className="w-full flex-shrink-0">
@@ -457,14 +457,14 @@ const StoreDetail: React.FC = () => {
             
             {/* Carousel Indicators */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-              {carouselImages.map((_, index) => (
+              {carouselImages.map((_, _index) => (
                 <button 
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
+                  key={_index}
+                  onClick={() => setCurrentSlide(_index)}
                   className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentSlide ? 'bg-white' : 'bg-white/50'
+                    _index === currentSlide ? 'bg-white' : 'bg-white/50'
                   }`}
-                  aria-label={`ไปที่รูปภาพที่ ${index + 1}`}
+                  aria-label={`ไปที่รูปภาพที่ ${_index + 1}`}
                 />
               ))}
             </div>

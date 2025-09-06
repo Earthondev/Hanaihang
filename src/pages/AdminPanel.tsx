@@ -22,8 +22,6 @@ const AdminPanel: React.FC = () => {
   const [showStoreForm, setShowStoreForm] = useState(false);
   const [malls, setMalls] = useState<any[]>([]);
   const [stores, setStores] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
   const { user, logout } = useAuth();
@@ -34,7 +32,13 @@ const AdminPanel: React.FC = () => {
   // Check URL parameter for initial tab with validation
   useEffect(() => {
     const tabParam = searchParams.get('tab')?.toLowerCase();
-    if (validTabs.has(tabParam || '')) {
+    const currentPath = window.location.pathname;
+    
+    // Check if we're on /admin/malls route
+    if (currentPath === '/admin/malls') {
+      setActiveTab('malls');
+      setSearchParams({ tab: 'malls' });
+    } else if (validTabs.has(tabParam || '')) {
       setActiveTab(tabParam as 'malls' | 'stores' | 'logos');
     } else if (tabParam) {
       // Invalid tab parameter - fallback to malls
@@ -117,33 +121,6 @@ const AdminPanel: React.FC = () => {
     loadData();
   }, []);
 
-  const handleAddMall = async (mallData: any) => {
-    try {
-      await createMall(mallData);
-      setShowMallForm(false);
-      loadData(); // Reload data
-      alert('✅ เพิ่มห้างสำเร็จ!');
-    } catch (error) {
-      console.error('❌ Error adding mall:', error);
-      alert('❌ เกิดข้อผิดพลาดในการเพิ่มห้าง');
-    }
-  };
-
-  const handleAddStore = async (storeData: any) => {
-    try {
-      if (!storeData.mallId) {
-        alert('❌ กรุณาเลือกห้างสรรพสินค้า');
-        return;
-      }
-      await createStore(storeData.mallId, storeData);
-      setShowStoreForm(false);
-      loadData(); // Reload data
-      alert('✅ เพิ่มร้านค้าสำเร็จ!');
-    } catch (error) {
-      console.error('❌ Error adding store:', error);
-      alert('❌ เกิดข้อผิดพลาดในการเพิ่มร้านค้า');
-    }
-  };
 
 
 

@@ -60,6 +60,14 @@ const router = createBrowserRouter([
     ) 
   },
   { 
+    path: '/admin/malls', 
+    element: (
+      <ProtectedRoute>
+        <AdminPanel />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
     path: '/admin/malls/:id/edit', 
     element: (
       <ProtectedRoute>

@@ -10,10 +10,8 @@ import {
   where,
   orderBy,
   limit,
-  Timestamp,
   writeBatch,
-  serverTimestamp,
-  FieldValue
+  serverTimestamp
 } from 'firebase/firestore';
 
 import { db } from './firebase';
@@ -275,6 +273,26 @@ export async function listFloors(mallId: string): Promise<Floor[]> {
     id: doc.id,
     ...convertTimestamps(doc.data() as Omit<Floor, 'id'>)
   }));
+}
+
+/**
+ * ลบ floor
+ */
+export async function deleteFloor(mallId: string, floorId: string): Promise<void> {
+  await deleteDoc(doc(db, 'malls', mallId, 'floors', floorId));
+  
+  // อัปเดต floorCount ในห้าง
+  await updateMallFloorCount(mallId);
+}
+
+/**
+ * อัปเดต order ของ floor
+ */
+export async function updateFloorOrder(mallId: string, floorId: string, newOrder: number): Promise<void> {
+  await updateDoc(doc(db, 'malls', mallId, 'floors', floorId), {
+    order: newOrder,
+    updatedAt: serverTimestamp()
+  });
 }
 
 // ======================

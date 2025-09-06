@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { deleteStore, createStore } from '@/services/firebase/firestore';
+import { deleteStore } from '@/services/firebase/firestore';
 
 interface StoresTableProps {
   stores: any[];
