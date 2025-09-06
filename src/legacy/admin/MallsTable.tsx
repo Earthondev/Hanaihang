@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { deleteMall } from '@/services/firebase/firestore';
 
@@ -10,9 +11,15 @@ interface MallsTableProps {
 }
 
 const MallsTable: React.FC<MallsTableProps> = ({ malls, onRefresh }) => {
+  const navigate = useNavigate();
+
   const handleDelete = async (mallId: string) => {
     await deleteMall(mallId);
     onRefresh();
+  };
+
+  const handleEdit = (mallId: string) => {
+    navigate(`/admin/malls/${mallId}/edit`);
   };
 
   const getStatusColor = (status: string) => {
@@ -107,10 +114,7 @@ const MallsTable: React.FC<MallsTableProps> = ({ malls, onRefresh }) => {
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => {
-                      // TODO: Implement edit functionality
-                      alert('ฟีเจอร์แก้ไขจะเปิดใช้งานเร็วๆ นี้');
-                    }}
+                    onClick={() => handleEdit(mall.id)}
                     className="text-blue-600 hover:text-blue-900 transition-colors"
                     title="แก้ไข"
                   >

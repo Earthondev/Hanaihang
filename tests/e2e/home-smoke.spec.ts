@@ -2,15 +2,19 @@ import { expect } from '@playwright/test';
 import { test } from './fixtures';
 
 test('Home loads & lists malls', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  
+  // รอให้ search input พร้อมก่อน
+  await page.waitForSelector('[data-testid="search-input"]', { state: 'visible', timeout: 3000 });
+  
   await expect(page.getByTestId('mall-card').first()).toBeVisible();
-  await expect(page.getByRole('heading', { name: /ห้าง/i })).toBeVisible();
+  await expect(page.getByTestId('hero-title')).toBeVisible();
 });
 
 test('Use my location (mocked) shows distance or reorders list', async ({ page, context }) => {
   await context.grantPermissions(['geolocation']);
   await context.setGeolocation({ latitude: 13.7466, longitude: 100.5347 });
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.getByTestId('use-my-location').click();
   // ตรวจสอบว่ามีระยะทาง หรือการเรียงตามใกล้-ไกล
   await expect(page.locator('[data-testid="mall-card"]')).toHaveCountGreaterThan(0);

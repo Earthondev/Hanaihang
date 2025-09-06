@@ -19,34 +19,85 @@ const db = getFirestore(app);
 
 async function checkDataStructure() {
   try {
-    console.log('🔍 ตรวจสอบโครงสร้างข้อมูลใน Firebase...\n');
+    console.log('🔍 ตรวจสอบร้าน "test" ในห้าง "the mall thapra"...\n');
 
-    // 1. ตรวจสอบข้อมูลห้าง
-    console.log('🏢 === ข้อมูลห้าง (Collection: malls) ===');
-    const mallsRef = collection(db, 'malls');
-    const mallsSnapshot = await getDocs(mallsRef);
+    // 1. ตรวจสอบห้าง the-mall-thapra
+    console.log('🏢 === ตรวจสอบห้าง the-mall-thapra ===');
+    const mallDocRef = doc(db, 'malls', 'the-mall-thapra');
+    const mallDoc = await getDoc(mallDocRef);
     
-    console.log(`📊 จำนวนห้างทั้งหมด: ${mallsSnapshot.size}`);
-    
-    mallsSnapshot.forEach((doc, index) => {
-      const mall = doc.data();
-      console.log(`\n${index + 1}. ห้าง: ${mall.displayName || 'ไม่มีชื่อ'}`);
-      console.log(`   ID: ${doc.id}`);
-      console.log(`   ชื่อไฟล์: ${mall.name || 'ไม่มี'}`);
-      console.log(`   ที่อยู่: ${mall.address || 'ไม่มี'}`);
-      console.log(`   เขต: ${mall.district || 'ไม่มี'}`);
-      console.log(`   เบอร์โทร: ${mall.phone || 'ไม่มี'}`);
-      console.log(`   เว็บไซต์: ${mall.website || 'ไม่มี'}`);
-      console.log(`   พิกัด: ${mall.coords ? `lat: ${mall.coords.lat}, lng: ${mall.coords.lng}` : 'ไม่มี'}`);
-      console.log(`   เวลาทำการ: ${mall.hours ? `${mall.hours.open}-${mall.hours.close}` : 'ไม่มี'}`);
-      console.log(`   สร้างเมื่อ: ${mall.createdAt ? mall.createdAt.toDate() : 'ไม่มี'}`);
-      console.log(`   อัปเดตเมื่อ: ${mall.updatedAt ? mall.updatedAt.toDate() : 'ไม่มี'}`);
-    });
+    if (mallDoc.exists()) {
+      const mall = mallDoc.data();
+      console.log(`✅ ห้าง the-mall-thapra มีอยู่`);
+      console.log(`   Display Name: ${mall.displayName || 'ไม่มีชื่อ'}`);
+      console.log(`   Address: ${mall.address || 'ไม่มี'}`);
+      console.log(`   District: ${mall.district || 'ไม่มี'}`);
+      console.log(`   Store Count: ${mall.storeCount || 0}`);
+    } else {
+      console.log('❌ ห้าง the-mall-thapra ไม่มีอยู่');
+      return;
+    }
 
-    // 2. ตรวจสอบข้อมูลร้านค้า
-    console.log('\n🛍️ === ข้อมูลร้านค้า (Collection: stores) ===');
+    // 2. ตรวจสอบร้าน "test" ใน top-level collection
+    console.log('\n📁 === ตรวจสอบใน /stores (top-level) ===');
     const storesRef = collection(db, 'stores');
     const storesSnapshot = await getDocs(storesRef);
+    
+    let testStoreFound = false;
+    storesSnapshot.forEach((doc) => {
+      const store = doc.data();
+      if (store.name === 'test') {
+        testStoreFound = true;
+        console.log(`✅ พบร้าน "test" ใน /stores/${doc.id}`);
+        console.log(`   Mall ID: ${store.mallId || store.mallSlug || 'ไม่ระบุ'}`);
+        console.log(`   Mall Name: ${store.mallName || 'ไม่ระบุ'}`);
+        console.log(`   Category: ${store.category || 'ไม่ระบุ'}`);
+        console.log(`   Floor: ${store.floorId || 'ไม่ระบุ'}`);
+        console.log(`   Status: ${store.status || 'ไม่ระบุ'}`);
+      }
+    });
+    
+    if (!testStoreFound) {
+      console.log('❌ ไม่พบร้าน "test" ใน /stores');
+    }
+
+    // 3. ตรวจสอบร้าน "test" ใน subcollection
+    console.log('\n📁 === ตรวจสอบใน /malls/the-mall-thapra/stores (subcollection) ===');
+    const subcollectionRef = collection(db, 'malls', 'the-mall-thapra', 'stores');
+    const subcollectionSnapshot = await getDocs(subcollectionRef);
+    
+    testStoreFound = false;
+    subcollectionSnapshot.forEach((doc) => {
+      const store = doc.data();
+      if (store.name === 'test') {
+        testStoreFound = true;
+        console.log(`✅ พบร้าน "test" ใน /malls/the-mall-thapra/stores/${doc.id}`);
+        console.log(`   Mall ID: ${store.mallId || 'ไม่ระบุ'}`);
+        console.log(`   Mall Name: ${store.mallName || 'ไม่ระบุ'}`);
+        console.log(`   Category: ${store.category || 'ไม่ระบุ'}`);
+        console.log(`   Floor: ${store.floorId || 'ไม่ระบุ'}`);
+        console.log(`   Status: ${store.status || 'ไม่ระบุ'}`);
+      }
+    });
+    
+    if (!testStoreFound) {
+      console.log('❌ ไม่พบร้าน "test" ใน /malls/the-mall-thapra/stores');
+    }
+
+    // 4. แสดงร้านทั้งหมดในห้าง the-mall-thapra
+    console.log('\n📊 === ร้านทั้งหมดในห้าง the-mall-thapra ===');
+    console.log(`จำนวนร้านทั้งหมด: ${subcollectionSnapshot.size}`);
+    
+    if (subcollectionSnapshot.size > 0) {
+      console.log('รายชื่อร้าน:');
+      subcollectionSnapshot.forEach((doc, index) => {
+        const store = doc.data();
+        console.log(`   ${index + 1}. ${store.name || 'ไม่มีชื่อ'} (${doc.id})`);
+        console.log(`      Category: ${store.category || 'ไม่ระบุ'}, Floor: ${store.floorId || 'ไม่ระบุ'}`);
+      });
+    }
+
+    console.log('\n✅ การตรวจสอบเสร็จสิ้น');
     
     console.log(`📊 จำนวนร้านค้าทั้งหมด: ${storesSnapshot.size}`);
     

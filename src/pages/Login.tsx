@@ -41,8 +41,7 @@ const Login: React.FC = () => {
   };
 
   const handleForgotPassword = () => {
-    // TODO: Implement forgot password functionality
-    setError('ฟีเจอร์รีเซ็ตรหัสผ่านจะเปิดใช้งานเร็วๆ นี้');
+    navigate('/forgot-password');
   };
 
   return (

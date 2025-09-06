@@ -18,13 +18,18 @@ import Favorites from './pages/Favorites'
 import AdminPanel from './pages/AdminPanel'
 import MallEditPage from './pages/MallEditPage'
 import MallDetail from './pages/MallDetail'
+import MallCreatePage from './pages/MallCreatePage'
+import StoreCreatePage from './pages/StoreCreatePage'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
 import ProtectedRoute from './legacy/components/ProtectedRoute'
 import AuthTest from './pages/AuthTest'
 import { AuthProvider } from './config/contexts/AuthContext'
+import { LocationProvider } from './contexts/LocationContext'
 import { ToastProvider } from './ui/feedback/Toast'
 import { ErrorBoundary } from './ui/feedback/ErrorBoundary'
 import './legacy/utils/debugAuth'
+import './lib/clear-cache' // Enable cache clearing functions
 
 // Debug: Check if we can access the root element
 const rootElement = document.getElementById('root')
@@ -49,7 +54,9 @@ const router = createBrowserRouter([
   { path: '/search', element: <GlobalSearch /> },
   { path: '/malls/:mallId', element: <MallDetail /> },
   { path: '/malls/:mallId/stores/:storeId', element: <StoreDetail /> },
+  { path: '/stores/:storeId', element: <StoreDetail /> },
   { path: '/login', element: <Login /> },
+  { path: '/forgot-password', element: <ForgotPassword /> },
   { path: '/auth-test', element: <AuthTest /> },
   { 
     path: '/admin', 
@@ -72,6 +79,30 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MallEditPage />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
+    path: '/admin/malls/create', 
+    element: (
+      <ProtectedRoute>
+        <MallCreatePage />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
+    path: '/admin/stores/create', 
+    element: (
+      <ProtectedRoute>
+        <StoreCreatePage />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
+    path: '/admin/stores/:storeId/edit', 
+    element: (
+      <ProtectedRoute>
+        <StoreCreatePage />
       </ProtectedRoute>
     ) 
   },
@@ -100,11 +131,13 @@ root.render(
   <StrictMode>
     <ErrorBoundary>
       <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <ToastProvider>
-            <RouterProvider router={router} />
-          </ToastProvider>
-        </QueryClientProvider>
+        <LocationProvider>
+          <QueryClientProvider client={queryClient}>
+            <ToastProvider>
+              <RouterProvider router={router} />
+            </ToastProvider>
+          </QueryClientProvider>
+        </LocationProvider>
       </AuthProvider>
     </ErrorBoundary>
   </StrictMode>,

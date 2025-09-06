@@ -10,21 +10,45 @@ export default defineConfig({
     ['list'],
     ['html', { outputFolder: 'playwright-report' }]
   ],
+  expect: {
+    timeout: 3000
+  },
   use: {
-    baseURL: process.env.BASE_URL || 'https://hanaihang.netlify.app',
+    baseURL: process.env.BASE_URL ?? 'http://localhost:5173',
     trace: 'retain-on-failure',
     video: 'retain-on-failure',
-    screenshot: 'only-on-failure'
+    screenshot: 'only-on-failure',
+    viewport: { width: 1280, height: 800 },
+    actionTimeout: 10000,
+    navigationTimeout: 15000
   },
   projects: [
     {
       name: 'Desktop Chrome',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 800 }
+      },
     },
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 7'] },
+      use: { 
+        ...devices['iPhone 12'],
+        viewport: { width: 375, height: 667 }
+      },
     },
+    {
+      name: 'Search Tests',
+      testMatch: '**/search-user-journey.spec.ts',
+      expect: {
+        timeout: 1000
+      },
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 800 },
+        permissions: ['geolocation']
+      }
+    }
   ],
   webServer: process.env.CI ? undefined : {
     command: 'npm run dev',

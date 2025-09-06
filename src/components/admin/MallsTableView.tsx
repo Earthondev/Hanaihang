@@ -5,10 +5,12 @@ import DataTable, { Column } from '../table/DataTable';
 import TableToolbar from '../table/TableToolbar';
 import Pagination from '../table/Pagination';
 import { DeleteButton } from './DeleteButton';
-import { listMalls, deleteMall } from '../../lib/firestore';
+import { listMalls, deleteMall, listAllStores, listFloors } from '../../lib/firestore';
+import { listMallsOptimized, listAllStoresBatchOptimized, clearStoresCache, clearMallsCache } from '../../lib/optimized-firestore';
 import { Mall } from '../../types/mall-system';
 
 interface MallsTableViewProps {
+  stores?: { store: any; mallId: string }[];
   onRefresh?: () => void;
 }
 
@@ -61,10 +63,12 @@ const formatDate = (date: any): string => {
   }
 };
 
-export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
+export default function MallsTableView({ stores: propsStores, onRefresh }: MallsTableViewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [malls, setMalls] = useState<Mall[]>([]);
+  const [stores, setStores] = useState<{ store: any; mallId: string }[]>([]);
+  const [mallFloors, setMallFloors] = useState<Record<string, number>>({});
   const [filteredMalls, setFilteredMalls] = useState<Mall[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [districtFilter, setDistrictFilter] = useState('');
@@ -75,24 +79,63 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Load malls data
+  // Load malls and stores data
   useEffect(() => {
-    const loadMalls = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const mallsData = await listMalls();
-        setMalls(mallsData);
+        
+        if (propsStores) {
+          // ใช้ข้อมูล stores ที่ส่งมาจาก props
+          const mallsData = await listMallsOptimized();
+          setMalls(mallsData);
+          setStores(propsStores);
+          
+          // ดึงข้อมูล floors สำหรับแต่ละห้าง
+          const floorsData: Record<string, number> = {};
+          for (const mall of mallsData) {
+            try {
+              const floors = await listFloors(mall.id!);
+              floorsData[mall.id!] = floors.length;
+            } catch (error) {
+              console.error(`Error loading floors for mall ${mall.id}:`, error);
+              floorsData[mall.id!] = 0;
+            }
+          }
+          setMallFloors(floorsData);
+        } else {
+          // โหลดข้อมูลเองถ้าไม่มี props (optimized)
+          const [mallsData, storesData] = await Promise.all([
+            listMallsOptimized(),
+            listAllStoresBatchOptimized()
+          ]);
+          setMalls(mallsData);
+          setStores(storesData);
+          
+          // ดึงข้อมูล floors สำหรับแต่ละห้าง
+          const floorsData: Record<string, number> = {};
+          for (const mall of mallsData) {
+            try {
+              const floors = await listFloors(mall.id!);
+              floorsData[mall.id!] = floors.length;
+            } catch (error) {
+              console.error(`Error loading floors for mall ${mall.id}:`, error);
+              floorsData[mall.id!] = 0;
+            }
+          }
+          setMallFloors(floorsData);
+        }
       } catch (err) {
         setError('ไม่สามารถโหลดข้อมูลห้างสรรพสินค้าได้');
-        console.error('Error loading malls:', err);
+        console.error('Error loading data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadMalls();
-  }, []);
+    loadData();
+  }, [propsStores]);
 
   // Filter and sort malls
   useEffect(() => {
@@ -142,13 +185,24 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
     return uniqueDistricts.map(district => ({ label: district, value: district }));
   }, [malls]);
 
+  // Get store count for a mall
+  const getStoreCount = (mallId: string) => {
+    return stores.filter(storeItem => storeItem.mallId === mallId).length;
+  };
+
   // Handle delete
   const handleDelete = async (mallId: string) => {
     try {
       await deleteMall(mallId);
-      // Refresh the data
-      const updatedMalls = await listMalls();
+      // Clear cache and refresh the data
+      clearMallsCache();
+      clearStoresCache();
+      const [updatedMalls, updatedStores] = await Promise.all([
+        listMallsOptimized(),
+        listAllStoresBatchOptimized()
+      ]);
       setMalls(updatedMalls);
+      setStores(updatedStores);
       onRefresh?.();
     } catch (err) {
       console.error('Error deleting mall:', err);
@@ -191,51 +245,40 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
       )
     },
     {
-      key: "address",
-      header: "ที่อยู่",
-      sortable: false,
-      width: "250px",
-      render: (mall) => (
-        <span className="text-sm text-gray-900 truncate block">
-          {mall.address || 'ไม่ระบุ'}
-        </span>
-      )
-    },
-    {
-      key: "hours",
-      header: "เวลาเปิด-ปิด",
-      sortable: false,
-      width: "140px",
-      render: (mall) => (
-        <span className="text-sm text-gray-900">
-          {mall.hours ? `${mall.hours.open} - ${mall.hours.close}` : 'ไม่ระบุ'}
-        </span>
-      )
-    },
-    {
-      key: "updatedAt",
-      header: "แก้ไขล่าสุด",
+      key: "floorCount",
+      header: "จำนวนชั้น",
       sortable: true,
-      width: "160px",
+      width: "120px",
       render: (mall) => (
-        <span className="text-sm text-gray-500">
-          {formatDate(mall.updatedAt)}
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          {mallFloors[mall.id!] || 0} ชั้น
+        </span>
+      )
+    },
+    {
+      key: "storeCount",
+      header: "จำนวนร้าน",
+      sortable: true,
+      width: "120px",
+      render: (mall) => (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          {getStoreCount(mall.id)} ร้าน
         </span>
       )
     },
     {
       key: "actions",
-      header: "",
-      width: "140px",
+      header: "จัดการ",
+      width: "200px",
       render: (mall) => (
-        <div className="flex justify-end gap-2">
+        <div className="flex items-center gap-2">
           <Link
             to={`/admin/malls/${mall.id}/edit`}
-            className="inline-flex items-center space-x-1 px-3 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+            className="inline-flex items-center space-x-1 px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm"
             aria-label={`แก้ไขห้าง: ${mall.displayName}`}
           >
             <Edit className="h-4 w-4" />
-            <span className="text-sm">แก้ไข</span>
+            <span>แก้ไข</span>
           </Link>
           <DeleteButton
             id={mall.id}
@@ -249,7 +292,7 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
         </div>
       )
     }
-  ], [handleDelete]);
+  ], [handleDelete, mallFloors]);
 
   const handleReset = () => {
     setSearchQuery('');

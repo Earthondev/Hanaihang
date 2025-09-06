@@ -18,6 +18,7 @@ import {
 import { db } from '../config/firebase';
 import { Mall, Floor, Store, MallFormData, StoreFormData } from '../types/mall-system';
 import { MallInput } from '../validation/mall.schema';
+import { normalizeThai } from './thai-normalize';
 
 // Helper to create slug from display name
 export function toSlug(displayName: string): string {
@@ -55,6 +56,7 @@ export async function createMall(data: MallFormData): Promise<string> {
   const mallData = {
     name: slug,
     displayName: data.displayName,
+    name_normalized: normalizeThai(data.displayName), // Add Thai normalized name
     address: data.address,
     district: data.district,
     contact: {
@@ -259,17 +261,27 @@ export async function createStore(mallId: string, data: StoreFormData): Promise<
   
   const storeData = {
     name: data.name,
+    nameLower: data.name.toLowerCase(), // Add normalized name for search
+    name_normalized: normalizeThai(data.name), // Add Thai normalized name
     category: data.category,
     floorId: data.floorId,
     unit: data.unit,
     phone: data.phone,
     hours: data.hours,
     status: data.status,
+    mallId: mallId, // Add mallId reference
+    mallCoords: data.mallCoords, // Add mall coordinates for distance calculation
+    floorLabel: data.floorLabel, // Add floor label for display
     createdAt: now,
     updatedAt: now
   };
 
   const docRef = await addDoc(collection(db, 'malls', mallId, 'stores'), storeData);
+  
+  // Clear search cache to ensure new store appears in search results
+  const { clearSearchCache } = await import('./optimized-search');
+  clearSearchCache();
+  
   return docRef.id;
 }
 
@@ -297,8 +309,8 @@ export async function listStores(mallId: string, filters?: {
     q = query(q, where('status', '==', filters.status));
   }
 
-  // Order by name
-  q = query(q, orderBy('name'));
+  // Order by name (only if there are stores)
+  // Note: orderBy can cause issues if field doesn't exist, so we'll sort client-side
 
   const snapshot = await getDocs(q);
   let stores = snapshot.docs.map(doc => ({
@@ -306,15 +318,34 @@ export async function listStores(mallId: string, filters?: {
     ...convertTimestamps(doc.data() as Omit<Store, 'id'>)
   }));
 
+  // Sort by name (client-side)
+  stores.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
   // Apply text search filter (client-side)
   if (filters?.query) {
     const searchTerm = filters.query.toLowerCase();
     stores = stores.filter(store =>
-      store.name.toLowerCase().includes(searchTerm)
+      (store.name || '').toLowerCase().includes(searchTerm)
     );
   }
 
   return stores;
+}
+
+/**
+ * ดึงร้านทั้งหมดจากทุกห้าง (สำหรับ Admin Panel)
+ */
+export async function listAllStores(): Promise<{ store: Store; mallId: string }[]> {
+  const malls = await listMalls();
+  const results: { store: Store; mallId: string }[] = [];
+
+  // ดึงร้านจากทุกห้าง
+  for (const mall of malls) {
+    const stores = await listStores(mall.id!);
+    results.push(...stores.map(store => ({ store, mallId: mall.id! })));
+  }
+
+  return results;
 }
 
 /**

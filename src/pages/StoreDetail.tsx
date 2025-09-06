@@ -16,12 +16,11 @@ import {
   Truck
 } from 'lucide-react';
 
-import { firebaseFirestore } from '@/services/firebaseFirestore';
-import { getMall } from '@/services/firebase/firestore';
+import { getMall, listStores, findStoreById } from '@/services/firebase/firestore';
 import { Store, Mall } from '@/types/mall-system';
 
 const StoreDetail: React.FC = () => {
-  const { mallId, storeId } = useParams<{ mallId: string; storeId: string }>();
+  const { mallId, storeId } = useParams<{ mallId?: string; storeId: string }>();
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -34,23 +33,38 @@ const StoreDetail: React.FC = () => {
     if (storeId) {
       loadStoreData();
     }
-  }, [storeId]);
+  }, [storeId, mallId]);
 
   const loadStoreData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Load store data
-      const storeData = await firebaseFirestore.getStore(storeId!);
+      let storeData: Store | null = null;
+      let mallData: Mall | null = null;
+
+      // If mallId is provided in URL, search in that mall's stores
+      if (mallId) {
+        mallData = await getMall(mallId);
+        if (mallData) {
+          const stores = await listStores(mallId);
+          storeData = stores.find(store => store.id === storeId) || null;
+        }
+      } else {
+        // If no mallId, search across all malls
+        const result = await findStoreById(storeId);
+        if (result) {
+          storeData = result.store;
+          mallData = await getMall(result.mallId);
+        }
+      }
+
       if (!storeData) {
         throw new Error('Store not found');
       }
-      setStore(storeData as Store);
 
-      // Load mall data if mallId is provided
-      if (mallId) {
-        const mallData = await getMall(mallId);
+      setStore(storeData);
+      if (mallData) {
         setMall(mallData);
       }
     } catch (err) {
@@ -227,6 +241,12 @@ const StoreDetail: React.FC = () => {
             {/* Action Buttons */}
             <div className="flex items-center space-x-3">
               <button 
+                onClick={() => navigate(`/admin/stores/${storeId}/edit`)}
+                className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              >
+                แก้ไข
+              </button>
+              <button 
                 onClick={() => showToast('คัดลอกลิงก์แล้ว!')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
@@ -284,12 +304,12 @@ const StoreDetail: React.FC = () => {
 
                      {/* Tags */}
                      <div className="flex flex-wrap gap-2">
-                       {store.tags?.map((tag, index) => (
+                       {(store as any).tags?.map((tag: string, index: number) => (
                          <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg font-medium">
                            {tag}
                          </span>
                        ))}
-                       {store.features?.map((feature, index) => (
+                       {(store as any).features?.map((feature: string, index: number) => (
                          <span key={index} className="px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-lg font-medium">
                            {feature}
                          </span>
@@ -345,7 +365,7 @@ const StoreDetail: React.FC = () => {
                 </div>
               </div>
 
-              {store.website && (
+              {(store as any).website && (
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                     <Globe className="w-5 h-5 text-purple-600" />
@@ -353,12 +373,12 @@ const StoreDetail: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-600">เว็บไซต์</p>
                     <a 
-                      href={store.website} 
+                      href={(store as any).website} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="font-medium text-green-600 hover:text-green-700"
                     >
-                      {store.website.replace(/^https?:\/\//, '')}
+                      {(store as any).website.replace(/^https?:\/\//, '')}
                     </a>
                   </div>
                 </div>
@@ -367,13 +387,13 @@ const StoreDetail: React.FC = () => {
           </div>
 
           {/* Social Links */}
-          {(store.facebook || store.instagram) && (
+          {((store as any).facebook || (store as any).instagram) && (
             <div className="mt-6 pt-6 border-t">
               <p className="text-sm text-gray-600 mb-3">ติดตามเรา</p>
               <div className="flex space-x-3">
-                {store.facebook && (
+                {(store as any).facebook && (
                   <a 
-                    href={store.facebook} 
+                    href={(store as any).facebook} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-10 h-10 bg-blue-100 hover:bg-blue-200 rounded-lg flex items-center justify-center transition-colors"
@@ -383,9 +403,9 @@ const StoreDetail: React.FC = () => {
                     </svg>
                   </a>
                 )}
-                {store.instagram && (
+                {(store as any).instagram && (
                   <a 
-                    href={store.instagram} 
+                    href={(store as any).instagram} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-10 h-10 bg-pink-100 hover:bg-pink-200 rounded-lg flex items-center justify-center transition-colors"

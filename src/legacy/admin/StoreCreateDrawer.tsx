@@ -29,7 +29,7 @@ export function StoreCreateDrawer({
 }: StoreCreateDrawerProps) {
   const [malls, setMalls] = React.useState<Mall[]>([]);
   const [floors, setFloors] = React.useState<Floor[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
   const [isEveryday, setIsEveryday] = React.useState(true);
 
   const categories = [

@@ -1,13 +1,18 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Clock, Building, Store, Settings, Navigation } from "lucide-react";
+import { MapPin, Clock, Settings, Navigation } from "lucide-react";
 
 import { listMalls } from "../services/firebase/firestore";
 import { distanceKm } from "@/services/geoutils/geo-utils";
 import { Mall, Store as StoreType } from "@/types/mall-system";
-import { SkeletonList, ErrorState } from "@/ui";
+import EnhancedSearchBox from "@/components/search/EnhancedSearchBox";
+import { UnifiedSearchResult } from "@/lib/enhanced-search";
+import { ErrorState } from "@/ui";
 import { EmptyState } from "@/ui/EmptyState";
 import { GlobalSearchBox } from "@/features/search";
+import MapView from "@/components/map/MapView";
+import MapControls from "@/components/map/MapControls";
+import MapFilters from "@/components/map/MapFilters";
 
 // Analytics tracking function with device info
 const trackEvent = (eventName: string, category: string, label: string) => {
@@ -32,13 +37,15 @@ const Home: React.FC = () => {
   const [userLoc, setUserLoc] = useState<Loc>(null);
   const [malls, setMalls] = useState<Mall[]>([]);
   const [results, setResults] = useState<Mall[]>([]);
-  const [storeResults, setStoreResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSmartAlert, setShowSmartAlert] = useState(false);
   const [loadingMalls, setLoadingMalls] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'all' | 'open'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [mapFilteredMalls, setMapFilteredMalls] = useState<Mall[]>([]);
+  const [showMapFilters, setShowMapFilters] = useState(false);
+  const [isMapFullscreen, setIsMapFullscreen] = useState(false);
 
   // Load malls from Firebase
   useEffect(() => {
@@ -50,6 +57,7 @@ const Home: React.FC = () => {
         console.log('📊 ข้อมูลห้างที่ได้จาก Firebase:', firestoreMalls);
         setMalls(firestoreMalls);
         setResults(firestoreMalls);
+        setMapFilteredMalls(firestoreMalls);
         console.log('✅ โหลดข้อมูลห้างสำเร็จ:', firestoreMalls.length, 'ห้าง');
         
         // ขอตำแหน่งผู้ใช้อัตโนมัติ
@@ -78,9 +86,16 @@ const Home: React.FC = () => {
     loadMalls();
   }, []);
 
-  // Remove the old search effect since we're using GlobalSearchBox now
+  // Search result handler
+  const handleSearchResultClick = (result: UnifiedSearchResult) => {
+    if (result.kind === 'mall') {
+      navigate(`/malls/${result.name}`);
+    } else {
+      navigate(`/stores/${result.id}`);
+    }
+  };
 
-  const withDistance = useMemo(() => {
+  const withDistance = useMemo((): MallWithDistance[] => {
     return results.map(m => {
       let distance = null;
       if (userLoc && m.coords) {
@@ -129,7 +144,7 @@ const Home: React.FC = () => {
   };
 
   // Filter malls based on active filter
-  const filteredMalls = useMemo(() => {
+  const gridFilteredMalls = useMemo(() => {
     switch (activeFilter) {
       case 'open':
         return withDistance.filter(mall => isMallOpen(mall));
@@ -150,6 +165,36 @@ const Home: React.FC = () => {
       // Fallback to store detail page if no mall info
       navigate(`/stores/${store.id}`);
     }
+  };
+
+  // Map control handlers
+  const handleCenterUserLocation = () => {
+    if (userLoc) {
+      // This will be handled by MapView component
+      console.log('Centering on user location:', userLoc);
+    }
+  };
+
+  const handleShowAllMalls = () => {
+    setMapFilteredMalls(malls);
+    setShowMapFilters(false);
+  };
+
+  const handleToggleMapFilters = () => {
+    setShowMapFilters(!showMapFilters);
+  };
+
+  const handleToggleLayers = () => {
+    // Future: Toggle different map layers
+    console.log('Toggle layers');
+  };
+
+  const handleToggleFullscreen = () => {
+    setIsMapFullscreen(!isMapFullscreen);
+  };
+
+  const handleMapFiltersChange = (newFilteredMalls: Mall[]) => {
+    setMapFilteredMalls(newFilteredMalls);
   };
 
   function handleUseMyLocation() {
@@ -217,13 +262,14 @@ const Home: React.FC = () => {
     return mall.displayName.charAt(0).toUpperCase();
   }
 
-  function getMallBadges(mall: any) {
+  function getMallBadges(mall: MallWithDistance) {
     const badges = [];
     if (mall.distanceKm != null && mall.distanceKm < 1) {
       badges.push({ text: 'ใกล้ฉัน', color: 'bg-green-100 text-green-700' });
     }
     return badges;
   }
+
 
   if (loadingMalls) {
     return (
@@ -303,7 +349,7 @@ const Home: React.FC = () => {
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-semibold text-text-primary mb-4 font-kanit">
+          <h1 data-testid="hero-title" className="text-3xl md:text-4xl font-semibold text-text-primary mb-4 font-kanit">
             หาห้างใกล้คุณ
           </h1>
           <p className="text-text-secondary text-lg mb-2 font-prompt">
@@ -312,6 +358,15 @@ const Home: React.FC = () => {
           <p className="text-gray-500 text-sm mb-6 font-prompt">
             {userLoc ? 'เรียงจากระยะทางใกล้คุณที่สุด' : 'ค้นหาห้างสรรพสินค้าใกล้ตำแหน่งของคุณ'}
           </p>
+          
+          {/* Search Box */}
+          <div className="max-w-2xl mx-auto mb-6">
+            <EnhancedSearchBox
+              onResultClick={handleSearchResultClick}
+              placeholder="ค้นหาห้างหรือแบรนด์ เช่น Central Rama 3, Zara, Starbucks…"
+              userLocation={userLoc}
+            />
+          </div>
           
           {/* Primary CTA - Use My Location */}
           <div className="flex flex-col items-center space-y-2">
@@ -339,15 +394,6 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Search Box */}
-        <div className="mb-8 md:hidden">
-          <GlobalSearchBox
-            onMallSelect={handleMallSelect}
-            onStoreSelect={handleStoreSelect}
-            className="max-w-2xl mx-auto"
-            placeholder="ค้นหาห้างหรือแบรนด์ เช่น Central Rama 3, Zara, Starbucks…"
-          />
-        </div>
 
         {/* Smart Location Alert */}
         {showSmartAlert && (
@@ -504,14 +550,14 @@ const Home: React.FC = () => {
               {/* Results Count */}
               <div className="mb-4">
                 <p className="text-sm text-gray-600 font-prompt">
-                  แสดง {filteredMalls.length} จาก {withDistance.length} ห้าง
+                  แสดง {gridFilteredMalls.length} จาก {withDistance.length} ห้าง
                 </p>
               </div>
               
               {/* Conditional Rendering based on View Mode */}
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                  {filteredMalls.map((mall) => (
+                  {gridFilteredMalls.map((mall) => (
                   <Link 
                     key={mall.id}
                     to={`/malls/${mall.name}`}
@@ -617,38 +663,33 @@ const Home: React.FC = () => {
                 </div>
               ) : (
                 /* Map View */
-                <div className="bg-gray-100 rounded-2xl p-8 text-center">
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 font-kanit">
-                    🗺️ มุมมองแผนที่
-                  </h3>
-                  <p className="text-gray-600 mb-4 font-prompt">
-                    กำลังพัฒนา... จะแสดงแผนที่พร้อม pin ของห้างสรรพสินค้า
-                  </p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {filteredMalls.slice(0, 6).map((mall) => (
-                      <div key={mall.id} className="bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-200">
-                        <div className="flex items-center space-x-2">
-                          {mall.logoUrl ? (
-                            <img
-                              src={mall.logoUrl}
-                              alt={`${mall.displayName} logo`}
-                              className="w-6 h-6 rounded object-cover"
-                            />
-                          ) : (
-                            <div className={`w-6 h-6 ${getMallColor(mall.id)} rounded flex items-center justify-center text-white text-xs font-bold`}>
-                              {getMallInitial(mall)}
-                            </div>
-                          )}
-                          <span className="text-sm font-medium text-gray-900">{mall.displayName}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <div className={`relative ${isMapFullscreen ? 'fixed inset-0 z-50 bg-white' : 'h-96'}`}>
+                  <MapView
+                    malls={mapFilteredMalls}
+                    userLocation={userLoc}
+                    onMallClick={handleMallSelect}
+                    className="w-full h-full rounded-2xl"
+                  />
+                  
+                  {/* Map Controls */}
+                  <MapControls
+                    onCenterUserLocation={handleCenterUserLocation}
+                    onShowAllMalls={handleShowAllMalls}
+                    onToggleFilters={handleToggleMapFilters}
+                    onToggleLayers={handleToggleLayers}
+                    onToggleFullscreen={handleToggleFullscreen}
+                    isFullscreen={isMapFullscreen}
+                    userLocation={userLoc}
+                    mallsCount={mapFilteredMalls.length}
+                  />
+                  
+                  {/* Map Filters */}
+                  <MapFilters
+                    malls={malls}
+                    onFiltersChange={handleMapFiltersChange}
+                    isVisible={showMapFilters}
+                    onClose={() => setShowMapFilters(false)}
+                  />
                 </div>
               )}
               
@@ -764,6 +805,7 @@ const Home: React.FC = () => {
             </div>
           )}
         </div>
+
       </main>
     </div>
   );

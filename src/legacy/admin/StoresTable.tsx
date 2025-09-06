@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { deleteStore } from '@/services/firebase/firestore';
+import StoreEditDrawer from '../../components/admin/StoreEditDrawer';
 
 interface StoresTableProps {
   stores: any[];
@@ -13,6 +14,8 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
   const [searchQuery, setSearchQuery] = useState('');
   const [mallFilter, setMallFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [editingStore, setEditingStore] = useState<any>(null);
+  const [showEditDrawer, setShowEditDrawer] = useState(false);
 
   const getMallName = (mallId: string) => {
     const mall = malls.find(m => m.id === mallId);
@@ -65,6 +68,22 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleEdit = (store: any) => {
+    setEditingStore(store);
+    setShowEditDrawer(true);
+  };
+
+  const handleEditSuccess = () => {
+    onRefresh();
+    setShowEditDrawer(false);
+    setEditingStore(null);
+  };
+
+  const handleEditClose = () => {
+    setShowEditDrawer(false);
+    setEditingStore(null);
   };
 
 
@@ -209,10 +228,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex items-center space-x-2">
                     <button
-                      onClick={() => {
-                        // TODO: Implement edit functionality
-                        alert('ฟีเจอร์แก้ไขจะเปิดใช้งานเร็วๆ นี้');
-                      }}
+                      onClick={() => handleEdit(store)}
                       className="text-blue-600 hover:text-blue-900 transition-colors"
                       title="แก้ไข"
                       aria-label={`แก้ไขร้านค้า ${store.name}`}
@@ -243,6 +259,14 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
           </tbody>
         </table>
       </div>
+
+      {/* Store Edit Drawer */}
+      <StoreEditDrawer
+        isOpen={showEditDrawer}
+        onClose={handleEditClose}
+        store={editingStore}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   );
 };

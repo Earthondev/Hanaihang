@@ -1,0 +1,507 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - img [ref=e9]
+        - generic [ref=e12]:
+          - generic [ref=e13]: HaaNai
+          - generic [ref=e14]: Hang
+      - generic [ref=e17]:
+        - generic:
+          - img
+        - textbox "ค้นหาห้างหรือแบรนด์..." [ref=e18]
+        - button "ใช้ตำแหน่งของฉัน" [ref=e19] [cursor=pointer]:
+          - img [ref=e20] [cursor=pointer]
+      - link "Admin Panel" [ref=e24] [cursor=pointer]:
+        - /url: /admin
+        - img [ref=e25] [cursor=pointer]
+  - main [ref=e28]:
+    - generic [ref=e29]:
+      - heading "หาห้างใกล้คุณ" [level=1] [ref=e30]
+      - paragraph [ref=e31]: เราจะช่วยหาห้างสรรพสินค้าที่ใกล้คุณที่สุด พร้อมเวลาเปิด–ปิด และการเดินทาง
+      - paragraph [ref=e32]: ค้นหาห้างสรรพสินค้าใกล้ตำแหน่งของคุณ
+      - generic [ref=e35]:
+        - generic:
+          - img
+        - searchbox "ค้นหาห้างหรือแบรนด์ เช่น Central Rama 3, Zara, Starbucks…" [ref=e36]
+      - generic [ref=e37]:
+        - button "🔍 หาศูนย์การค้าใกล้คุณ" [ref=e38] [cursor=pointer]:
+          - img [ref=e39] [cursor=pointer]
+          - generic [ref=e41] [cursor=pointer]: 🔍 หาศูนย์การค้าใกล้คุณ
+        - paragraph [ref=e42]: กดเพื่ออนุญาตใช้ตำแหน่งปัจจุบันของคุณ
+    - generic [ref=e44]:
+      - heading "🏢 ห้างสรรพสินค้า" [level=2] [ref=e47]
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - button "🏢ทั้งหมด" [ref=e52] [cursor=pointer]:
+            - generic [ref=e53] [cursor=pointer]: 🏢
+            - text: ทั้งหมด
+          - button "🕐เปิดอยู่ตอนนี้0" [ref=e54] [cursor=pointer]:
+            - generic [ref=e55] [cursor=pointer]: 🕐
+            - text: เปิดอยู่ตอนนี้
+            - generic [ref=e56] [cursor=pointer]: "0"
+        - generic [ref=e57]:
+          - button "แสดงแบบ Grid" [ref=e58] [cursor=pointer]:
+            - img [ref=e59] [cursor=pointer]
+          - button "🗺️ ดูบนแผนที่" [ref=e61] [cursor=pointer]:
+            - img [ref=e62] [cursor=pointer]
+      - paragraph [ref=e65]: แสดง 23 จาก 23 ห้าง
+      - generic [ref=e66]:
+        - link "C Central Festival EastVille 69,69/1-3 Prasert-Manukitch Rd, Lat Phrao, Bangkok 10230 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Lat Phrao ดูรายละเอียด" [ref=e67] [cursor=pointer]:
+          - /url: /malls/undefined
+          - generic [ref=e69] [cursor=pointer]:
+            - generic [ref=e71] [cursor=pointer]: C
+            - heading "Central Festival EastVille" [level=3] [ref=e72] [cursor=pointer]
+            - paragraph [ref=e73] [cursor=pointer]: 69,69/1-3 Prasert-Manukitch Rd, Lat Phrao, Bangkok 10230
+            - generic [ref=e74] [cursor=pointer]:
+              - generic [ref=e75] [cursor=pointer]:
+                - img [ref=e76] [cursor=pointer]
+                - generic [ref=e79] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e80] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e81] [cursor=pointer]:
+                - generic [ref=e82] [cursor=pointer]:
+                  - generic [ref=e83] [cursor=pointer]: 🚗
+                  - generic [ref=e84] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e85] [cursor=pointer]: Lat Phrao
+              - generic [ref=e87] [cursor=pointer]:
+                - generic [ref=e88] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e89] [cursor=pointer]
+        - link "C Central Ladprao 1691 Phahonyothin Rd, Chatuchak, Bangkok 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Bangkok ดูรายละเอียด" [ref=e91] [cursor=pointer]:
+          - /url: /malls/central-ladprao
+          - generic [ref=e93] [cursor=pointer]:
+            - generic [ref=e95] [cursor=pointer]: C
+            - heading "Central Ladprao" [level=3] [ref=e96] [cursor=pointer]
+            - paragraph [ref=e97] [cursor=pointer]: 1691 Phahonyothin Rd, Chatuchak, Bangkok
+            - generic [ref=e98] [cursor=pointer]:
+              - generic [ref=e99] [cursor=pointer]:
+                - img [ref=e100] [cursor=pointer]
+                - generic [ref=e103] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e104] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e105] [cursor=pointer]:
+                - generic [ref=e106] [cursor=pointer]:
+                  - generic [ref=e107] [cursor=pointer]: 🚗
+                  - generic [ref=e108] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e109] [cursor=pointer]: Bangkok
+              - generic [ref=e111] [cursor=pointer]:
+                - generic [ref=e112] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e113] [cursor=pointer]
+        - link "C Central Pinklao 7/222 Borommaratchachonnani Rd, Arun Amarin, Bangkok 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Bangkok ดูรายละเอียด" [ref=e115] [cursor=pointer]:
+          - /url: /malls/central-pinklao
+          - generic [ref=e117] [cursor=pointer]:
+            - generic [ref=e119] [cursor=pointer]: C
+            - heading "Central Pinklao" [level=3] [ref=e120] [cursor=pointer]
+            - paragraph [ref=e121] [cursor=pointer]: 7/222 Borommaratchachonnani Rd, Arun Amarin, Bangkok
+            - generic [ref=e122] [cursor=pointer]:
+              - generic [ref=e123] [cursor=pointer]:
+                - img [ref=e124] [cursor=pointer]
+                - generic [ref=e127] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e128] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e129] [cursor=pointer]:
+                - generic [ref=e130] [cursor=pointer]:
+                  - generic [ref=e131] [cursor=pointer]: 🚗
+                  - generic [ref=e132] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e133] [cursor=pointer]: Bangkok
+              - generic [ref=e135] [cursor=pointer]:
+                - generic [ref=e136] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e137] [cursor=pointer]
+        - link "C Central Plaza Grand Rama 9 9/9 Rama IX Rd, Huai Khwang, Bangkok 10310 10:00 - 22:00 🚗 ไม่ทราบระยะทาง Huai Khwang ดูรายละเอียด" [ref=e139] [cursor=pointer]:
+          - /url: /malls/undefined
+          - generic [ref=e141] [cursor=pointer]:
+            - generic [ref=e143] [cursor=pointer]: C
+            - heading "Central Plaza Grand Rama 9" [level=3] [ref=e144] [cursor=pointer]
+            - paragraph [ref=e145] [cursor=pointer]: 9/9 Rama IX Rd, Huai Khwang, Bangkok 10310
+            - generic [ref=e146] [cursor=pointer]:
+              - generic [ref=e147] [cursor=pointer]:
+                - img [ref=e148] [cursor=pointer]
+                - generic [ref=e151] [cursor=pointer]: 10:00 - 22:00
+              - generic [ref=e152] [cursor=pointer]:
+                - generic [ref=e153] [cursor=pointer]:
+                  - generic [ref=e154] [cursor=pointer]: 🚗
+                  - generic [ref=e155] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e156] [cursor=pointer]: Huai Khwang
+              - generic [ref=e158] [cursor=pointer]:
+                - generic [ref=e159] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e160] [cursor=pointer]
+        - link "C Central Plaza Ladprao 1693 Phahon Yothin Rd, Chatuchak, Bangkok 10900 10:00 - 22:00 🚗 ไม่ทราบระยะทาง Chatuchak ดูรายละเอียด" [ref=e162] [cursor=pointer]:
+          - /url: /malls/undefined
+          - generic [ref=e164] [cursor=pointer]:
+            - generic [ref=e166] [cursor=pointer]: C
+            - heading "Central Plaza Ladprao" [level=3] [ref=e167] [cursor=pointer]
+            - paragraph [ref=e168] [cursor=pointer]: 1693 Phahon Yothin Rd, Chatuchak, Bangkok 10900
+            - generic [ref=e169] [cursor=pointer]:
+              - generic [ref=e170] [cursor=pointer]:
+                - img [ref=e171] [cursor=pointer]
+                - generic [ref=e174] [cursor=pointer]: 10:00 - 22:00
+              - generic [ref=e175] [cursor=pointer]:
+                - generic [ref=e176] [cursor=pointer]:
+                  - generic [ref=e177] [cursor=pointer]: 🚗
+                  - generic [ref=e178] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e179] [cursor=pointer]: Chatuchak
+              - generic [ref=e181] [cursor=pointer]:
+                - generic [ref=e182] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e183] [cursor=pointer]
+        - link "C Central Plaza Pinklao 7/1 Borommaratchachonnani Rd, Arun Amarin, Bangkok 10700 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Bang Phlat ดูรายละเอียด" [ref=e185] [cursor=pointer]:
+          - /url: /malls/undefined
+          - generic [ref=e187] [cursor=pointer]:
+            - generic [ref=e189] [cursor=pointer]: C
+            - heading "Central Plaza Pinklao" [level=3] [ref=e190] [cursor=pointer]
+            - paragraph [ref=e191] [cursor=pointer]: 7/1 Borommaratchachonnani Rd, Arun Amarin, Bangkok 10700
+            - generic [ref=e192] [cursor=pointer]:
+              - generic [ref=e193] [cursor=pointer]:
+                - img [ref=e194] [cursor=pointer]
+                - generic [ref=e197] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e198] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e199] [cursor=pointer]:
+                - generic [ref=e200] [cursor=pointer]:
+                  - generic [ref=e201] [cursor=pointer]: 🚗
+                  - generic [ref=e202] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e203] [cursor=pointer]: Bang Phlat
+              - generic [ref=e205] [cursor=pointer]:
+                - generic [ref=e206] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e207] [cursor=pointer]
+        - link "C Central Plaza Rama 2 128 Rama II Rd, Samae Dam, Bang Khun Thian, Bangkok 10150 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Bang Khun Thian ดูรายละเอียด" [ref=e209] [cursor=pointer]:
+          - /url: /malls/undefined
+          - generic [ref=e211] [cursor=pointer]:
+            - generic [ref=e213] [cursor=pointer]: C
+            - heading "Central Plaza Rama 2" [level=3] [ref=e214] [cursor=pointer]
+            - paragraph [ref=e215] [cursor=pointer]: 128 Rama II Rd, Samae Dam, Bang Khun Thian, Bangkok 10150
+            - generic [ref=e216] [cursor=pointer]:
+              - generic [ref=e217] [cursor=pointer]:
+                - img [ref=e218] [cursor=pointer]
+                - generic [ref=e221] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e222] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e223] [cursor=pointer]:
+                - generic [ref=e224] [cursor=pointer]:
+                  - generic [ref=e225] [cursor=pointer]: 🚗
+                  - generic [ref=e226] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e227] [cursor=pointer]: Bang Khun Thian
+              - generic [ref=e229] [cursor=pointer]:
+                - generic [ref=e230] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e231] [cursor=pointer]
+        - link "C Central Plaza Rama 3 79 Ratchadaphisek Rd, Chong Nonsi, Yan Nawa, Bangkok 10120 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Yan Nawa ดูรายละเอียด" [ref=e233] [cursor=pointer]:
+          - /url: /malls/undefined
+          - generic [ref=e235] [cursor=pointer]:
+            - generic [ref=e237] [cursor=pointer]: C
+            - heading "Central Plaza Rama 3" [level=3] [ref=e238] [cursor=pointer]
+            - paragraph [ref=e239] [cursor=pointer]: 79 Ratchadaphisek Rd, Chong Nonsi, Yan Nawa, Bangkok 10120
+            - generic [ref=e240] [cursor=pointer]:
+              - generic [ref=e241] [cursor=pointer]:
+                - img [ref=e242] [cursor=pointer]
+                - generic [ref=e245] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e246] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e247] [cursor=pointer]:
+                - generic [ref=e248] [cursor=pointer]:
+                  - generic [ref=e249] [cursor=pointer]: 🚗
+                  - generic [ref=e250] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e251] [cursor=pointer]: Yan Nawa
+              - generic [ref=e253] [cursor=pointer]:
+                - generic [ref=e254] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e255] [cursor=pointer]
+        - link "C Central Ramintra 109 Ramintra Rd, Anusawari, Bang Khen, Bangkok 10220 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Bang Khen ดูรายละเอียด" [ref=e257] [cursor=pointer]:
+          - /url: /malls/undefined
+          - generic [ref=e259] [cursor=pointer]:
+            - generic [ref=e261] [cursor=pointer]: C
+            - heading "Central Ramintra" [level=3] [ref=e262] [cursor=pointer]
+            - paragraph [ref=e263] [cursor=pointer]: 109 Ramintra Rd, Anusawari, Bang Khen, Bangkok 10220
+            - generic [ref=e264] [cursor=pointer]:
+              - generic [ref=e265] [cursor=pointer]:
+                - img [ref=e266] [cursor=pointer]
+                - generic [ref=e269] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e270] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e271] [cursor=pointer]:
+                - generic [ref=e272] [cursor=pointer]:
+                  - generic [ref=e273] [cursor=pointer]: 🚗
+                  - generic [ref=e274] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e275] [cursor=pointer]: Bang Khen
+              - generic [ref=e277] [cursor=pointer]:
+                - generic [ref=e278] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e279] [cursor=pointer]
+        - link "C Central WestGate 199,199/1,199/2 Moo 6, Sao Thong Hin, Bang Yai, Nonthaburi 11140 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Bang Yai ดูรายละเอียด" [ref=e281] [cursor=pointer]:
+          - /url: /malls/undefined
+          - generic [ref=e283] [cursor=pointer]:
+            - generic [ref=e285] [cursor=pointer]: C
+            - heading "Central WestGate" [level=3] [ref=e286] [cursor=pointer]
+            - paragraph [ref=e287] [cursor=pointer]: 199,199/1,199/2 Moo 6, Sao Thong Hin, Bang Yai, Nonthaburi 11140
+            - generic [ref=e288] [cursor=pointer]:
+              - generic [ref=e289] [cursor=pointer]:
+                - img [ref=e290] [cursor=pointer]
+                - generic [ref=e293] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e294] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e295] [cursor=pointer]:
+                - generic [ref=e296] [cursor=pointer]:
+                  - generic [ref=e297] [cursor=pointer]: 🚗
+                  - generic [ref=e298] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e299] [cursor=pointer]: Bang Yai
+              - generic [ref=e301] [cursor=pointer]:
+                - generic [ref=e302] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e303] [cursor=pointer]
+        - link "C CentralWorld 999/9 Rama I Rd, Pathum Wan, Bangkok 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Bangkok ดูรายละเอียด" [ref=e305] [cursor=pointer]:
+          - /url: /malls/centralworld
+          - generic [ref=e307] [cursor=pointer]:
+            - generic [ref=e309] [cursor=pointer]: C
+            - heading "CentralWorld" [level=3] [ref=e310] [cursor=pointer]
+            - paragraph [ref=e311] [cursor=pointer]: 999/9 Rama I Rd, Pathum Wan, Bangkok
+            - generic [ref=e312] [cursor=pointer]:
+              - generic [ref=e313] [cursor=pointer]:
+                - img [ref=e314] [cursor=pointer]
+                - generic [ref=e317] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e318] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e319] [cursor=pointer]:
+                - generic [ref=e320] [cursor=pointer]:
+                  - generic [ref=e321] [cursor=pointer]: 🚗
+                  - generic [ref=e322] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e323] [cursor=pointer]: Bangkok
+              - generic [ref=e325] [cursor=pointer]:
+                - generic [ref=e326] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e327] [cursor=pointer]
+        - link "E EmQuartier 693, 695 Sukhumvit Rd, Khlong Tan Nuea, Watthana, Bangkok 10110 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Watthana ดูรายละเอียด" [ref=e329] [cursor=pointer]:
+          - /url: /malls/EmQuartier
+          - generic [ref=e331] [cursor=pointer]:
+            - generic [ref=e333] [cursor=pointer]: E
+            - heading "EmQuartier" [level=3] [ref=e334] [cursor=pointer]
+            - paragraph [ref=e335] [cursor=pointer]: 693, 695 Sukhumvit Rd, Khlong Tan Nuea, Watthana, Bangkok 10110
+            - generic [ref=e336] [cursor=pointer]:
+              - generic [ref=e337] [cursor=pointer]:
+                - img [ref=e338] [cursor=pointer]
+                - generic [ref=e341] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e342] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e343] [cursor=pointer]:
+                - generic [ref=e344] [cursor=pointer]:
+                  - generic [ref=e345] [cursor=pointer]: 🚗
+                  - generic [ref=e346] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e347] [cursor=pointer]: Watthana
+              - generic [ref=e349] [cursor=pointer]:
+                - generic [ref=e350] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e351] [cursor=pointer]
+        - link "F Future Park Rangsit 94 Phahonyothin Rd, Prachathipat, Thanyaburi, Pathum Thani 12130 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Thanyaburi ดูรายละเอียด" [ref=e353] [cursor=pointer]:
+          - /url: /malls/Future Park Rangsit
+          - generic [ref=e355] [cursor=pointer]:
+            - generic [ref=e357] [cursor=pointer]: F
+            - heading "Future Park Rangsit" [level=3] [ref=e358] [cursor=pointer]
+            - paragraph [ref=e359] [cursor=pointer]: 94 Phahonyothin Rd, Prachathipat, Thanyaburi, Pathum Thani 12130
+            - generic [ref=e360] [cursor=pointer]:
+              - generic [ref=e361] [cursor=pointer]:
+                - img [ref=e362] [cursor=pointer]
+                - generic [ref=e365] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e366] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e367] [cursor=pointer]:
+                - generic [ref=e368] [cursor=pointer]:
+                  - generic [ref=e369] [cursor=pointer]: 🚗
+                  - generic [ref=e370] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e371] [cursor=pointer]: Thanyaburi
+              - generic [ref=e373] [cursor=pointer]:
+                - generic [ref=e374] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e375] [cursor=pointer]
+        - link "I ICONSIAM 299 Charoen Nakhon Rd, Khlong Ton Sai, Khlong San, Bangkok 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Bangkok ดูรายละเอียด" [ref=e377] [cursor=pointer]:
+          - /url: /malls/iconsiam
+          - generic [ref=e379] [cursor=pointer]:
+            - generic [ref=e381] [cursor=pointer]: I
+            - heading "ICONSIAM" [level=3] [ref=e382] [cursor=pointer]
+            - paragraph [ref=e383] [cursor=pointer]: 299 Charoen Nakhon Rd, Khlong Ton Sai, Khlong San, Bangkok
+            - generic [ref=e384] [cursor=pointer]:
+              - generic [ref=e385] [cursor=pointer]:
+                - img [ref=e386] [cursor=pointer]
+                - generic [ref=e389] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e390] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e391] [cursor=pointer]:
+                - generic [ref=e392] [cursor=pointer]:
+                  - generic [ref=e393] [cursor=pointer]: 🚗
+                  - generic [ref=e394] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e395] [cursor=pointer]: Bangkok
+              - generic [ref=e397] [cursor=pointer]:
+                - generic [ref=e398] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e399] [cursor=pointer]
+        - link "M MBK Center 444 Phaya Thai Rd, Wang Mai, Pathum Wan, Bangkok 10330 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Pathum Wan ดูรายละเอียด" [ref=e401] [cursor=pointer]:
+          - /url: /malls/MBK Center
+          - generic [ref=e403] [cursor=pointer]:
+            - generic [ref=e405] [cursor=pointer]: M
+            - heading "MBK Center" [level=3] [ref=e406] [cursor=pointer]
+            - paragraph [ref=e407] [cursor=pointer]: 444 Phaya Thai Rd, Wang Mai, Pathum Wan, Bangkok 10330
+            - generic [ref=e408] [cursor=pointer]:
+              - generic [ref=e409] [cursor=pointer]:
+                - img [ref=e410] [cursor=pointer]
+                - generic [ref=e413] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e414] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e415] [cursor=pointer]:
+                - generic [ref=e416] [cursor=pointer]:
+                  - generic [ref=e417] [cursor=pointer]: 🚗
+                  - generic [ref=e418] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e419] [cursor=pointer]: Pathum Wan
+              - generic [ref=e421] [cursor=pointer]:
+                - generic [ref=e422] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e423] [cursor=pointer]
+        - link "M Mega Bangna 39 Moo 6, Bang Na-Trat Rd, Bang Kaeo, Bang Phli, Samut Prakan 10540 10:00 - 22:00 🚗 ไม่ทราบระยะทาง Bang Phli ดูรายละเอียด" [ref=e425] [cursor=pointer]:
+          - /url: /malls/undefined
+          - generic [ref=e427] [cursor=pointer]:
+            - generic [ref=e429] [cursor=pointer]: M
+            - heading "Mega Bangna" [level=3] [ref=e430] [cursor=pointer]
+            - paragraph [ref=e431] [cursor=pointer]: 39 Moo 6, Bang Na-Trat Rd, Bang Kaeo, Bang Phli, Samut Prakan 10540
+            - generic [ref=e432] [cursor=pointer]:
+              - generic [ref=e433] [cursor=pointer]:
+                - img [ref=e434] [cursor=pointer]
+                - generic [ref=e437] [cursor=pointer]: 10:00 - 22:00
+              - generic [ref=e438] [cursor=pointer]:
+                - generic [ref=e439] [cursor=pointer]:
+                  - generic [ref=e440] [cursor=pointer]: 🚗
+                  - generic [ref=e441] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e442] [cursor=pointer]: Bang Phli
+              - generic [ref=e444] [cursor=pointer]:
+                - generic [ref=e445] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e446] [cursor=pointer]
+        - link "S Seacon Square Srinakarin 55 Srinagarindra Rd, Nong Bon, Prawet, Bangkok 10250 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Prawet ดูรายละเอียด" [ref=e448] [cursor=pointer]:
+          - /url: /malls/undefined
+          - generic [ref=e450] [cursor=pointer]:
+            - generic [ref=e452] [cursor=pointer]: S
+            - heading "Seacon Square Srinakarin" [level=3] [ref=e453] [cursor=pointer]
+            - paragraph [ref=e454] [cursor=pointer]: 55 Srinagarindra Rd, Nong Bon, Prawet, Bangkok 10250
+            - generic [ref=e455] [cursor=pointer]:
+              - generic [ref=e456] [cursor=pointer]:
+                - img [ref=e457] [cursor=pointer]
+                - generic [ref=e460] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e461] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e462] [cursor=pointer]:
+                - generic [ref=e463] [cursor=pointer]:
+                  - generic [ref=e464] [cursor=pointer]: 🚗
+                  - generic [ref=e465] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e466] [cursor=pointer]: Prawet
+              - generic [ref=e468] [cursor=pointer]:
+                - generic [ref=e469] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e470] [cursor=pointer]
+        - link "T Terminal 21 Asok 2,88 Sukhumvit Rd, Khlong Toei Nuea, Watthana, Bangkok 10110 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Watthana ดูรายละเอียด" [ref=e472] [cursor=pointer]:
+          - /url: /malls/Terminal 21 Asok
+          - generic [ref=e474] [cursor=pointer]:
+            - generic [ref=e476] [cursor=pointer]: T
+            - heading "Terminal 21 Asok" [level=3] [ref=e477] [cursor=pointer]
+            - paragraph [ref=e478] [cursor=pointer]: 2,88 Sukhumvit Rd, Khlong Toei Nuea, Watthana, Bangkok 10110
+            - generic [ref=e479] [cursor=pointer]:
+              - generic [ref=e480] [cursor=pointer]:
+                - img [ref=e481] [cursor=pointer]
+                - generic [ref=e484] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e485] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e486] [cursor=pointer]:
+                - generic [ref=e487] [cursor=pointer]:
+                  - generic [ref=e488] [cursor=pointer]: 🚗
+                  - generic [ref=e489] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e490] [cursor=pointer]: Watthana
+              - generic [ref=e492] [cursor=pointer]:
+                - generic [ref=e493] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e494] [cursor=pointer]
+        - link "T The Emporium 622 Sukhumvit Rd, Khlong Tan, Khlong Toei, Bangkok 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Bangkok ดูรายละเอียด" [ref=e496] [cursor=pointer]:
+          - /url: /malls/emporium
+          - generic [ref=e498] [cursor=pointer]:
+            - generic [ref=e500] [cursor=pointer]: T
+            - heading "The Emporium" [level=3] [ref=e501] [cursor=pointer]
+            - paragraph [ref=e502] [cursor=pointer]: 622 Sukhumvit Rd, Khlong Tan, Khlong Toei, Bangkok
+            - generic [ref=e503] [cursor=pointer]:
+              - generic [ref=e504] [cursor=pointer]:
+                - img [ref=e505] [cursor=pointer]
+                - generic [ref=e508] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e509] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e510] [cursor=pointer]:
+                - generic [ref=e511] [cursor=pointer]:
+                  - generic [ref=e512] [cursor=pointer]: 🚗
+                  - generic [ref=e513] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e514] [cursor=pointer]: Bangkok
+              - generic [ref=e516] [cursor=pointer]:
+                - generic [ref=e517] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e518] [cursor=pointer]
+        - link "T The Mall Bangkapi 3522 Lat Phrao Rd, Khlong Chan, Bang Kapi, Bangkok 10240 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Bang Kapi ดูรายละเอียด" [ref=e520] [cursor=pointer]:
+          - /url: /malls/The Mall Lifestore Bangkapi
+          - generic [ref=e522] [cursor=pointer]:
+            - generic [ref=e524] [cursor=pointer]: T
+            - heading "The Mall Bangkapi" [level=3] [ref=e525] [cursor=pointer]
+            - paragraph [ref=e526] [cursor=pointer]: 3522 Lat Phrao Rd, Khlong Chan, Bang Kapi, Bangkok 10240
+            - generic [ref=e527] [cursor=pointer]:
+              - generic [ref=e528] [cursor=pointer]:
+                - img [ref=e529] [cursor=pointer]
+                - generic [ref=e532] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e533] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e534] [cursor=pointer]:
+                - generic [ref=e535] [cursor=pointer]:
+                  - generic [ref=e536] [cursor=pointer]: 🚗
+                  - generic [ref=e537] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e538] [cursor=pointer]: Bang Kapi
+              - generic [ref=e540] [cursor=pointer]:
+                - generic [ref=e541] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e542] [cursor=pointer]
+        - link "T The Mall Lifestore Bangkapi 3522 Lat Phrao Rd, Bang Kapi, Bangkok 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Bangkok ดูรายละเอียด" [ref=e544] [cursor=pointer]:
+          - /url: /malls/the-mall-bangkapi
+          - generic [ref=e546] [cursor=pointer]:
+            - generic [ref=e548] [cursor=pointer]: T
+            - heading "The Mall Lifestore Bangkapi" [level=3] [ref=e549] [cursor=pointer]
+            - paragraph [ref=e550] [cursor=pointer]: 3522 Lat Phrao Rd, Bang Kapi, Bangkok
+            - generic [ref=e551] [cursor=pointer]:
+              - generic [ref=e552] [cursor=pointer]:
+                - img [ref=e553] [cursor=pointer]
+                - generic [ref=e556] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e557] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e558] [cursor=pointer]:
+                - generic [ref=e559] [cursor=pointer]:
+                  - generic [ref=e560] [cursor=pointer]: 🚗
+                  - generic [ref=e561] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e562] [cursor=pointer]: Bangkok
+              - generic [ref=e564] [cursor=pointer]:
+                - generic [ref=e565] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e566] [cursor=pointer]
+        - link "T The Mall Ngamwongwan 30-39 Ngam Wong Wan Rd, Bang Khen, Mueang Nonthaburi, Nonthaburi 11000 10:00 - 22:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง Mueang Nonthaburi ดูรายละเอียด" [ref=e568] [cursor=pointer]:
+          - /url: /malls/undefined
+          - generic [ref=e570] [cursor=pointer]:
+            - generic [ref=e572] [cursor=pointer]: T
+            - heading "The Mall Ngamwongwan" [level=3] [ref=e573] [cursor=pointer]
+            - paragraph [ref=e574] [cursor=pointer]: 30-39 Ngam Wong Wan Rd, Bang Khen, Mueang Nonthaburi, Nonthaburi 11000
+            - generic [ref=e575] [cursor=pointer]:
+              - generic [ref=e576] [cursor=pointer]:
+                - img [ref=e577] [cursor=pointer]
+                - generic [ref=e580] [cursor=pointer]:
+                  - text: 10:00 - 22:00
+                  - generic [ref=e581] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e582] [cursor=pointer]:
+                - generic [ref=e583] [cursor=pointer]:
+                  - generic [ref=e584] [cursor=pointer]: 🚗
+                  - generic [ref=e585] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e586] [cursor=pointer]: Mueang Nonthaburi
+              - generic [ref=e588] [cursor=pointer]:
+                - generic [ref=e589] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e590] [cursor=pointer]
+        - link "T The Mall Thapra 129 ถนนรัชดาภิเษก แขวงบุคคโล เขตธนบุรี กรุงเทพมหานคร 10600 10:00 - 21:00(ปิดแล้ว) 🚗 ไม่ทราบระยะทาง ธนบุรี ดูรายละเอียด" [ref=e592] [cursor=pointer]:
+          - /url: /malls/the-mall-thapra
+          - generic [ref=e594] [cursor=pointer]:
+            - generic [ref=e596] [cursor=pointer]: T
+            - heading "The Mall Thapra" [level=3] [ref=e597] [cursor=pointer]
+            - paragraph [ref=e598] [cursor=pointer]: 129 ถนนรัชดาภิเษก แขวงบุคคโล เขตธนบุรี กรุงเทพมหานคร 10600
+            - generic [ref=e599] [cursor=pointer]:
+              - generic [ref=e600] [cursor=pointer]:
+                - img [ref=e601] [cursor=pointer]
+                - generic [ref=e604] [cursor=pointer]:
+                  - text: 10:00 - 21:00
+                  - generic [ref=e605] [cursor=pointer]: (ปิดแล้ว)
+              - generic [ref=e606] [cursor=pointer]:
+                - generic [ref=e607] [cursor=pointer]:
+                  - generic [ref=e608] [cursor=pointer]: 🚗
+                  - generic [ref=e609] [cursor=pointer]: ไม่ทราบระยะทาง
+                - generic [ref=e610] [cursor=pointer]: ธนบุรี
+              - generic [ref=e612] [cursor=pointer]:
+                - generic [ref=e613] [cursor=pointer]: ดูรายละเอียด
+                - img [ref=e614] [cursor=pointer]
+```

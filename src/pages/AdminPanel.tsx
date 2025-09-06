@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/config/contexts/AuthContext';
-import { listMalls } from '@/services/firebase/firestore';
+import { listMalls, listAllStores } from '@/services/firebase/firestore';
+import { listMallsOptimized, listAllStoresBatchOptimized, clearStoresCache, clearMallsCache, getCacheStats } from '@/lib/optimized-firestore';
 import { firebaseFirestore } from '@/services/firebaseFirestore';
-import MallCreateDrawer from '@/legacy/admin/MallCreateDrawer';
-import { StoreCreateDrawer } from '@/legacy/admin/StoreCreateDrawer';
-import MallsTableView from '@/legacy/admin/MallsTableView';
+// import MallCreateDrawer from '@/legacy/admin/MallCreateDrawer';
+// import { StoreCreateDrawer } from '@/legacy/admin/StoreCreateDrawer';
+import MallsTableView from '@/components/admin/MallsTableView';
 import StoresTable from '@/legacy/admin/StoresTable';
 import MallLogoManager from '@/components/admin/MallLogoManager';
 
@@ -16,10 +17,11 @@ const AdminPanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'malls' | 'stores' | 'logos'>(
     'malls',
   );
-  const [showMallForm, setShowMallForm] = useState(false);
-  const [showStoreForm, setShowStoreForm] = useState(false);
+  // const [showMallForm, setShowMallForm] = useState(false);
+  // const [showStoreForm, setShowStoreForm] = useState(false);
   const [malls, setMalls] = useState<any[]>([]);
   const [stores, setStores] = useState<any[]>([]);
+  const [storesWithMallId, setStoresWithMallId] = useState<{ store: any; mallId: string }[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,26 +49,26 @@ const AdminPanel: React.FC = () => {
     }
   }, [searchParams, validTabs, setSearchParams]);
 
-  // Handle deep-link for drawers
+  // Handle deep-link for drawers (redirect to new pages)
   useEffect(() => {
     const drawerParam = searchParams.get('drawer');
     if (drawerParam === 'create-mall') {
-      setShowMallForm(true);
+      navigate('/admin/malls/create');
       // Remove drawer param from URL
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('drawer');
       setSearchParams(newParams);
     } else if (drawerParam === 'create-store') {
-      setShowStoreForm(true);
+      navigate('/admin/stores/create');
       // Remove drawer param from URL
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('drawer');
       setSearchParams(newParams);
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, navigate]);
 
   // Sync state with URL when tab changes
-  const handleTabChange = (tab: 'malls' | 'stores') => {
+  const handleTabChange = (tab: 'malls' | 'stores' | 'logos') => {
     setActiveTab(tab);
     setSearchParams({ tab });
 
@@ -98,17 +100,27 @@ const AdminPanel: React.FC = () => {
       setLoading(true);
       console.log('🔄 Loading data...');
 
-      const mallsData = await listMalls();
+      const mallsData = await listMallsOptimized();
 
-      // ดึงร้านค้าจาก stores collection
-      const storesData = await firebaseFirestore.getStores();
+      // ดึงร้านค้าจากทุกห้าง (optimized)
+      const storesData = await listAllStoresBatchOptimized();
 
       console.log('📊 Malls loaded:', mallsData.length);
       console.log('📊 Stores loaded:', storesData.length);
 
       setMalls(mallsData);
-      setStores(storesData);
+      // เก็บข้อมูล stores ในรูปแบบเดิมสำหรับ StoresTable
+      setStores(storesData.map(item => ({
+        ...item.store,
+        mallId: item.mallId
+      })));
+      // เก็บข้อมูล stores ในรูปแบบใหม่สำหรับ MallsTableView
+      setStoresWithMallId(storesData);
       setLastUpdated(new Date().toLocaleString('th-TH'));
+      
+      // Log cache stats
+      const cacheStats = getCacheStats();
+      console.log('📦 Cache stats:', cacheStats);
     } catch (error) {
       console.error('❌ Error loading data:', error);
       setError('ไม่สามารถโหลดข้อมูลได้');
@@ -281,7 +293,7 @@ const AdminPanel: React.FC = () => {
                 <div className="flex space-x-3">
                   <button
                     onClick={() => {
-                      setShowMallForm(true);
+                      navigate('/admin/malls/create');
                       // Analytics tracking
                       if (
                         typeof window !== 'undefined' &&
@@ -302,7 +314,7 @@ const AdminPanel: React.FC = () => {
                 </div>
               </div>
 
-              <MallsTableView onRefresh={loadData} />
+              <MallsTableView stores={storesWithMallId} onRefresh={loadData} />
             </div>
           )}
 
@@ -318,7 +330,7 @@ const AdminPanel: React.FC = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => setShowStoreForm(true)}
+                  onClick={() => navigate('/admin/stores/create')}
                   className="bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98]"
                   aria-label="เปิดฟอร์มเพิ่มร้านค้าใหม่"
                   data-testid="open-create-store"
@@ -339,14 +351,7 @@ const AdminPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Drawers */}
-      <MallCreateDrawer open={showMallForm} onOpenChange={setShowMallForm} />
-
-      <StoreCreateDrawer
-        open={showStoreForm}
-        onOpenChange={setShowStoreForm}
-        onCreated={loadData}
-      />
+      {/* Drawers - No longer needed, using separate pages */}
     </div>
   );
 };

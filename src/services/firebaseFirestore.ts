@@ -13,6 +13,7 @@ import {
   serverTimestamp,
   Timestamp
 } from 'firebase/firestore';
+
 import { db } from '../config/firebase';
 
 export interface FirestoreStore {
@@ -168,7 +169,7 @@ export const firebaseFirestore = {
       console.log('📊 Firestore response:', querySnapshot.docs.length, 'documents');
       
       const malls = querySnapshot.docs.map(doc => {
-        const data = doc.data() as any;
+        const data = doc.data() as unknown;
         return Object.assign({ id: doc.id }, data) as FirestoreMall;
       });
       
@@ -209,17 +210,17 @@ export const firebaseFirestore = {
   },
 
   // Stores
-  async getStores(mallId?: string): Promise<FirestoreStore[]> {
+  async getStores(mallId?: string, limitCount: number = 50): Promise<FirestoreStore[]> {
     try {
       let q: any = collection(db, 'stores');
-      
       if (mallId) {
-        q = query(q, where('mallId', '==', mallId));
+        q = query(q, where('mallId', '==', mallId), orderBy('name'), limit(limitCount));
+      } else {
+        q = query(q, orderBy('name'), limit(limitCount));
       }
-      
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => {
-        const data = doc.data() as any;
+        const data = doc.data() as unknown;
         return Object.assign({ id: doc.id }, data) as FirestoreStore;
       });
     } catch (error) {
@@ -229,16 +230,14 @@ export const firebaseFirestore = {
   },
 
   // Search stores by brand name
-  async searchStoresByBrand(brandName: string): Promise<FirestoreStore[]> {
+  async searchStoresByBrand(brandName: string, limitCount: number = 50): Promise<FirestoreStore[]> {
     try {
-      const q: any = collection(db, 'stores');
+      const q: any = query(collection(db, 'stores'), orderBy('name'), limit(limitCount));
       const querySnapshot = await getDocs(q);
-      
       const stores = querySnapshot.docs.map(doc => {
-        const data = doc.data() as any;
+        const data = doc.data() as unknown;
         return Object.assign({ id: doc.id }, data) as FirestoreStore;
       });
-      
       // Filter by brand name (case insensitive)
       return stores.filter(store => 
         store.name.toLowerCase().includes(brandName.toLowerCase()) ||
@@ -253,9 +252,11 @@ export const firebaseFirestore = {
   // Get stores with mall information
   async getStoresWithMallInfo(mallId?: string): Promise<any[]> {
     try {
-      const stores = await this.getStores(mallId);
-      const malls = await this.getMalls();
-      
+      // ดึงข้อมูล stores และ malls พร้อมกัน
+      const [stores, malls] = await Promise.all([
+        this.getStores(mallId),
+        this.getMalls()
+      ]);
       return stores.map(store => {
         const mall = malls.find(m => m.id === store.mallId);
         return {
@@ -323,16 +324,14 @@ export const firebaseFirestore = {
   },
 
   // Floors
-  async getFloors(mallId?: string): Promise<FirestoreFloor[]> {
+  async getFloors(mallId?: string, limitCount: number = 50): Promise<FirestoreFloor[]> {
     try {
       let q: any = collection(db, 'floors');
-      
       if (mallId) {
-        q = query(q, where('mallId', '==', mallId), where('published', '==', true));
+        q = query(q, where('mallId', '==', mallId), where('published', '==', true), orderBy('name'), limit(limitCount));
       } else {
-        q = query(q, where('published', '==', true));
+        q = query(q, where('published', '==', true), orderBy('name'), limit(limitCount));
       }
-      
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -382,16 +381,14 @@ export const firebaseFirestore = {
   },
 
   // Promotions
-  async getPromotions(mallId?: string): Promise<FirestorePromotion[]> {
+  async getPromotions(mallId?: string, limitCount: number = 50): Promise<FirestorePromotion[]> {
     try {
       let q: any = collection(db, 'promotions');
-      
       if (mallId) {
-        q = query(q, where('mallId', '==', mallId), where('published', '==', true));
+        q = query(q, where('mallId', '==', mallId), where('published', '==', true), orderBy('startDate', 'desc'), limit(limitCount));
       } else {
-        q = query(q, where('published', '==', true));
+        q = query(q, where('published', '==', true), orderBy('startDate', 'desc'), limit(limitCount));
       }
-      
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -441,16 +438,14 @@ export const firebaseFirestore = {
   },
 
   // Events
-  async getEvents(mallId?: string): Promise<FirestoreEvent[]> {
+  async getEvents(mallId?: string, limitCount: number = 50): Promise<FirestoreEvent[]> {
     try {
       let q: any = collection(db, 'events');
-      
       if (mallId) {
-        q = query(q, where('mallId', '==', mallId), where('published', '==', true));
+        q = query(q, where('mallId', '==', mallId), where('published', '==', true), orderBy('startDate', 'desc'), limit(limitCount));
       } else {
-        q = query(q, where('published', '==', true));
+        q = query(q, where('published', '==', true), orderBy('startDate', 'desc'), limit(limitCount));
       }
-      
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -479,3 +474,12 @@ export const firebaseFirestore = {
     }
   }
 };
+
+// ตัวอย่างการใช้ React Query สำหรับ caching
+// import { useQuery } from '@tanstack/react-query';
+// const useStores = (mallId: string) =>
+//   useQuery({
+//     queryKey: ['stores', mallId],
+//     queryFn: () => firebaseFirestore.getStores(mallId),
+//     staleTime: 5 * 60 * 1000,
+//   });

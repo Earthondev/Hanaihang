@@ -5,11 +5,10 @@ import Form from '../ui/form/Form';
 import TextField from '../ui/form/fields/TextField';
 import SelectField from '../ui/form/fields/SelectField';
 import PhoneField from '../ui/form/fields/PhoneField';
-import TextAreaField from '../ui/form/fields/TextAreaField';
 import FormActions from '../ui/form/FormActions';
 import { storeSchema, StoreInput } from '../../validation/store.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
-import { createStore, listMalls, listFloors } from '../../lib/firestore';
+import { createStore, updateStore, listMalls, listFloors } from '../../lib/firestore';
 import { Mall, Floor } from '../../types/mall-system';
 import { getMall } from '../../lib/malls';
 
@@ -54,12 +53,12 @@ export default function StoreForm({
     defaultValues: {
       mallId: "",
       name: "",
-      category: "Fashion" as any,
+      category: "Fashion",
       floorId: "",
       unit: "",
       phone: "",
       hours: "",
-      status: "Active" as any,
+      status: "Active",
       ...defaultValues
     },
     mode: "onSubmit"
@@ -140,7 +139,7 @@ export default function StoreForm({
         // Get floor data for denormalization
         const floors = await listFloors(values.mallId);
         const selectedFloor = floors.find(f => f.id === values.floorId);
-        const floorLabel = selectedFloor?.name ?? selectedFloor?.label ?? values.floorId;
+        const floorLabel = selectedFloor?.label ?? values.floorId;
         
         // Create store with denormalized data
         const storeData = {
@@ -152,8 +151,27 @@ export default function StoreForm({
         await createStore(values.mallId, storeData);
       } else {
         // For edit mode, you would need to pass the store ID
-        // await updateStore(storeId, values);
-        console.log("Edit mode not implemented yet");
+        if ((defaultValues as any)?.id) {
+          // Get mall data for denormalization
+          const mall = await getMall(values.mallId);
+          const mallCoords = mall?.location ?? mall?.coords ?? null;
+          
+          // Get floor data for denormalization
+          const floors = await listFloors(values.mallId);
+          const selectedFloor = floors.find(f => f.id === values.floorId);
+          const floorLabel = selectedFloor?.label ?? values.floorId;
+          
+          // Update store with denormalized data
+          const updateData = {
+            ...values,
+            mallCoords,
+            floorLabel
+          };
+          
+          await updateStore(values.mallId, (defaultValues as any).id, updateData);
+        } else {
+          console.log("Store ID not provided for edit mode");
+        }
       }
       onSuccess?.();
     });
@@ -183,6 +201,7 @@ export default function StoreForm({
           options={malls.map(mall => ({ label: mall.displayName || mall.name, value: mall.id }))}
           required
           helper="เลือกห้างสรรพสินค้าที่ร้านตั้งอยู่"
+          disabled={mode === "edit"}
         />
         
         <SelectField

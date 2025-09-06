@@ -323,6 +323,7 @@ export async function createStore(mallId: string, data: StoreFormData): Promise<
 
 /**
  * ดึงรายการร้านของห้าง
+ * @deprecated Use stores service instead
  */
 export async function listStores(mallId: string, filters?: {
   floorId?: string;
@@ -330,103 +331,75 @@ export async function listStores(mallId: string, filters?: {
   status?: string;
   query?: string;
 }): Promise<Store[]> {
-  let q = query(collection(db, 'malls', mallId, 'stores'));
+  // Import and use the new stores service
+  const { listStores: newListStores } = await import('./stores');
+  return newListStores(mallId, filters);
+}
 
-  // Apply filters
-  if (filters?.floorId) {
-    q = query(q, where('floorId', '==', filters.floorId));
-  }
-  
-  if (filters?.category) {
-    q = query(q, where('category', '==', filters.category));
-  }
-  
-  if (filters?.status) {
-    q = query(q, where('status', '==', filters.status));
-  }
-
-  // Order by name
-  q = query(q, orderBy('name'));
-
-  const snapshot = await getDocs(q);
-  let stores = snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...convertTimestamps(doc.data() as Omit<Store, 'id'>)
-  }));
-
-  // Apply text search filter (client-side)
-  if (filters?.query) {
-    const searchTerm = filters.query.toLowerCase();
-    stores = stores.filter(store =>
-      store.name.toLowerCase().includes(searchTerm)
-    );
-  }
-
-  return stores;
+/**
+ * ดึงร้านทั้งหมดจากทุกห้าง (สำหรับ Admin Panel)
+ * @deprecated Use stores service instead
+ */
+export async function listAllStores(): Promise<{ store: Store; mallId: string }[]> {
+  // Import and use the new stores service
+  const { listAllStores: newListAllStores } = await import('./stores');
+  return newListAllStores();
 }
 
 /**
  * ค้นหาร้านข้ามทุกห้าง
+ * @deprecated Use stores service instead
  */
 export async function searchStoresGlobally(query: string, limitCount = 50): Promise<{ store: Store; mallId: string }[]> {
-  // ดึงรายการห้างทั้งหมด
-  const malls = await listMalls();
-  const results: { store: Store; mallId: string }[] = [];
-
-  // ค้นหาในแต่ละห้าง
-  for (const mall of malls) {
-    const stores = await listStores(mall.id!, { query });
-    results.push(...stores.map(store => ({ store, mallId: mall.id! })));
-    
-    // หยุดถ้าเกิน limit
-    if (results.length >= limitCount) {
-      break;
-    }
-  }
-
-  return results.slice(0, limitCount);
+  // Import and use the new stores service
+  const { searchStoresGlobally: newSearchStoresGlobally } = await import('./stores');
+  return newSearchStoresGlobally(query, limitCount);
 }
 
 /**
- * ดึงข้อมูลร้านตาม ID
+ * ค้นหาร้านด้วย ID ข้ามทุกห้าง
+ * @deprecated Use stores service instead
  */
-export async function getStore(mallId: string, storeId: string): Promise<Store | null> {
-  const docRef = doc(db, 'malls', mallId, 'stores', storeId);
-  const docSnap = await getDoc(docRef);
-  
-  if (!docSnap.exists()) {
-    return null;
-  }
-  
-  return {
-    id: docSnap.id,
-    ...convertTimestamps(docSnap.data() as Omit<Store, 'id'>)
-  };
+export async function findStoreById(storeId: string): Promise<{ store: Store; mallId: string } | null> {
+  // Import and use the new stores service
+  const { findStoreById: newFindStoreById } = await import('./stores');
+  return newFindStoreById(storeId);
 }
 
 /**
  * อัปเดตข้อมูลร้าน
+ * @deprecated Use stores service instead
  */
-export async function updateStore(mallId: string, storeId: string, data: Partial<StoreFormData>): Promise<void> {
-  const updateData: any = {
-    ...data,
-    updatedAt: serverTimestamp()
-  };
-
-  const docRef = doc(db, 'malls', mallId, 'stores', storeId);
-  await updateDoc(docRef, updateData);
+export async function updateStore(mallId: string, storeId: string, data: Partial<Store>): Promise<void> {
+  // Import and use the new stores service
+  const { updateStore: newUpdateStore } = await import('./stores');
+  return newUpdateStore(mallId, storeId, data);
 }
 
 /**
+ * ดึงข้อมูลร้านตาม ID
+ * @deprecated Use stores service instead
+ */
+export async function getStore(mallId: string, storeId: string): Promise<Store | null> {
+  // Import and use the new stores service
+  const { getStore: newGetStore } = await import('./stores');
+  return newGetStore(mallId, storeId);
+}
+
+
+/**
  * ลบร้าน
+ * @deprecated Use stores service instead
  */
 export async function deleteStore(mallId: string, storeId: string): Promise<void> {
-  const docRef = doc(db, 'malls', mallId, 'stores', storeId);
-  await deleteDoc(docRef);
+  // Import and use the new stores service
+  const { deleteStore: newDeleteStore } = await import('./stores');
+  return newDeleteStore(mallId, storeId);
 }
 
 /**
  * ทำซ้ำร้าน (สำหรับ admin)
+ * @deprecated Use stores service instead
  */
 export async function duplicateStore(
   sourceMallId: string, 
@@ -434,22 +407,9 @@ export async function duplicateStore(
   targetMallId: string, 
   updates?: Partial<StoreFormData>
 ): Promise<string> {
-  const sourceStore = await getStore(sourceMallId, sourceStoreId);
-  if (!sourceStore) {
-    throw new Error('Source store not found');
-  }
-
-  const newStoreData: StoreFormData = {
-    name: updates?.name || `${sourceStore.name} (Copy)`,
-    category: sourceStore.category,
-    floorId: updates?.floorId || sourceStore.floorId || '',
-    unit: updates?.unit || sourceStore.unit || '',
-    phone: updates?.phone || sourceStore.phone || '',
-    hours: updates?.hours || sourceStore.hours || '',
-    status: sourceStore.status
-  };
-
-  return await createStore(targetMallId, newStoreData);
+  // Import and use the new stores service
+  const { duplicateStore: newDuplicateStore } = await import('./stores');
+  return newDuplicateStore(sourceMallId, sourceStoreId, targetMallId, updates);
 }
 
 // ======================

@@ -1,23 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Building, Store, ExternalLink } from 'lucide-react';
+import { Search, MapPin, Building, Store, ExternalLink, Filter } from 'lucide-react';
 
 import { searchBrands } from '@/legacy/services/api';
+import { listMalls } from '@/services/firebase/firestore';
 import Card from '@/ui/Card';
 import Input from '@/ui/Input';
 import Button from '@/ui/Button';
+import SearchFilters, { SearchFilters as SearchFiltersType } from '@/components/search/SearchFilters';
+import SearchSuggestions from '@/components/search/SearchSuggestions';
+import SearchAnalytics from '@/components/search/SearchAnalytics';
+import EnhancedSearchBox from '@/components/search/EnhancedSearchBox';
+import { useSearchHistory } from '@/hooks/useSearchHistory';
 
 const GlobalSearch: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Array<{ store: any; mall: any }>>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [malls, setMalls] = useState<any[]>([]);
+  const [categories] = useState([
+    'Fashion', 'Food & Beverage', 'Electronics', 'Beauty & Health',
+    'Home & Living', 'Sports & Recreation', 'Books & Stationery', 'Services', 'Other'
+  ]);
+  const [filters, setFilters] = useState<SearchFiltersType>({
+    mallIds: [],
+    categories: [],
+    status: ['Active'],
+    distance: null,
+    sortBy: 'relevance',
+    sortOrder: 'asc'
+  });
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchTime, setSearchTime] = useState(0);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const { addToHistory } = useSearchHistory();
+
+  // Load malls on component mount
+  useEffect(() => {
+    const loadMalls = async () => {
+      try {
+        const mallsData = await listMalls();
+        setMalls(mallsData);
+      } catch (error) {
+        console.error('Error loading malls:', error);
+      }
+    };
+    loadMalls();
+  }, []);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
+      const startTime = Date.now();
       const results = searchBrands(searchQuery.trim());
+      const endTime = Date.now();
+      
       setSearchResults(results);
       setHasSearched(true);
+      setSearchTime(endTime - startTime);
+      setShowSuggestions(false);
+      
+      // Add to search history
+      addToHistory(searchQuery.trim(), results.length);
     }
   };
 
@@ -27,8 +71,50 @@ const GlobalSearch: React.FC = () => {
     }
   };
 
+  const handleSuggestionSelect = (suggestion: string) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+    // Auto-search when suggestion is selected
+    setTimeout(() => {
+      const startTime = Date.now();
+      const results = searchBrands(suggestion);
+      const endTime = Date.now();
+      
+      setSearchResults(results);
+      setHasSearched(true);
+      setSearchTime(endTime - startTime);
+      
+      // Add to search history
+      addToHistory(suggestion, results.length);
+    }, 100);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    setShowSuggestions(value.length > 0);
+  };
+
+  const handleFiltersChange = (newFilters: SearchFiltersType) => {
+    setFilters(newFilters);
+    // Re-search with new filters
+    if (hasSearched && searchQuery.trim()) {
+      handleSearch();
+    }
+  };
+
   const handleMallClick = (mallId: string) => {
     navigate(`/${mallId}`);
+  };
+
+  const handleEnhancedSearchSelect = (type: 'mall' | 'store', data: any) => {
+    if (type === 'mall') {
+      navigate(`/malls/${data.id}`);
+    } else if (type === 'store') {
+      // Find the mall ID for the store
+      const mallId = data.mallId || 'unknown';
+      navigate(`/malls/${mallId}/stores/${data.id}`);
+    }
   };
 
   const handleStoreClick = (mallId: string, storeId: string) => {
@@ -48,20 +134,42 @@ const GlobalSearch: React.FC = () => {
             <img src="/logo-horizontal.svg" alt="Logo" className="h-8" />
           </div>
 
-          {/* Search Bar */}
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Input
-                placeholder="พิมพ์ชื่อแบรนด์ เช่น Zara, Starbucks, Gucci..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
-                leftIcon={<Search className="h-5 w-5" />}
+          {/* Enhanced Search Bar */}
+          <div className="space-y-4">
+            <EnhancedSearchBox
+              onResultSelect={handleEnhancedSearchSelect}
+              placeholder="พิมพ์ชื่อแบรนด์ เช่น Zara, Starbucks, Gucci..."
+              className="w-full"
+            />
+            
+            {/* Legacy Search (for backward compatibility) */}
+            <div className="flex gap-4">
+              <div className="flex-1 relative">
+                <Input
+                  ref={searchInputRef}
+                  placeholder="หรือใช้การค้นหาแบบเดิม..."
+                  value={searchQuery}
+                  onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
+                  onFocus={() => setShowSuggestions(searchQuery.length > 0)}
+                  leftIcon={<Search className="h-5 w-5" />}
+                />
+                <SearchSuggestions
+                  query={searchQuery}
+                  onSuggestionSelect={handleSuggestionSelect}
+                  onClose={() => setShowSuggestions(false)}
+                  isVisible={showSuggestions}
+                />
+              </div>
+              <SearchFilters
+                onFiltersChange={handleFiltersChange}
+                malls={malls}
+                categories={categories}
               />
+              <Button onClick={handleSearch} disabled={!searchQuery.trim()}>
+                ค้นหา
+              </Button>
             </div>
-            <Button onClick={handleSearch} disabled={!searchQuery.trim()}>
-              ค้นหา
-            </Button>
           </div>
         </div>
       </div>
@@ -69,12 +177,24 @@ const GlobalSearch: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {hasSearched && (
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">
-              ผลการค้นหา "{searchQuery}"
-            </h2>
-            <p className="text-gray-600">
-              พบ {searchResults.length} ร้านค้า
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                  ผลการค้นหา "{searchQuery}"
+                </h2>
+                <p className="text-gray-600">
+                  พบ {searchResults.length} ร้านค้า • ใช้เวลา {searchTime}ms
+                </p>
+              </div>
+            </div>
+            
+            {/* Search Analytics */}
+            <SearchAnalytics
+              searchQuery={searchQuery}
+              resultsCount={searchResults.length}
+              searchTime={searchTime}
+              filters={filters}
+            />
           </div>
         )}
 

@@ -10,6 +10,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,6 +62,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      const result = await firebaseAuth.resetPassword(email);
+      if (!result.success) {
+        throw new Error(result.error || 'เกิดข้อผิดพลาดในการส่งอีเมลรีเซ็ตรหัสผ่าน');
+      }
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      throw new Error(error.message || 'เกิดข้อผิดพลาดในการส่งอีเมลรีเซ็ตรหัสผ่าน');
+    }
+  };
+
   useEffect(() => {
     console.log('AuthProvider: Initializing auth state');
     
@@ -91,7 +104,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: !!user,
     isLoading,
     login,
-    logout
+    logout,
+    resetPassword
   };
 
   return (

@@ -1,16 +1,28 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { deleteMall } from '../../lib/firestore';
 import { DeleteButton } from './DeleteButton';
 
 interface MallsTableProps {
   malls: any[];
+  stores: any[];
   onRefresh: () => void;
 }
 
-const MallsTable: React.FC<MallsTableProps> = ({ malls, onRefresh }) => {
+const MallsTable: React.FC<MallsTableProps> = ({ malls, stores, onRefresh }) => {
+  const navigate = useNavigate();
+
   const handleDelete = async (mallId: string) => {
     await deleteMall(mallId);
     onRefresh();
+  };
+
+  const handleEdit = (mallId: string) => {
+    navigate(`/admin/malls/${mallId}/edit`);
+  };
+
+  const getStoreCount = (mallId: string) => {
+    return stores.filter(store => store.mallId === mallId).length;
   };
 
   const getStatusColor = (status: string) => {
@@ -56,6 +68,9 @@ const MallsTable: React.FC<MallsTableProps> = ({ malls, onRefresh }) => {
               เวลาเปิด-ปิด
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              จำนวนร้าน
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               สถานะ
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -97,6 +112,13 @@ const MallsTable: React.FC<MallsTableProps> = ({ malls, onRefresh }) => {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {mall.hours ? `${mall.hours.open} - ${mall.hours.close}` : 'ไม่ระบุ'}
               </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <div className="flex items-center space-x-2">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {getStoreCount(mall.id)} ร้าน
+                  </span>
+                </div>
+              </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(mall.status)}`}>
                   {mall.status}
@@ -105,10 +127,7 @@ const MallsTable: React.FC<MallsTableProps> = ({ malls, onRefresh }) => {
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => {
-                      // TODO: Implement edit functionality
-                      alert('ฟีเจอร์แก้ไขจะเปิดใช้งานเร็วๆ นี้');
-                    }}
+                    onClick={() => handleEdit(mall.id)}
                     className="text-blue-600 hover:text-blue-900 transition-colors"
                     title="แก้ไข"
                   >

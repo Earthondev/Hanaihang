@@ -36,7 +36,38 @@ const StoreCard: React.FC<StoreCardProps> = ({
     
     const resolveData = async () => {
       try {
-        const resolved = await resolveStoreComputed(store, userLocation);
+        // Only resolve if store has an id (required by store-resolver)
+        if (!store.id) {
+          // Fallback to basic data without resolution
+          if (alive) {
+            setResolvedData({
+              mallName: mall?.displayName || store.mallSlug || '',
+              floorLabel: store.floorId,
+              distanceKm: null
+            });
+          }
+          return;
+        }
+
+        // Convert mall-system Store to store-resolver Store format
+        const resolverStore = {
+          id: store.id,
+          name: store.name,
+          mallId: store.mallId || '',
+          mallSlug: store.mallSlug || '',
+          floorId: store.floorId,
+          unit: store.unit,
+          location: store.location?.lat && store.location?.lng ? {
+            lat: store.location.lat,
+            lng: store.location.lng
+          } : undefined,
+          category: store.category,
+          status: store.status,
+          phone: store.phone,
+          hours: store.hours
+        };
+
+        const resolved = await resolveStoreComputed(resolverStore, userLocation);
         if (alive) {
           setResolvedData({
             mallName: resolved.mallName,
@@ -46,6 +77,14 @@ const StoreCard: React.FC<StoreCardProps> = ({
         }
       } catch (error) {
         console.error('Error resolving store data:', error);
+        // Fallback to basic data on error
+        if (alive) {
+          setResolvedData({
+            mallName: mall?.displayName || store.mallSlug || '',
+            floorLabel: store.floorId,
+            distanceKm: null
+          });
+        }
       }
     };
 
