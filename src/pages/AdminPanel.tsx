@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/config/contexts/AuthContext';
-import { 
-  listMalls
-} from '@/services/firebase/firestore';
+import { listMalls } from '@/services/firebase/firestore';
 import { firebaseFirestore } from '@/services/firebaseFirestore';
 import MallCreateDrawer from '@/legacy/admin/MallCreateDrawer';
 import { StoreCreateDrawer } from '@/legacy/admin/StoreCreateDrawer';
@@ -15,12 +13,16 @@ import MallLogoManager from '@/components/admin/MallLogoManager';
 const AdminPanel: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'malls' | 'stores' | 'logos'>('malls');
+  const [activeTab, setActiveTab] = useState<'malls' | 'stores' | 'logos'>(
+    'malls',
+  );
   const [showMallForm, setShowMallForm] = useState(false);
   const [showStoreForm, setShowStoreForm] = useState(false);
   const [malls, setMalls] = useState<any[]>([]);
   const [stores, setStores] = useState<any[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { user, logout } = useAuth();
 
@@ -31,7 +33,7 @@ const AdminPanel: React.FC = () => {
   useEffect(() => {
     const tabParam = searchParams.get('tab')?.toLowerCase();
     const currentPath = window.location.pathname;
-    
+
     // Check if we're on /admin/malls route
     if (currentPath === '/admin/malls') {
       setActiveTab('malls');
@@ -67,13 +69,13 @@ const AdminPanel: React.FC = () => {
   const handleTabChange = (tab: 'malls' | 'stores') => {
     setActiveTab(tab);
     setSearchParams({ tab });
-    
+
     // Analytics tracking for tab changes
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', 'admin_open_tab', {
         event_category: 'admin_navigation',
         event_label: tab,
-        value: tab
+        value: tab,
       });
     }
   };
@@ -81,11 +83,11 @@ const AdminPanel: React.FC = () => {
   // Admin guard
   useEffect(() => {
     if (!user) {
-      navigate('/login', { 
-        state: { 
+      navigate('/login', {
+        state: {
           message: 'กรุณาเข้าสู่ระบบเพื่อเข้าถึง Admin Panel',
-          redirectTo: '/admin'
-        } 
+          redirectTo: '/admin',
+        },
       });
     }
   }, [user, navigate]);
@@ -95,15 +97,15 @@ const AdminPanel: React.FC = () => {
     try {
       setLoading(true);
       console.log('🔄 Loading data...');
-      
+
       const mallsData = await listMalls();
-      
+
       // ดึงร้านค้าจาก stores collection
       const storesData = await firebaseFirestore.getStores();
-      
+
       console.log('📊 Malls loaded:', mallsData.length);
       console.log('📊 Stores loaded:', storesData.length);
-      
+
       setMalls(mallsData);
       setStores(storesData);
       setLastUpdated(new Date().toLocaleString('th-TH'));
@@ -119,9 +121,6 @@ const AdminPanel: React.FC = () => {
     loadData();
   }, []);
 
-
-
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -131,14 +130,26 @@ const AdminPanel: React.FC = () => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  <svg
+                    className="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                    />
                   </svg>
                 </div>
-                <h1 className="text-xl font-semibold text-gray-900">Admin Panel</h1>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Admin Panel
+                </h1>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-500">
                 อัปเดตล่าสุด: {lastUpdated}
@@ -148,8 +159,18 @@ const AdminPanel: React.FC = () => {
                 className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
                 title="รีเฟรชข้อมูล"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
                 </svg>
               </button>
               <div className="flex items-center space-x-2">
@@ -165,8 +186,18 @@ const AdminPanel: React.FC = () => {
                 className="text-gray-500 hover:text-gray-700 transition-colors"
                 title="ออกจากระบบ"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
                 </svg>
               </button>
             </div>
@@ -217,22 +248,48 @@ const AdminPanel: React.FC = () => {
 
         {/* Content */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          {activeTab === 'malls' && (
+          {loading && (
+            <div className="p-6 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+              <p className="mt-2 text-gray-600">กำลังโหลดข้อมูล...</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="p-6 text-center">
+              <div className="text-red-600 mb-2">❌ {error}</div>
+              <button
+                onClick={loadData}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+              >
+                ลองใหม่
+              </button>
+            </div>
+          )}
+
+          {!loading && !error && activeTab === 'malls' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">จัดการห้างสรรพสินค้า</h2>
-                  <p className="text-gray-600">เพิ่ม แก้ไข และลบข้อมูลห้างสรรพสินค้า</p>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    จัดการห้างสรรพสินค้า
+                  </h2>
+                  <p className="text-gray-600">
+                    เพิ่ม แก้ไข และลบข้อมูลห้างสรรพสินค้า
+                  </p>
                 </div>
                 <div className="flex space-x-3">
                   <button
                     onClick={() => {
                       setShowMallForm(true);
                       // Analytics tracking
-                      if (typeof window !== 'undefined' && (window as any).gtag) {
+                      if (
+                        typeof window !== 'undefined' &&
+                        (window as any).gtag
+                      ) {
                         (window as any).gtag('event', 'click_add_mall_form', {
                           event_category: 'admin_actions',
-                          event_label: 'open_form'
+                          event_label: 'open_form',
                         });
                       }
                     }}
@@ -244,17 +301,21 @@ const AdminPanel: React.FC = () => {
                   </button>
                 </div>
               </div>
-              
+
               <MallsTableView onRefresh={loadData} />
             </div>
           )}
 
-          {activeTab === 'stores' && (
+          {!loading && !error && activeTab === 'stores' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">จัดการร้านค้า</h2>
-                  <p className="text-gray-600">เพิ่ม แก้ไข และลบข้อมูลร้านค้า</p>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    จัดการร้านค้า
+                  </h2>
+                  <p className="text-gray-600">
+                    เพิ่ม แก้ไข และลบข้อมูลร้านค้า
+                  </p>
                 </div>
                 <button
                   onClick={() => setShowStoreForm(true)}
@@ -265,12 +326,12 @@ const AdminPanel: React.FC = () => {
                   เพิ่มร้าน
                 </button>
               </div>
-              
+
               <StoresTable stores={stores} malls={malls} onRefresh={loadData} />
             </div>
           )}
 
-          {activeTab === 'logos' && (
+          {!loading && !error && activeTab === 'logos' && (
             <div className="p-6">
               <MallLogoManager />
             </div>
@@ -279,10 +340,7 @@ const AdminPanel: React.FC = () => {
       </div>
 
       {/* Drawers */}
-      <MallCreateDrawer
-        open={showMallForm}
-        onOpenChange={setShowMallForm}
-      />
+      <MallCreateDrawer open={showMallForm} onOpenChange={setShowMallForm} />
 
       <StoreCreateDrawer
         open={showStoreForm}
