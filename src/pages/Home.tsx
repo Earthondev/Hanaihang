@@ -1,18 +1,23 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Clock, Settings, Navigation } from "lucide-react";
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { MapPin, Clock, Settings, Navigation } from 'lucide-react';
 
-import { listMalls } from "../services/firebase/firestore";
-import { distanceKm } from "@/services/geoutils/geo-utils";
-import { Mall, Store as StoreType } from "@/types/mall-system";
-import EnhancedSearchBox from "@/components/search/EnhancedSearchBox";
-import { UnifiedSearchResult } from "@/lib/enhanced-search";
-import { ErrorState } from "@/ui";
-import { EmptyState } from "@/ui/EmptyState";
-import { GlobalSearchBox } from "@/features/search";
-import MapView from "@/components/map/MapView";
-import MapControls from "@/components/map/MapControls";
-import MapFilters from "@/components/map/MapFilters";
+import { listMalls } from '../services/firebase/firestore';
+
+import { distanceKm } from '@/services/geoutils/geo-utils';
+import {
+  Mall,
+  Store as StoreType,
+  MallWithDistance,
+} from '@/types/mall-system';
+import EnhancedSearchBox from '@/components/search/EnhancedSearchBox';
+import { UnifiedSearchResult } from '@/lib/enhanced-search';
+import { ErrorState } from '@/ui';
+import { EmptyState } from '@/ui/EmptyState';
+import { GlobalSearchBox } from '@/features/search';
+import MapView from '@/components/map/MapView';
+import MapControls from '@/components/map/MapControls';
+import MapFilters from '@/components/map/MapFilters';
 
 // Analytics tracking function with device info
 const trackEvent = (eventName: string, category: string, label: string) => {
@@ -23,8 +28,8 @@ const trackEvent = (eventName: string, category: string, label: string) => {
       event_label: label,
       custom_parameter: {
         device: device,
-        viewport_width: window.innerWidth
-      }
+        viewport_width: window.innerWidth,
+      },
     });
   }
 };
@@ -33,7 +38,7 @@ type Loc = { lat: number; lng: number } | null;
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [userLoc, setUserLoc] = useState<Loc>(null);
   const [malls, setMalls] = useState<Mall[]>([]);
   const [results, setResults] = useState<Mall[]>([]);
@@ -46,6 +51,9 @@ const Home: React.FC = () => {
   const [mapFilteredMalls, setMapFilteredMalls] = useState<Mall[]>([]);
   const [showMapFilters, setShowMapFilters] = useState(false);
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
+  const [storeResults] = useState<
+    (StoreType & { mallName?: string; mallSlug?: string })[]
+  >([]);
 
   // Load malls from Firebase
   useEffect(() => {
@@ -59,18 +67,21 @@ const Home: React.FC = () => {
         setResults(firestoreMalls);
         setMapFilteredMalls(firestoreMalls);
         console.log('✅ โหลดข้อมูลห้างสำเร็จ:', firestoreMalls.length, 'ห้าง');
-        
+
         // ขอตำแหน่งผู้ใช้อัตโนมัติ
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             pos => {
-              const newLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+              const newLoc = {
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+              };
               setUserLoc(newLoc);
               console.log('📍 ได้ตำแหน่งผู้ใช้:', newLoc);
             },
             () => {
               console.log('⚠️ ไม่สามารถดึงตำแหน่งได้ แต่จะแสดงห้างทั้งหมด');
-            }
+            },
           );
         }
       } catch (error) {
@@ -96,31 +107,33 @@ const Home: React.FC = () => {
   };
 
   const withDistance = useMemo((): MallWithDistance[] => {
-    return results.map(m => {
-      let distance = null;
-      if (userLoc && m.coords) {
-        distance = distanceKm(userLoc, m.coords);
-      }
-      
-      return {
-        ...m,
-        distanceKm: distance,
-        hasActiveCampaign: false // TODO: Load promotions from Firebase
-      };
-    }).sort((a,b) => {
-      // เรียงตามระยะทางใกล้ที่สุดก่อน
-      if (a.distanceKm != null && b.distanceKm != null) {
-        return a.distanceKm - b.distanceKm;
-      }
-      // ถ้าไม่มีตำแหน่ง ให้เรียงตามชื่อ
-      if (a.distanceKm == null && b.distanceKm == null) {
-        return a.displayName.localeCompare(b.displayName, "th");
-      }
-      // ถ้ามีระยะทางไม่เท่ากัน ให้ที่มีระยะทางอยู่ก่อน
-      if (a.distanceKm != null) return -1;
-      if (b.distanceKm != null) return 1;
-      return 0;
-    });
+    return results
+      .map(m => {
+        let distance = null;
+        if (userLoc && m.coords) {
+          distance = distanceKm(userLoc, m.coords);
+        }
+
+        return {
+          ...m,
+          distanceKm: distance,
+          hasActiveCampaign: false, // TODO: Load promotions from Firebase
+        };
+      })
+      .sort((a, b) => {
+        // เรียงตามระยะทางใกล้ที่สุดก่อน
+        if (a.distanceKm != null && b.distanceKm != null) {
+          return a.distanceKm - b.distanceKm;
+        }
+        // ถ้าไม่มีตำแหน่ง ให้เรียงตามชื่อ
+        if (a.distanceKm == null && b.distanceKm == null) {
+          return a.displayName.localeCompare(b.displayName, 'th');
+        }
+        // ถ้ามีระยะทางไม่เท่ากัน ให้ที่มีระยะทางอยู่ก่อน
+        if (a.distanceKm != null) return -1;
+        if (b.distanceKm != null) return 1;
+        return 0;
+      });
   }, [results, userLoc]);
 
   // Helper function to check if mall is currently open
@@ -135,7 +148,7 @@ const Home: React.FC = () => {
     // แปลงเวลาเปิด-ปิดเป็นนาที
     const [openHour, openMin] = mall.hours.open.split(':').map(Number);
     const [closeHour, closeMin] = mall.hours.close.split(':').map(Number);
-    
+
     const openTime = openHour * 60 + openMin;
     const closeTime = closeHour * 60 + closeMin;
 
@@ -158,7 +171,9 @@ const Home: React.FC = () => {
     navigate(`/malls/${mall.name}`);
   };
 
-  const handleStoreSelect = (store: StoreType & { mallName?: string; mallSlug?: string }) => {
+  const handleStoreSelect = (
+    store: StoreType & { mallName?: string; mallSlug?: string },
+  ) => {
     if (store.mallSlug) {
       navigate(`/malls/${store.mallSlug}/stores/${store.id}`);
     } else {
@@ -202,19 +217,20 @@ const Home: React.FC = () => {
       showToast('เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง', 'error');
       return;
     }
-    
+
     setIsLoading(true);
     navigator.geolocation.getCurrentPosition(
       pos => {
         const newLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserLoc(newLoc);
         setIsLoading(false);
-        
+
         // Show smart alert if Central Rama 3 is nearby
-        const centralRama3 = malls.find(m => m.id === "central-rama-3");
+        const centralRama3 = malls.find(m => m.id === 'central-rama-3');
         if (centralRama3 && centralRama3.coords) {
           const distance = distanceKm(newLoc, centralRama3.coords);
-          if (distance < 1) { // Within 1km
+          if (distance < 1) {
+            // Within 1km
             setShowSmartAlert(true);
           }
         }
@@ -223,24 +239,30 @@ const Home: React.FC = () => {
       },
       () => {
         setIsLoading(false);
-        showToast('ไม่สามารถดึงตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง', 'error');
-      }
+        showToast(
+          'ไม่สามารถดึงตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง',
+          'error',
+        );
+      },
     );
   }
 
   function showToast(message: string, type: 'success' | 'error' = 'success') {
     // Simple toast implementation
     const toast = document.createElement('div');
-    const bgColor = type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+    const bgColor =
+      type === 'success'
+        ? 'bg-green-50 border-green-200'
+        : 'bg-red-50 border-red-200';
     const textColor = type === 'success' ? 'text-green-700' : 'text-red-700';
-    
+
     toast.className = `${bgColor} border p-4 rounded-xl flex items-center space-x-3 shadow-lg fixed top-4 right-4 z-50 transform translate-x-full transition-transform duration-300`;
     toast.innerHTML = `
       <p class="${textColor} font-medium">${message}</p>
     `;
-    
+
     document.body.appendChild(toast);
-    
+
     setTimeout(() => toast.classList.remove('translate-x-full'), 100);
     setTimeout(() => {
       toast.classList.add('translate-x-full');
@@ -253,7 +275,7 @@ const Home: React.FC = () => {
       'central-rama-3': 'bg-red-500',
       'siam-paragon': 'bg-blue-500',
       'terminal-21-asok': 'bg-purple-500',
-      'the-mall-bangkapi': 'bg-green-500'
+      'the-mall-bangkapi': 'bg-green-500',
     };
     return colors[mallId as keyof typeof colors] || 'bg-gray-500';
   }
@@ -270,7 +292,6 @@ const Home: React.FC = () => {
     return badges;
   }
 
-
   if (loadingMalls) {
     return (
       <div className="bg-gray-50 font-sans min-h-screen">
@@ -282,10 +303,11 @@ const Home: React.FC = () => {
                   <MapPin className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="text-xl font-semibold">
-                  <span className="text-gray-900">HaaNai</span><span className="text-green-600">Hang</span>
+                  <span className="text-gray-900">HaaNai</span>
+                  <span className="text-green-600">Hang</span>
                 </div>
               </div>
-              <Link 
+              <Link
                 to="/admin"
                 className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 aria-label="Admin Panel"
@@ -298,7 +320,9 @@ const Home: React.FC = () => {
         <main className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">กำลังโหลดข้อมูลห้างสรรพสินค้า...</p>
+            <p className="text-gray-600 mt-4">
+              กำลังโหลดข้อมูลห้างสรรพสินค้า...
+            </p>
           </div>
         </main>
       </div>
@@ -317,10 +341,11 @@ const Home: React.FC = () => {
                 <MapPin className="w-6 h-6 text-green-600" />
               </div>
               <div className="text-xl font-semibold">
-                <span className="text-gray-900">HaaNai</span><span className="text-green-600">Hang</span>
+                <span className="text-gray-900">HaaNai</span>
+                <span className="text-green-600">Hang</span>
               </div>
             </div>
-            
+
             {/* Center - Search (hidden on mobile) */}
             <div className="hidden md:block flex-1 max-w-md mx-8">
               <GlobalSearchBox
@@ -330,10 +355,10 @@ const Home: React.FC = () => {
                 placeholder="ค้นหาห้างหรือแบรนด์..."
               />
             </div>
-            
+
             {/* Right side - Profile/Settings */}
             <div className="flex items-center space-x-3">
-              <Link 
+              <Link
                 to="/admin"
                 className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 aria-label="Admin Panel"
@@ -349,16 +374,22 @@ const Home: React.FC = () => {
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="text-center mb-8">
-          <h1 data-testid="hero-title" className="text-3xl md:text-4xl font-semibold text-text-primary mb-4 font-kanit">
+          <h1
+            data-testid="hero-title"
+            className="text-3xl md:text-4xl font-semibold text-text-primary mb-4 font-kanit"
+          >
             หาห้างใกล้คุณ
           </h1>
           <p className="text-text-secondary text-lg mb-2 font-prompt">
-            เราจะช่วยหาห้างสรรพสินค้าที่ใกล้คุณที่สุด พร้อมเวลาเปิด–ปิด และการเดินทาง
+            เราจะช่วยหาห้างสรรพสินค้าที่ใกล้คุณที่สุด พร้อมเวลาเปิด–ปิด
+            และการเดินทาง
           </p>
           <p className="text-gray-500 text-sm mb-6 font-prompt">
-            {userLoc ? 'เรียงจากระยะทางใกล้คุณที่สุด' : 'ค้นหาห้างสรรพสินค้าใกล้ตำแหน่งของคุณ'}
+            {userLoc
+              ? 'เรียงจากระยะทางใกล้คุณที่สุด'
+              : 'ค้นหาห้างสรรพสินค้าใกล้ตำแหน่งของคุณ'}
           </p>
-          
+
           {/* Search Box */}
           <div className="max-w-2xl mx-auto mb-6">
             <EnhancedSearchBox
@@ -367,10 +398,10 @@ const Home: React.FC = () => {
               userLocation={userLoc}
             />
           </div>
-          
+
           {/* Primary CTA - Use My Location */}
           <div className="flex flex-col items-center space-y-2">
-            <button 
+            <button
               onClick={handleUseMyLocation}
               disabled={isLoading}
               data-testid="use-my-location"
@@ -394,7 +425,6 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-
         {/* Smart Location Alert */}
         {showSmartAlert && (
           <div className="mb-8 max-w-2xl mx-auto">
@@ -405,11 +435,20 @@ const Home: React.FC = () => {
                     <MapPin className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-green-900">คุณอยู่ใกล้ Central Rama 3!</h3>
-                    <p className="text-green-700 text-sm">ห่างเพียง {Math.round(distanceKm(userLoc!, { lat: 13.6891, lng: 100.5441 }) * 1000)} เมตร</p>
+                    <h3 className="font-semibold text-green-900">
+                      คุณอยู่ใกล้ Central Rama 3!
+                    </h3>
+                    <p className="text-green-700 text-sm">
+                      ห่างเพียง{' '}
+                      {Math.round(
+                        distanceKm(userLoc!, { lat: 13.6891, lng: 100.5441 }) *
+                          1000,
+                      )}{' '}
+                      เมตร
+                    </p>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setShowSmartAlert(false)}
                   className="text-green-600 hover:text-green-800"
                 >
@@ -426,12 +465,17 @@ const Home: React.FC = () => {
           {loadingMalls ? (
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900">ห้างสรรพสินค้า</h2>
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  ห้างสรรพสินค้า
+                </h2>
                 <div className="h-px bg-gray-200 flex-1 ml-4"></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 {Array.from({ length: 8 }).map((_, index) => (
-                  <div key={index} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-pulse">
+                  <div
+                    key={index}
+                    className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-pulse"
+                  >
                     <div className="h-1 bg-gray-200"></div>
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-4">
@@ -451,8 +495,8 @@ const Home: React.FC = () => {
               </div>
             </div>
           ) : error ? (
-            <ErrorState 
-              message={error} 
+            <ErrorState
+              message={error}
               onRetry={() => {
                 setError(null);
                 setLoadingMalls(true);
@@ -482,20 +526,21 @@ const Home: React.FC = () => {
                 </div>
                 <div className="h-px bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20"></div>
               </div>
-              
+
               {/* Filter Bar and View Toggle */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 {/* Filter Buttons */}
                 <div className="flex flex-wrap gap-2">
                   {[
                     { key: 'all', label: 'ทั้งหมด', icon: '🏢' },
-                    { 
-                      key: 'open', 
-                      label: 'เปิดอยู่ตอนนี้', 
+                    {
+                      key: 'open',
+                      label: 'เปิดอยู่ตอนนี้',
                       icon: '🕐',
-                      count: withDistance.filter(mall => isMallOpen(mall)).length
-                    }
-                  ].map((filter) => (
+                      count: withDistance.filter(mall => isMallOpen(mall))
+                        .length,
+                    },
+                  ].map(filter => (
                     <button
                       key={filter.key}
                       onClick={() => setActiveFilter(filter.key as any)}
@@ -515,7 +560,7 @@ const Home: React.FC = () => {
                     </button>
                   ))}
                 </div>
-                
+
                 {/* View Toggle */}
                 <div className="flex items-center space-x-2">
                   <button
@@ -527,8 +572,18 @@ const Home: React.FC = () => {
                     }`}
                     title="แสดงแบบ Grid"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                      />
                     </svg>
                   </button>
                   <button
@@ -540,137 +595,174 @@ const Home: React.FC = () => {
                     }`}
                     title="🗺️ ดูบนแผนที่"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                      />
                     </svg>
                   </button>
                 </div>
               </div>
-              
+
               {/* Results Count */}
               <div className="mb-4">
                 <p className="text-sm text-gray-600 font-prompt">
                   แสดง {gridFilteredMalls.length} จาก {withDistance.length} ห้าง
                 </p>
               </div>
-              
+
               {/* Conditional Rendering based on View Mode */}
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                  {gridFilteredMalls.map((mall) => (
-                  <Link 
-                    key={mall.id}
-                    to={`/malls/${mall.name}`}
-                    data-testid="mall-card"
-                    className="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl hover:shadow-green-100/50 transition-all duration-300 hover:-translate-y-1 hover:border-green-300 hover:scale-[1.02]"
-                  >
-                    {/* Accent Color Bar */}
-                    <div className={`h-1 ${getMallColor(mall.id)}`}></div>
-                    
-                    <div className="p-6">
-                      {/* Top Section - Logo and Badges */}
-                      <div className="flex items-start justify-between mb-4">
-                        {/* Mall Logo/Icon - Larger */}
-                        {mall.logoUrl ? (
-                          <img
-                            src={mall.logoUrl}
-                            alt={`${mall.displayName} logo`}
-                            className="w-20 h-20 rounded-2xl object-cover shadow-lg border-2 border-white"
-                            onError={(e) => {
-                              // Fallback to text if image fails to load
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const fallback = target.nextElementSibling as HTMLElement;
-                              if (fallback) fallback.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div 
-                          className={`w-20 h-20 ${getMallColor(mall.id)} rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg ${mall.logoUrl ? 'hidden' : ''}`}
-                          style={{ display: mall.logoUrl ? 'none' : 'flex' }}
-                        >
-                          {getMallInitial(mall)}
-                        </div>
-                        
-                        {/* Status Badges */}
-                        <div className="flex flex-col gap-1">
-                          {getMallBadges(mall).map((badge, index) => (
-                            <span key={index} className={`px-2 py-1 text-xs font-medium rounded-full ${badge.color}`}>
-                              {badge.text}
-                            </span>
-                          ))}
-                          {isMallOpen(mall) && (
-                            <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
-                              เปิดอยู่ตอนนี้
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Mall Name - Larger and Bolder */}
-                      <h3 className="text-xl font-semibold text-text-primary mb-2 group-hover:text-primary transition-colors font-kanit">
-                        {mall.displayName}
-                      </h3>
-                      
-                      {/* Address - Lighter Color */}
-                      <p className="text-gray-500 text-sm mb-4 line-clamp-2 font-prompt">{mall.address || mall.district}</p>
-                      
-                      {/* Bottom Section - Details */}
-                      <div className="space-y-3">
-                        {/* Hours */}
-                        <div className="flex items-center space-x-2 text-sm text-gray-500">
-                          <Clock className="w-4 h-4" />
-                          <span className={isMallOpen(mall) ? 'text-green-600 font-medium' : ''}>
-                            {mall.hours?.open || '10:00'} - {mall.hours?.close || '22:00'}
-                            {!isMallOpen(mall) && mall.hours && (
-                              <span className="ml-1 text-red-500 text-xs">(ปิดแล้ว)</span>
+                  {gridFilteredMalls.map(mall => (
+                    <Link
+                      key={mall.id}
+                      to={`/malls/${mall.name}`}
+                      data-testid="mall-card"
+                      className="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl hover:shadow-green-100/50 transition-all duration-300 hover:-translate-y-1 hover:border-green-300 hover:scale-[1.02]"
+                    >
+                      {/* Accent Color Bar */}
+                      <div className={`h-1 ${getMallColor(mall.id)}`}></div>
+
+                      <div className="p-6">
+                        {/* Top Section - Logo and Badges */}
+                        <div className="flex items-start justify-between mb-4">
+                          {/* Mall Logo/Icon - Larger */}
+                          {mall.logoUrl ? (
+                            <img
+                              src={mall.logoUrl}
+                              alt={`${mall.displayName} logo`}
+                              className="w-20 h-20 rounded-2xl object-cover shadow-lg border-2 border-white"
+                              onError={e => {
+                                // Fallback to text if image fails to load
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const fallback =
+                                  target.nextElementSibling as HTMLElement;
+                                if (fallback) fallback.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div
+                            className={`w-20 h-20 ${getMallColor(mall.id)} rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg ${mall.logoUrl ? 'hidden' : ''}`}
+                            style={{ display: mall.logoUrl ? 'none' : 'flex' }}
+                          >
+                            {getMallInitial(mall)}
+                          </div>
+
+                          {/* Status Badges */}
+                          <div className="flex flex-col gap-1">
+                            {getMallBadges(mall).map((badge, index) => (
+                              <span
+                                key={index}
+                                className={`px-2 py-1 text-xs font-medium rounded-full ${badge.color}`}
+                              >
+                                {badge.text}
+                              </span>
+                            ))}
+                            {isMallOpen(mall) && (
+                              <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
+                                เปิดอยู่ตอนนี้
+                              </span>
                             )}
-                          </span>
+                          </div>
                         </div>
-                        
-                        {/* Distance with Icon */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-lg">🚗</span>
-                            <span className="text-primary font-semibold text-sm font-prompt">
-                              {mall.distanceKm != null ? (
-                                mall.distanceKm < 1 
-                                  ? `${Math.round(mall.distanceKm * 1000)} ม.` 
-                                  : `${mall.distanceKm.toFixed(1)} กม.`
-                              ) : (
-                                'ไม่ทราบระยะทาง'
+
+                        {/* Mall Name - Larger and Bolder */}
+                        <h3 className="text-xl font-semibold text-text-primary mb-2 group-hover:text-primary transition-colors font-kanit">
+                          {mall.displayName}
+                        </h3>
+
+                        {/* Address - Lighter Color */}
+                        <p className="text-gray-500 text-sm mb-4 line-clamp-2 font-prompt">
+                          {mall.address || mall.district}
+                        </p>
+
+                        {/* Bottom Section - Details */}
+                        <div className="space-y-3">
+                          {/* Hours */}
+                          <div className="flex items-center space-x-2 text-sm text-gray-500">
+                            <Clock className="w-4 h-4" />
+                            <span
+                              className={
+                                isMallOpen(mall)
+                                  ? 'text-green-600 font-medium'
+                                  : ''
+                              }
+                            >
+                              {mall.hours?.open || '10:00'} -{' '}
+                              {mall.hours?.close || '22:00'}
+                              {!isMallOpen(mall) && mall.hours && (
+                                <span className="ml-1 text-red-500 text-xs">
+                                  (ปิดแล้ว)
+                                </span>
                               )}
                             </span>
                           </div>
-                          
-                          {/* District */}
-                          <span className="text-gray-400 text-xs">{mall.district}</span>
-                        </div>
-                        
-                        {/* Action Button - Green Accent */}
-                        <div className="pt-3 border-t border-gray-100">
-                          <div className="flex items-center justify-center text-sm text-primary font-medium group-hover:text-primary-hover transition-all duration-200 font-prompt group-hover:scale-105">
-                            <span>ดูรายละเอียด</span>
-                            <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
-                            </svg>
+
+                          {/* Distance with Icon */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-lg">🚗</span>
+                              <span className="text-primary font-semibold text-sm font-prompt">
+                                {mall.distanceKm != null
+                                  ? mall.distanceKm < 1
+                                    ? `${Math.round(mall.distanceKm * 1000)} ม.`
+                                    : `${mall.distanceKm.toFixed(1)} กม.`
+                                  : 'ไม่ทราบระยะทาง'}
+                              </span>
+                            </div>
+
+                            {/* District */}
+                            <span className="text-gray-400 text-xs">
+                              {mall.district}
+                            </span>
+                          </div>
+
+                          {/* Action Button - Green Accent */}
+                          <div className="pt-3 border-t border-gray-100">
+                            <div className="flex items-center justify-center text-sm text-primary font-medium group-hover:text-primary-hover transition-all duration-200 font-prompt group-hover:scale-105">
+                              <span>ดูรายละเอียด</span>
+                              <svg
+                                className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-200"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M9 5l7 7-7 7"
+                                />
+                              </svg>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
                   ))}
                 </div>
               ) : (
                 /* Map View */
-                <div className={`relative ${isMapFullscreen ? 'fixed inset-0 z-50 bg-white' : 'h-96'}`}>
+                <div
+                  className={`relative ${isMapFullscreen ? 'fixed inset-0 z-50 bg-white' : 'h-96'}`}
+                >
                   <MapView
                     malls={mapFilteredMalls}
                     userLocation={userLoc}
                     onMallClick={handleMallSelect}
                     className="w-full h-full rounded-2xl"
                   />
-                  
+
                   {/* Map Controls */}
                   <MapControls
                     onCenterUserLocation={handleCenterUserLocation}
@@ -682,7 +774,7 @@ const Home: React.FC = () => {
                     userLocation={userLoc}
                     mallsCount={mapFilteredMalls.length}
                   />
-                  
+
                   {/* Map Filters */}
                   <MapFilters
                     malls={malls}
@@ -692,7 +784,7 @@ const Home: React.FC = () => {
                   />
                 </div>
               )}
-              
+
               {/* Additional Sections */}
               {userLoc && withDistance.length > 0 && (
                 <>
@@ -700,14 +792,16 @@ const Home: React.FC = () => {
                   <div className="mt-12">
                     <div className="mb-8">
                       <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-2xl font-semibold text-gray-900 font-kanit">⭐ ยอดนิยมในกรุงเทพฯ</h2>
+                        <h2 className="text-2xl font-semibold text-gray-900 font-kanit">
+                          ⭐ ยอดนิยมในกรุงเทพฯ
+                        </h2>
                         <div className="h-px bg-gradient-to-r from-orange-200 to-transparent flex-1 ml-6"></div>
                       </div>
                       <div className="h-px bg-gradient-to-r from-orange-200/20 via-orange-400/40 to-orange-200/20"></div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                      {withDistance.slice(0, 4).map((mall) => (
-                        <Link 
+                      {withDistance.slice(0, 4).map(mall => (
+                        <Link
                           key={`popular-${mall.id}`}
                           to={`/malls/${mall.name}`}
                           className="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl hover:shadow-orange-100/50 transition-all duration-300 hover:-translate-y-1 hover:border-orange-300 hover:scale-[1.02]"
@@ -720,17 +814,21 @@ const Home: React.FC = () => {
                                   src={mall.logoUrl}
                                   alt={`${mall.displayName} logo`}
                                   className="w-20 h-20 rounded-2xl object-cover shadow-lg border-2 border-white"
-                                  onError={(e) => {
+                                  onError={e => {
                                     const target = e.target as HTMLImageElement;
                                     target.style.display = 'none';
-                                    const fallback = target.nextElementSibling as HTMLElement;
-                                    if (fallback) fallback.style.display = 'flex';
+                                    const fallback =
+                                      target.nextElementSibling as HTMLElement;
+                                    if (fallback)
+                                      fallback.style.display = 'flex';
                                   }}
                                 />
                               ) : null}
-                              <div 
+                              <div
                                 className="w-20 h-20 bg-orange-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg"
-                                style={{ display: mall.logoUrl ? 'none' : 'flex' }}
+                                style={{
+                                  display: mall.logoUrl ? 'none' : 'flex',
+                                }}
                               >
                                 {getMallInitial(mall)}
                               </div>
@@ -741,21 +839,23 @@ const Home: React.FC = () => {
                             <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors font-kanit">
                               {mall.displayName}
                             </h3>
-                            <p className="text-gray-500 text-sm mb-4 font-prompt">{mall.district}</p>
+                            <p className="text-gray-500 text-sm mb-4 font-prompt">
+                              {mall.district}
+                            </p>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-2">
                                 <span className="text-lg">🚗</span>
                                 <span className="text-orange-600 font-semibold text-sm font-prompt">
-                                  {mall.distanceKm != null ? (
-                                    mall.distanceKm < 1 
-                                      ? `${Math.round(mall.distanceKm * 1000)} ม.` 
+                                  {mall.distanceKm != null
+                                    ? mall.distanceKm < 1
+                                      ? `${Math.round(mall.distanceKm * 1000)} ม.`
                                       : `${mall.distanceKm.toFixed(1)} กม.`
-                                  ) : (
-                                    'ไม่ทราบระยะทาง'
-                                  )}
+                                    : 'ไม่ทราบระยะทาง'}
                                 </span>
                               </div>
-                              <span className="text-gray-400 text-xs">{mall.district}</span>
+                              <span className="text-gray-400 text-xs">
+                                {mall.district}
+                              </span>
                             </div>
                           </div>
                         </Link>
@@ -779,15 +879,26 @@ const Home: React.FC = () => {
           {storeResults.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900">🛍️ ร้านค้า</h2>
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  🛍️ ร้านค้า
+                </h2>
                 <div className="h-px bg-gray-200 flex-1 ml-4"></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {storeResults.map((store) => (
-                  <div key={store.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                    <h3 className="font-semibold text-gray-900 mb-1">{store.name}</h3>
-                    <p className="text-gray-600 text-sm mb-2">{store.category}</p>
-                    <p className="text-gray-500 text-xs">{store.mallName} • {store.floor}</p>
+                {storeResults.map(store => (
+                  <div
+                    key={store.id}
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
+                  >
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      {store.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-2">
+                      {store.category}
+                    </p>
+                    <p className="text-gray-500 text-xs">
+                      {store.mallName} • {store.floorId}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -795,17 +906,24 @@ const Home: React.FC = () => {
           )}
 
           {/* No Results */}
-          {results.length === 0 && storeResults.length === 0 && query && !loadingMalls && !error && (
-            <div className="text-center py-12">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-6 h-6 text-gray-400" />
+          {results.length === 0 &&
+            storeResults.length === 0 &&
+            query &&
+            !loadingMalls &&
+            !error && (
+              <div className="text-center py-12">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MapPin className="w-6 h-6 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  ไม่พบผลลัพธ์
+                </h3>
+                <p className="text-gray-600">
+                  ลองค้นหาด้วยคำอื่น หรือเลือกห้างสรรพสินค้าจากรายการด้านล่าง
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">ไม่พบผลลัพธ์</h3>
-              <p className="text-gray-600">ลองค้นหาด้วยคำอื่น หรือเลือกห้างสรรพสินค้าจากรายการด้านล่าง</p>
-            </div>
-          )}
+            )}
         </div>
-
       </main>
     </div>
   );

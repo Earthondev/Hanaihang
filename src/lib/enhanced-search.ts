@@ -1,23 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { normalizeThai } from './thai-normalize';
+import { useState, useEffect, useRef } from 'react';
+
 import { listMalls } from '../services/firebase/firestore';
 import { searchStoresGlobally } from '../services/firebase/stores';
 
+import { normalizeThai } from './thai-normalize';
+
 // Cache system with stale-while-revalidate
 class SearchCache {
-  private cache = new Map<string, { data: any; timestamp: number; stale: boolean }>();
+  private cache = new Map<
+    string,
+    { data: any; timestamp: number; stale: boolean }
+  >();
   private readonly TTL = 2 * 60 * 1000; // 2 minutes
 
   get(key: string) {
     const entry = this.cache.get(key);
     if (!entry) return null;
-    
+
     const isExpired = Date.now() - entry.timestamp > this.TTL;
     if (isExpired) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return entry.data;
   }
 
@@ -25,7 +30,7 @@ class SearchCache {
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
-      stale
+      stale,
     });
   }
 
@@ -65,15 +70,15 @@ const SEARCH_CONFIG = {
   RANKING_WEIGHTS: {
     DISTANCE: 1.0,
     OPEN_STATUS: 1.0,
-    TYPE_BONUS: 0.1
-  }
+    TYPE_BONUS: 0.1,
+  },
 };
 
 // Parallel search function
 export async function searchMallsAndStores(
   query: string,
   userLocation?: { lat: number; lng: number },
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<UnifiedSearchResult[]> {
   const normalizedQuery = normalizeThai(query.trim());
   if (!normalizedQuery || normalizedQuery.length < 1) {
@@ -92,15 +97,15 @@ export async function searchMallsAndStores(
     // Parallel queries
     const [malls, stores] = await Promise.all([
       searchMalls(normalizedQuery, signal),
-      searchStores(normalizedQuery, signal)
+      searchStores(normalizedQuery, signal),
     ]);
 
     // Unify results
     const unifiedResults = unifySearchResults(malls, stores);
-    
+
     // Cache results
     searchCache.set(cacheKey, unifiedResults);
-    
+
     return unifiedResults;
   } catch (error) {
     if (error.name === 'AbortError') {
@@ -112,10 +117,13 @@ export async function searchMallsAndStores(
 }
 
 // Search malls function
-async function searchMalls(query: string, signal?: AbortSignal): Promise<any[]> {
+async function searchMalls(
+  query: string,
+  signal?: AbortSignal,
+): Promise<any[]> {
   try {
     const malls = await listMalls();
-    
+
     // Filter by normalized name
     const filtered = malls.filter(mall => {
       const normalizedName = normalizeThai(mall.displayName);
@@ -131,27 +139,35 @@ async function searchMalls(query: string, signal?: AbortSignal): Promise<any[]> 
 }
 
 // Search stores function using collectionGroup
-async function searchStores(query: string, signal?: AbortSignal): Promise<any[]> {
+async function searchStores(
+  query: string,
+  signal?: AbortSignal,
+): Promise<any[]> {
   try {
-    const storeResults = await searchStoresGlobally(query, SEARCH_CONFIG.MAX_RESULTS_PER_TYPE);
-    
+    const storeResults = await searchStoresGlobally(
+      query,
+      SEARCH_CONFIG.MAX_RESULTS_PER_TYPE,
+    );
+
     // Transform to unified format
     return storeResults.map(({ store, mallId }) => ({
       id: store.id,
       kind: 'store' as const,
       name: store.name,
       displayName: store.name,
-      mallName: store.mallName || '',
+      mallName: '', // Will be populated later if needed
       mallId: mallId,
-      mallSlug: mallId, // Assuming mallId is the slug
-      coords: store.coords,
-      mallCoords: store.mallCoords,
-      floorLabel: store.floorLabel,
+      mallSlug: store.mallSlug || mallId,
+      coords: store.location,
+      mallCoords: undefined, // Will be populated later if needed
+      floorLabel: store.floorId,
       category: store.category,
-      hours: store.hours,
-      openNow: store.openNow,
-      distanceKm: store.distanceKm,
-      score: store.score
+      hours: store.hours
+        ? { open: store.hours.split('-')[0], close: store.hours.split('-')[1] }
+        : undefined,
+      openNow: false, // Will be calculated later
+      distanceKm: undefined, // Will be calculated later
+      score: undefined, // Will be calculated later
     }));
   } catch (error) {
     if (signal?.aborted) throw new Error('AbortError');
@@ -161,7 +177,10 @@ async function searchStores(query: string, signal?: AbortSignal): Promise<any[]>
 }
 
 // Unify search results
-function unifySearchResults(malls: any[], stores: any[]): UnifiedSearchResult[] {
+function unifySearchResults(
+  malls: any[],
+  stores: any[],
+): UnifiedSearchResult[] {
   const unified: UnifiedSearchResult[] = [];
 
   // Add malls
@@ -173,7 +192,7 @@ function unifySearchResults(malls: any[], stores: any[]): UnifiedSearchResult[] 
       displayName: mall.displayName,
       coords: mall.coords,
       hours: mall.hours,
-      openNow: mall.hours ? isCurrentlyOpen(mall.hours) : false
+      openNow: mall.hours ? isCurrentlyOpen(mall.hours) : false,
     });
   });
 
@@ -191,7 +210,7 @@ function unifySearchResults(malls: any[], stores: any[]): UnifiedSearchResult[] 
       floorLabel: store.floorLabel,
       category: store.category,
       hours: store.hours,
-      openNow: store.openNow
+      openNow: store.openNow,
     });
   });
 
@@ -201,7 +220,7 @@ function unifySearchResults(malls: any[], stores: any[]): UnifiedSearchResult[] 
 // Calculate ranking score
 export function calculateSearchScore(
   result: UnifiedSearchResult,
-  userLocation?: { lat: number; lng: number }
+  userLocation?: { lat: number; lng: number },
 ): number {
   const weights = SEARCH_CONFIG.RANKING_WEIGHTS;
   let score = 0;
@@ -229,12 +248,12 @@ export function calculateSearchScore(
 // Sort results by score
 export function sortSearchResults(
   results: UnifiedSearchResult[],
-  userLocation?: { lat: number; lng: number }
+  userLocation?: { lat: number; lng: number },
 ): UnifiedSearchResult[] {
   return results
     .map(result => ({
       ...result,
-      score: calculateSearchScore(result, userLocation)
+      score: calculateSearchScore(result, userLocation),
     }))
     .sort((a, b) => a.score - b.score);
 }
@@ -248,7 +267,7 @@ function isCurrentlyOpen(hours: { open: string; close: string }): boolean {
 
   const [openHour, openMin] = hours.open.split(':').map(Number);
   const [closeHour, closeMin] = hours.close.split(':').map(Number);
-  
+
   const openTime = openHour * 60 + openMin;
   const closeTime = closeHour * 60 + closeMin;
 
@@ -259,7 +278,7 @@ function isCurrentlyOpen(hours: { open: string; close: string }): boolean {
 export function useDebouncedSearch(
   query: string,
   userLocation?: { lat: number; lng: number },
-  delay: number = SEARCH_CONFIG.DEBOUNCE_MS
+  delay: number = SEARCH_CONFIG.DEBOUNCE_MS,
 ) {
   const [results, setResults] = useState<UnifiedSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -286,8 +305,12 @@ export function useDebouncedSearch(
         const controller = new AbortController();
         abortControllerRef.current = controller;
 
-        const searchResults = await searchMallsAndStores(query, userLocation, controller.signal);
-        
+        const searchResults = await searchMallsAndStores(
+          query,
+          userLocation,
+          controller.signal,
+        );
+
         if (!controller.signal.aborted) {
           setResults(searchResults);
         }
@@ -313,4 +336,3 @@ export function useDebouncedSearch(
 
   return { results, loading, error };
 }
-
