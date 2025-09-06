@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
-import { useDebouncedSearch } from '@/lib/enhanced-search';
+
 import UnifiedSearchResults from './UnifiedSearchResults';
+
+import { useDebouncedSearch } from '@/lib/enhanced-search';
 import { UnifiedSearchResult } from '@/lib/enhanced-search';
 
 interface EnhancedSearchBoxProps {
   onResultClick?: (result: UnifiedSearchResult) => void;
+  onResultSelect?: (type: 'store' | 'mall', data: unknown) => void;
   placeholder?: string;
   className?: string;
   userLocation?: { lat: number; lng: number };
@@ -13,9 +16,10 @@ interface EnhancedSearchBoxProps {
 
 export default function EnhancedSearchBox({
   onResultClick,
-  placeholder = "ค้นหาห้างหรือแบรนด์...",
-  className = "",
-  userLocation
+  onResultSelect: _onResultSelect,
+  placeholder = 'ค้นหาห้างหรือแบรนด์...',
+  className = '',
+  userLocation,
 }: EnhancedSearchBoxProps) {
   const [query, setQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
@@ -40,9 +44,9 @@ export default function EnhancedSearchBox({
 
   const scrollToResults = () => {
     if (resultsRef.current) {
-      resultsRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
+      resultsRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
       });
     }
   };
@@ -65,12 +69,12 @@ export default function EnhancedSearchBox({
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <Search className="h-5 w-5 text-gray-400" />
         </div>
-        
+
         <input
           ref={inputRef}
           type="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={e => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => setFocused(true)}
           onBlur={() => {
@@ -83,7 +87,7 @@ export default function EnhancedSearchBox({
           spellCheck="false"
           data-testid="search-input"
         />
-        
+
         {/* Clear Button */}
         {query && (
           <button

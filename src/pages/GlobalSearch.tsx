@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Building, Store, ExternalLink, Filter } from 'lucide-react';
+import { Search, MapPin, Building, Store, ExternalLink } from 'lucide-react';
 
 import { searchBrands } from '@/legacy/services/api';
 import { listMalls } from '@/services/firebase/firestore';
 import Card from '@/ui/Card';
 import Input from '@/ui/Input';
 import Button from '@/ui/Button';
-import SearchFilters, { SearchFilters as SearchFiltersType } from '@/components/search/SearchFilters';
+import SearchFilters, {
+  SearchFilters as SearchFiltersType,
+} from '@/components/search/SearchFilters';
 import SearchSuggestions from '@/components/search/SearchSuggestions';
 import SearchAnalytics from '@/components/search/SearchAnalytics';
 import EnhancedSearchBox from '@/components/search/EnhancedSearchBox';
@@ -16,12 +18,21 @@ import { useSearchHistory } from '@/hooks/useSearchHistory';
 const GlobalSearch: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Array<{ store: any; mall: any }>>([]);
+  const [searchResults, setSearchResults] = useState<
+    Array<{ store: any; mall: any }>
+  >([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [malls, setMalls] = useState<any[]>([]);
   const [categories] = useState([
-    'Fashion', 'Food & Beverage', 'Electronics', 'Beauty & Health',
-    'Home & Living', 'Sports & Recreation', 'Books & Stationery', 'Services', 'Other'
+    'Fashion',
+    'Food & Beverage',
+    'Electronics',
+    'Beauty & Health',
+    'Home & Living',
+    'Sports & Recreation',
+    'Books & Stationery',
+    'Services',
+    'Other',
   ]);
   const [filters, setFilters] = useState<SearchFiltersType>({
     mallIds: [],
@@ -29,12 +40,12 @@ const GlobalSearch: React.FC = () => {
     status: ['Active'],
     distance: null,
     sortBy: 'relevance',
-    sortOrder: 'asc'
+    sortOrder: 'asc',
   });
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchTime, setSearchTime] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const { addToHistory } = useSearchHistory();
+  const { addSearch } = useSearchHistory();
 
   // Load malls on component mount
   useEffect(() => {
@@ -54,14 +65,14 @@ const GlobalSearch: React.FC = () => {
       const startTime = Date.now();
       const results = searchBrands(searchQuery.trim());
       const endTime = Date.now();
-      
+
       setSearchResults(results);
       setHasSearched(true);
       setSearchTime(endTime - startTime);
       setShowSuggestions(false);
-      
+
       // Add to search history
-      addToHistory(searchQuery.trim(), results.length);
+      addSearch(searchQuery.trim(), results.length);
     }
   };
 
@@ -79,13 +90,13 @@ const GlobalSearch: React.FC = () => {
       const startTime = Date.now();
       const results = searchBrands(suggestion);
       const endTime = Date.now();
-      
+
       setSearchResults(results);
       setHasSearched(true);
       setSearchTime(endTime - startTime);
-      
+
       // Add to search history
-      addToHistory(suggestion, results.length);
+      addSearch(suggestion, results.length);
     }, 100);
   };
 
@@ -129,7 +140,9 @@ const GlobalSearch: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">ค้นหาแบรนด์</h1>
-              <p className="text-gray-600">ค้นหาร้านค้าและแบรนด์ในห้างสรรพสินค้าทั่วกรุงเทพฯ</p>
+              <p className="text-gray-600">
+                ค้นหาร้านค้าและแบรนด์ในห้างสรรพสินค้าทั่วกรุงเทพฯ
+              </p>
             </div>
             <img src="/logo-horizontal.svg" alt="Logo" className="h-8" />
           </div>
@@ -141,7 +154,7 @@ const GlobalSearch: React.FC = () => {
               placeholder="พิมพ์ชื่อแบรนด์ เช่น Zara, Starbucks, Gucci..."
               className="w-full"
             />
-            
+
             {/* Legacy Search (for backward compatibility) */}
             <div className="flex gap-4">
               <div className="flex-1 relative">
@@ -187,7 +200,7 @@ const GlobalSearch: React.FC = () => {
                 </p>
               </div>
             </div>
-            
+
             {/* Search Analytics */}
             <SearchAnalytics
               searchQuery={searchQuery}
@@ -216,13 +229,18 @@ const GlobalSearch: React.FC = () => {
         {searchResults.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {searchResults.map(({ store, mall }) => (
-              <Card key={store.id} className="hover:shadow-lg transition-shadow">
+              <Card
+                key={store.id}
+                className="hover:shadow-lg transition-shadow"
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       {store.name}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-2">{store.category}</p>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {store.category}
+                    </p>
                     <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
                       <Building className="h-4 w-4" />
                       <span>{mall.nameTH}</span>
@@ -245,21 +263,21 @@ const GlobalSearch: React.FC = () => {
                 )}
 
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm text-gray-500">
-                    {store.hours}
-                  </span>
+                  <span className="text-sm text-gray-500">{store.hours}</span>
                 </div>
 
                 {store.tags && store.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-4">
-                    {store.tags.slice(0, 3).map((tag: string, index: number) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                    {store.tags
+                      .slice(0, 3)
+                      .map((tag: string, index: number) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700"
+                        >
+                          {tag}
+                        </span>
+                      ))}
                   </div>
                 )}
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, TrendingUp, Clock, MapPin, History, Trash2 } from 'lucide-react';
+import { Search, TrendingUp, MapPin, History, Trash2 } from 'lucide-react';
+
 import { useSearchHistory } from '../../hooks/useSearchHistory';
 
 interface SearchSuggestionsProps {
@@ -19,13 +20,13 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
   query,
   onSuggestionSelect,
   onClose,
-  isVisible
+  isVisible,
 }) => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { getRecentSearches, getPopularSearches, removeFromHistory } = useSearchHistory();
+  const { recentSearches, popularQueries, removeSearch } = useSearchHistory();
 
   // Mock data for suggestions
   const mockSuggestions: Suggestion[] = [
@@ -33,22 +34,22 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
     { text: 'H&M', type: 'recent' },
     { text: 'Central World', type: 'recent' },
     { text: 'Fashion', type: 'recent' },
-    
+
     // Trending searches
     { text: 'Starbucks', type: 'trending', count: 1250 },
-    { text: 'McDonald\'s', type: 'trending', count: 980 },
+    { text: "McDonald's", type: 'trending', count: 980 },
     { text: 'Uniqlo', type: 'trending', count: 750 },
-    
+
     // Store suggestions
     { text: 'H&M Central World', type: 'store' },
     { text: 'H&M Siam Paragon', type: 'store' },
     { text: 'H&M EmQuartier', type: 'store' },
-    
+
     // Mall suggestions
     { text: 'Central World', type: 'mall' },
     { text: 'Siam Paragon', type: 'mall' },
     { text: 'EmQuartier', type: 'mall' },
-    
+
     // Category suggestions
     { text: 'Fashion', type: 'category' },
     { text: 'Food & Beverage', type: 'category' },
@@ -62,7 +63,7 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
     }
 
     setLoading(true);
-    
+
     // Simulate API call delay
     const timer = setTimeout(() => {
       let allSuggestions: Suggestion[] = [];
@@ -70,44 +71,58 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
       if (query.trim()) {
         // Filter suggestions based on query
         const filteredSuggestions = mockSuggestions.filter(suggestion =>
-          suggestion.text.toLowerCase().includes(query.toLowerCase())
+          suggestion.text.toLowerCase().includes(query.toLowerCase()),
         );
         allSuggestions = [...filteredSuggestions];
       } else {
         // Show recent and popular searches when no query
-        const recentSearches = getRecentSearches(3).map(item => ({
+        const recentSuggestions = recentSearches.slice(0, 3).map(item => ({
           text: item.query,
-          type: 'recent' as const
+          type: 'recent' as const,
         }));
-        
-        const popularSearches = getPopularSearches(3).map(item => ({
+
+        const popularSuggestions = popularQueries.slice(0, 3).map(item => ({
           text: item.query,
           type: 'trending' as const,
-          count: item.resultsCount
+          count: item.count,
         }));
-        
-        allSuggestions = [...recentSearches, ...popularSearches];
+
+        allSuggestions = [...recentSuggestions, ...popularSuggestions];
       }
-      
+
       // Sort by type priority and relevance
       const sortedSuggestions = allSuggestions.sort((a, b) => {
         if (query.trim()) {
-          const aRelevance = a.text.toLowerCase().startsWith(query.toLowerCase()) ? 1 : 0;
-          const bRelevance = b.text.toLowerCase().startsWith(query.toLowerCase()) ? 1 : 0;
-          
+          const aRelevance = a.text
+            .toLowerCase()
+            .startsWith(query.toLowerCase())
+            ? 1
+            : 0;
+          const bRelevance = b.text
+            .toLowerCase()
+            .startsWith(query.toLowerCase())
+            ? 1
+            : 0;
+
           if (aRelevance !== bRelevance) return bRelevance - aRelevance;
         }
-        
-        const typeOrder = { recent: 0, trending: 1, store: 2, mall: 3, category: 4 };
+
+        const typeOrder = {
+          recent: 0,
+          trending: 1,
+          store: 2,
+          mall: 3,
+          category: 4,
+        };
         return typeOrder[a.type] - typeOrder[b.type];
       });
-      
+
       setSuggestions(sortedSuggestions.slice(0, 8));
       setLoading(false);
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [query, isVisible, getRecentSearches, getPopularSearches]);
+  }, [query, isVisible, recentSearches, popularQueries]);
 
   useEffect(() => {
     setSelectedIndex(-1);
@@ -119,14 +134,14 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex(prev => 
-          prev < suggestions.length - 1 ? prev + 1 : 0
+        setSelectedIndex(prev =>
+          prev < suggestions.length - 1 ? prev + 1 : 0,
         );
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setSelectedIndex(prev => 
-          prev > 0 ? prev - 1 : suggestions.length - 1
+        setSelectedIndex(prev =>
+          prev > 0 ? prev - 1 : suggestions.length - 1,
         );
         break;
       case 'Enter':
@@ -223,12 +238,12 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
                   </p>
                 </div>
               </button>
-              
+
               {suggestion.type === 'recent' && (
                 <button
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
-                    removeFromHistory(suggestion.text);
+                    removeSearch(suggestion.text);
                   }}
                   className="p-1 hover:bg-gray-200 rounded opacity-0 group-hover:opacity-100 transition-opacity"
                   title="ลบจากประวัติ"

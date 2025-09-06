@@ -3,7 +3,8 @@
  * Centralized path management for consistent data access
  */
 
-import { collection, collectionGroup } from 'firebase/firestore';
+import { collection, collectionGroup, doc } from 'firebase/firestore';
+
 import { db } from './firebase';
 
 // ======================
@@ -81,7 +82,7 @@ export const legacyStoresCol = () => collection(db, 'stores');
  * Useful for migration and data processing
  */
 export function extractMallIdFromPath(path: string): string | null {
-  const match = path.match(/malls\/([^\/]+)\/stores/);
+  const match = path.match(/malls\/([^/]+)\/stores/);
   return match ? match[1] : null;
 }
 
