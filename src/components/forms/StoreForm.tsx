@@ -11,6 +11,7 @@ import { storeSchema, StoreInput } from '../../validation/store.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createStore, listMalls, listFloors } from '../../lib/firestore';
 import { Mall, Floor } from '../../types/mall-system';
+import { getMall } from '../../lib/malls';
 
 interface StoreFormProps {
   defaultValues?: Partial<StoreInput>;
@@ -132,7 +133,23 @@ export default function StoreForm({
 
     await run(async () => {
       if (mode === "create") {
-        await createStore(values.mallId, values);
+        // Get mall data for denormalization
+        const mall = await getMall(values.mallId);
+        const mallCoords = mall?.location ?? mall?.coords ?? null;
+        
+        // Get floor data for denormalization
+        const floors = await listFloors(values.mallId);
+        const selectedFloor = floors.find(f => f.id === values.floorId);
+        const floorLabel = selectedFloor?.name ?? selectedFloor?.label ?? values.floorId;
+        
+        // Create store with denormalized data
+        const storeData = {
+          ...values,
+          mallCoords,
+          floorLabel
+        };
+        
+        await createStore(values.mallId, storeData);
       } else {
         // For edit mode, you would need to pass the store ID
         // await updateStore(storeId, values);

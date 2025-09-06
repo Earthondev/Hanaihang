@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Store, Mall } from '@/types/mall-system';
 import { formatDistance } from '@/services/geoutils/geo-utils';
+import { resolveStoreComputed } from '@/lib/store-resolver';
 
 interface StoreCardProps {
   store: Store;
   mall?: Mall;
   distance?: number;
   showMallName?: boolean;
+  showDistance?: boolean;
+  userLocation?: {lat: number, lng: number};
   onClick?: () => void;
   className?: string;
 }
@@ -17,9 +20,40 @@ const StoreCard: React.FC<StoreCardProps> = ({
   mall,
   distance,
   showMallName = false,
+  showDistance = false,
+  userLocation,
   onClick,
   className = ""
 }) => {
+  const [resolvedData, setResolvedData] = useState<{
+    mallName: string;
+    floorLabel: string;
+    distanceKm: number | null;
+  } | null>(null);
+
+  // Resolve store data using the new system
+  useEffect(() => {
+    let alive = true;
+    
+    const resolveData = async () => {
+      try {
+        const resolved = await resolveStoreComputed(store, userLocation);
+        if (alive) {
+          setResolvedData({
+            mallName: resolved.mallName,
+            floorLabel: resolved.floorLabel,
+            distanceKm: resolved.distanceKm
+          });
+        }
+      } catch (error) {
+        console.error('Error resolving store data:', error);
+      }
+    };
+
+    resolveData();
+    
+    return () => { alive = false; };
+  }, [store.id, userLocation?.lat, userLocation?.lng]);
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Active':
@@ -93,9 +127,9 @@ const StoreCard: React.FC<StoreCardProps> = ({
             </h3>
           </div>
           
-          {showMallName && mall && (
+          {showMallName && (
             <p className="text-sm text-gray-600 mb-1">
-              {mall.displayName}
+              {resolvedData?.mallName || mall?.displayName || store.mallSlug}
             </p>
           )}
         </div>
@@ -116,14 +150,22 @@ const StoreCard: React.FC<StoreCardProps> = ({
         </span>
         
         <div className="text-sm text-gray-600">
-          ชั้น {store.floorId} {store.unit && `ยูนิต ${store.unit}`}
+          {resolvedData?.floorLabel ? `ชั้น ${resolvedData.floorLabel}` : `ชั้น ${store.floorId}`} {store.unit && `ยูนิต ${store.unit}`}
         </div>
       </div>
 
       {/* Distance & Hours */}
       <div className="flex items-center justify-between text-sm text-gray-500">
         <div className="flex items-center space-x-4">
-          {distance !== undefined && (
+          {(showDistance && resolvedData?.distanceKm !== null) && (
+            <div className="flex items-center space-x-1">
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              </svg>
+              <span>{formatDistance(resolvedData.distanceKm!)}</span>
+            </div>
+          )}
+          {distance !== undefined && !showDistance && (
             <div className="flex items-center space-x-1">
               <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
