@@ -3,9 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/config/contexts/AuthContext';
 import { 
-  listMalls, 
-  createMall, 
-  createStore
+  listMalls
 } from '@/services/firebase/firestore';
 import { firebaseFirestore } from '@/services/firebaseFirestore';
 import MallCreateDrawer from '@/legacy/admin/MallCreateDrawer';
