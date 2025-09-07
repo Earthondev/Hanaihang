@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Search, MapPin, Building2 as StoreIcon, X, Loader2 } from 'lucide-react';
 
 import { useSearchAll } from '@/features/search/hooks/useSearchAll';

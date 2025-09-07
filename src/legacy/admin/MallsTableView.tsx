@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Edit, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

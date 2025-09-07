@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Building, ExternalLink } from 'lucide-react';
+import { Search, MapPin, Building, ExternalLink, Store } from 'lucide-react';
 
 import { searchBrands } from '@/legacy/services/api';
 import { listMalls } from '@/services/firebase/firestore';
@@ -100,7 +100,7 @@ const GlobalSearch: React.FC = () => {
     }, 100);
   };
 
-  const handleInputChange = (_e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
     setShowSuggestions(value.length > 0);
@@ -114,7 +114,7 @@ const GlobalSearch: React.FC = () => {
     }
   };
 
-  const handleMallClick = (_mallId: string) => {
+  const handleMallClick = (mallId: string) => {
     navigate(`/${mallId}`);
   };
 
@@ -128,7 +128,7 @@ const GlobalSearch: React.FC = () => {
     }
   };
 
-  const handleStoreClick = (_mallId: string, storeId: string) => {
+  const handleStoreClick = (mallId: string, storeId: string) => {
     navigate(`/${mallId}/stores/${storeId}`);
   };
 

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 
-import { uploadMallLogo, deleteMallLogo } from '@/services/firebase/storage';
+import { uploadMallLogoWithFallback, deleteMallLogo } from '@/services/firebase/storage';
 
 interface LogoUploadProps {
   _mallId: string;
@@ -11,7 +11,7 @@ interface LogoUploadProps {
 }
 
 export default function LogoUpload({ 
-  mallId, 
+  _mallId, 
   currentLogoUrl, 
   onLogoChange, 
   className = "" 
@@ -44,8 +44,8 @@ export default function LogoUpload({
       const preview = URL.createObjectURL(file);
       setPreviewUrl(preview);
 
-      // Upload to Firebase Storage
-      const downloadURL = await uploadMallLogo(file, mallId);
+      // Upload to Firebase Storage with fallback
+      const downloadURL = await uploadMallLogoWithFallback(file, _mallId);
       
       // Update parent component
       onLogoChange(downloadURL);
@@ -67,7 +67,7 @@ export default function LogoUpload({
     if (!currentLogoUrl) return;
 
     try {
-      await deleteMallLogo(mallId);
+      await deleteMallLogo(_mallId);
       onLogoChange(null);
       setPreviewUrl(null);
       setError(null);

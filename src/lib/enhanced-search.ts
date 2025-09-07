@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 import { listMalls } from '../services/firebase/firestore';
 import { searchStoresGlobally } from '../services/firebase/stores';

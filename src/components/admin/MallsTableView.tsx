@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Edit, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -6,7 +6,7 @@ import DataTable, { Column } from '../table/DataTable';
 import TableToolbar from '../table/TableToolbar';
 import Pagination from '../table/Pagination';
 import { listMalls, deleteMall, listAllStores, listFloors } from '../../lib/firestore';
-import { listMallsOptimized, listAllStoresBatchOptimized, clearStoresCache, clearMallsCache } from '../../lib/optimized-firestore';
+import { listMallsOptimized, clearStoresCache, clearMallsCache } from '../../lib/optimized-firestore';
 import { Mall } from '../../types/mall-system';
 
 import { DeleteButton } from './DeleteButton';
@@ -94,39 +94,48 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
           setMalls(mallsData);
           setStores(propsStores);
           
-          // ดึงข้อมูล floors สำหรับแต่ละห้าง
+          // ดึงข้อมูล floors สำหรับแต่ละห้างแบบ parallel (optimized)
           const floorsData: Record<string, number> = {};
-          for (const mall of mallsData) {
+          const floorPromises = mallsData.map(async (mall) => {
             try {
               const floors = await listFloors(mall.id!);
-              floorsData[mall.id!] = floors.length;
+              return { mallId: mall.id!, count: floors.length };
             } catch (error) {
               console.error(`Error loading floors for mall ${mall.id}:`, error);
-              floorsData[mall.id!] = 0;
+              return { mallId: mall.id!, count: 0 };
             }
-          }
+          });
+          
+          const floorResults = await Promise.all(floorPromises);
+          floorResults.forEach(({ mallId, count }) => {
+            floorsData[mallId] = count;
+          });
           setMallFloors(floorsData);
         } else {
           // โหลดข้อมูลเองถ้าไม่มี props (optimized)
-          const [mallsData, storesData] = await Promise.all([
-            listMallsOptimized(),
-            listAllStoresBatchOptimized()
-          ]);
+          const mallsData = await listMallsOptimized();
           setMalls(mallsData);
-          setStores(storesData);
           
-          // ดึงข้อมูล floors สำหรับแต่ละห้าง
+          // ดึงข้อมูล floors สำหรับแต่ละห้างแบบ parallel (optimized)
           const floorsData: Record<string, number> = {};
-          for (const mall of mallsData) {
+          const floorPromises = mallsData.map(async (mall) => {
             try {
               const floors = await listFloors(mall.id!);
-              floorsData[mall.id!] = floors.length;
+              return { mallId: mall.id!, count: floors.length };
             } catch (error) {
               console.error(`Error loading floors for mall ${mall.id}:`, error);
-              floorsData[mall.id!] = 0;
+              return { mallId: mall.id!, count: 0 };
             }
-          }
+          });
+          
+          const floorResults = await Promise.all(floorPromises);
+          floorResults.forEach(({ mallId, count }) => {
+            floorsData[mallId] = count;
+          });
           setMallFloors(floorsData);
+          
+          // ไม่ดึงข้อมูล stores ซ้ำ - ให้ AdminPanel จัดการ
+          setStores([]);
         }
       } catch (err) {
         setError('ไม่สามารถโหลดข้อมูลห้างสรรพสินค้าได้');
@@ -189,22 +198,20 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
 
   // Get store count for a mall
   const getStoreCount = (_mallId: string) => {
-    return stores.filter(storeItem => storeItem.mallId === mallId).length;
+    return stores.filter(storeItem => storeItem._mallId === _mallId).length;
   };
 
   // Handle delete
   const handleDelete = async (_mallId: string) => {
     try {
-      await deleteMall(mallId);
+      await deleteMall(_mallId);
       // Clear cache and refresh the data
       clearMallsCache();
       clearStoresCache();
-      const [updatedMalls, updatedStores] = await Promise.all([
-        listMallsOptimized(),
-        listAllStoresBatchOptimized()
-      ]);
+      const updatedMalls = await listMallsOptimized();
       setMalls(updatedMalls);
-      setStores(updatedStores);
+      
+      // ไม่ต้องดึงข้อมูล stores ซ้ำ - ให้ AdminPanel จัดการ
       onRefresh?.();
     } catch (err) {
       console.error('Error deleting mall:', err);
@@ -278,6 +285,7 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
             to={`/admin/malls/${mall.id}/edit`}
             className="inline-flex items-center space-x-1 px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm"
             aria-label={`แก้ไขห้าง: ${mall.displayName}`}
+            data-testid="edit-store-button"
           >
             <Edit className="h-4 w-4" />
             <span>แก้ไข</span>

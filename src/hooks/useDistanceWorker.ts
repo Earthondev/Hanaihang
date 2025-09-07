@@ -2,7 +2,7 @@
  * Enhanced Hook for using distance calculation Web Worker with search ranking
  */
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 
 export interface DistanceWorkerItem {
   id: string;

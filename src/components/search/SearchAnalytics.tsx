@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, Search, Clock, MapPin } from 'lucide-react';
 
 interface SearchAnalyticsProps {

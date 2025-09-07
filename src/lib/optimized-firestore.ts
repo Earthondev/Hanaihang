@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
-import { Mall } from '../types/mall-system';
+import { Mall, Store } from '../types/mall-system';
 
 import { cache, CACHE_KEYS } from './cache';
 
@@ -65,7 +65,7 @@ export async function listMallsOptimized(): Promise<Mall[]> {
 /**
  * ดึงรายการร้านของห้าง (with caching)
  */
-export async function listStoresOptimized(_mallId: string): Promise<Store[]> {
+export async function listStoresOptimized(mallId: string): Promise<Store[]> {
   // Check cache first
   const cached = cache.get<Store[]>(CACHE_KEYS.STORES(mallId));
   if (cached) {

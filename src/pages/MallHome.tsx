@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Search, Clock, Building, MapPin, ArrowRight, Heart } from 'lucide-react';
 
 import { getStores, getFloors, getActivePromotions } from '@/legacy/services/api';
-import { malls } from '@/test/fixtures/data/malls';
+import { malls } from '@/data/malls';
 import { isStoreOpen } from '@/legacy/utils';
 import Card from '@/ui/Card';
 import Input from '@/ui/Input';

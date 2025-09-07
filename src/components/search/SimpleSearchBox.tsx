@@ -3,7 +3,7 @@
  * No dropdown, just triggers search on input
  */
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 
 import { useLocation } from '../../contexts/LocationContext';

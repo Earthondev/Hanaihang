@@ -1,7 +1,7 @@
 import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
-import { Mall } from '../types/mall-system';
+import { Mall, Store } from '../types/mall-system';
 
 import { cache, CACHE_KEYS } from './cache';
 

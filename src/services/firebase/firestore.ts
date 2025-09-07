@@ -14,7 +14,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 
-import { MallFormDataFormData } from '../../types/mall-system';
+import { MallFormData, Mall, Floor, Store, StoreFormData } from '../../types/mall-system';
 import { MallInput } from '../../legacy/validation/mall.schema';
 
 import { db } from './firebase';
@@ -103,7 +103,7 @@ export async function listMalls(limitCount?: number): Promise<Mall[]> {
  * ดึงข้อมูลห้างตาม ID
  */
 export async function getMall(_mallId: string): Promise<Mall | null> {
-  const docRef = doc(db, 'malls', mallId);
+  const docRef = doc(db, 'malls', _mallId);
   const docSnap = await getDoc(docRef);
   
   if (!docSnap.exists()) {
@@ -146,25 +146,23 @@ export async function updateMall(id: string, data: Partial<MallInput>): Promise<
   if (data.name !== undefined) updateData.name = data.name;
   if (data.address !== undefined) updateData.address = data.address;
   if (data.district !== undefined) updateData.district = data.district;
-  if (data.phone !== undefined) updateData.phone = data.phone;
-  if (data.website !== undefined) updateData.website = data.website;
-  if (data.social !== undefined) updateData.social = data.social;
-  if (data.openTime !== undefined) updateData.openTime = data.openTime;
-  if (data.closeTime !== undefined) updateData.closeTime = data.closeTime;
+  if (data.phone !== undefined) updateData.contact = { ...updateData.contact, phone: data.phone };
+  if (data.website !== undefined) updateData.contact = { ...updateData.contact, website: data.website };
+  if ((data as any).social !== undefined) updateData.contact = { ...updateData.contact, social: (data as any).social };
 
   // Handle coordinates
-  if (data.location !== undefined) {
+  if ((data as any).location !== undefined) {
     updateData.coords = {
-      lat: data.location.lat || 0,
-      lng: data.location.lng || 0,
+      lat: (data as any).location.lat || 0,
+      lng: (data as any).location.lng || 0,
     };
   }
 
   // Handle hours
-  if (data.openTime || data.closeTime) {
+  if ((data as any).openTime || (data as any).closeTime) {
     updateData.hours = {
-      open: data.openTime || '10:00',
-      close: data.closeTime || '22:00',
+      open: (data as any).openTime || '10:00',
+      close: (data as any).closeTime || '22:00',
     };
   }
 
@@ -178,19 +176,19 @@ export async function deleteMall(_mallId: string): Promise<void> {
   const batch = writeBatch(db);
   
   // ลบ stores ทั้งหมดในห้าง
-  const storesSnapshot = await getDocs(collection(db, 'malls', mallId, 'stores'));
+  const storesSnapshot = await getDocs(collection(db, 'malls', _mallId, 'stores'));
   storesSnapshot.docs.forEach(doc => {
     batch.delete(doc.ref);
   });
   
   // ลบ floors ทั้งหมด
-  const floorsSnapshot = await getDocs(collection(db, 'malls', mallId, 'floors'));
+  const floorsSnapshot = await getDocs(collection(db, 'malls', _mallId, 'floors'));
   floorsSnapshot.docs.forEach(doc => {
     batch.delete(doc.ref);
   });
   
   // ลบห้าง
-  batch.delete(doc(db, 'malls', mallId));
+  batch.delete(doc(db, 'malls', _mallId));
   
   await batch.commit();
 }
@@ -210,11 +208,11 @@ async function createDefaultFloors(_mallId: string): Promise<void> {
     { label: '3', order: 3 }
   ];
 
-  const promises = defaultFloors.map(floor => createFloor(mallId, floor));
+  const promises = defaultFloors.map(floor => createFloor(_mallId, floor));
   await Promise.all(promises);
   
   // อัปเดต floorCount ในห้าง
-  await updateMallFloorCount(mallId, defaultFloors.length);
+  await updateMallFloorCount(_mallId, defaultFloors.length);
 }
 
 /**
@@ -230,10 +228,10 @@ export async function createFloor(_mallId: string, data: { label: string; order:
     updatedAt: now
   };
 
-  const docRef = await addDoc(collection(db, 'malls', mallId, 'floors'), floorData);
+  const docRef = await addDoc(collection(db, 'malls', _mallId, 'floors'), floorData);
   
   // อัปเดต floorCount ในห้าง
-  await updateMallFloorCount(mallId);
+  await updateMallFloorCount(_mallId);
   
   return docRef.id;
 }
@@ -242,7 +240,7 @@ export async function createFloor(_mallId: string, data: { label: string; order:
  * อัปเดต floorCount ในห้าง
  */
 async function updateMallFloorCount(_mallId: string, count?: number): Promise<void> {
-  const mallRef = doc(db, 'malls', mallId);
+  const mallRef = doc(db, 'malls', _mallId);
   
   if (count !== undefined) {
     // ใช้จำนวนที่ส่งมา
@@ -252,7 +250,7 @@ async function updateMallFloorCount(_mallId: string, count?: number): Promise<vo
     });
   } else {
     // นับจำนวน floors จริง
-    const floors = await listFloors(mallId);
+    const floors = await listFloors(_mallId);
     await updateDoc(mallRef, { 
       floorCount: floors.length,
       updatedAt: serverTimestamp()
@@ -265,7 +263,7 @@ async function updateMallFloorCount(_mallId: string, count?: number): Promise<vo
  */
 export async function listFloors(_mallId: string): Promise<Floor[]> {
   const q = query(
-    collection(db, 'malls', mallId, 'floors'),
+    collection(db, 'malls', _mallId, 'floors'),
     orderBy('order')
   );
   const snapshot = await getDocs(q);
@@ -280,17 +278,17 @@ export async function listFloors(_mallId: string): Promise<Floor[]> {
  * ลบ floor
  */
 export async function deleteFloor(_mallId: string, floorId: string): Promise<void> {
-  await deleteDoc(doc(db, 'malls', mallId, 'floors', floorId));
+  await deleteDoc(doc(db, 'malls', _mallId, 'floors', floorId));
   
   // อัปเดต floorCount ในห้าง
-  await updateMallFloorCount(mallId);
+  await updateMallFloorCount(_mallId);
 }
 
 /**
  * อัปเดต order ของ floor
  */
 export async function updateFloorOrder(_mallId: string, floorId: string, newOrder: number): Promise<void> {
-  await updateDoc(doc(db, 'malls', mallId, 'floors', floorId), {
+  await updateDoc(doc(db, 'malls', _mallId, 'floors', floorId), {
     order: newOrder,
     updatedAt: serverTimestamp()
   });
@@ -318,7 +316,7 @@ export async function createStore(_mallId: string, data: StoreFormData): Promise
     updatedAt: now
   };
 
-  const docRef = await addDoc(collection(db, 'malls', mallId, 'stores'), storeData);
+  const docRef = await addDoc(collection(db, 'malls', _mallId, 'stores'), storeData);
   return docRef.id;
 }
 
@@ -334,7 +332,7 @@ export async function listStores(_mallId: string, filters?: {
 }): Promise<Store[]> {
   // Import and use the new stores service
   const { listStores: newListStores } = await import('./stores');
-  return newListStores(mallId, filters);
+  return newListStores(_mallId, filters);
 }
 
 /**
@@ -374,7 +372,7 @@ export async function findStoreById(storeId: string): Promise<{ store: Store; _m
 export async function updateStore(_mallId: string, storeId: string, data: Partial<Store>): Promise<void> {
   // Import and use the new stores service
   const { updateStore: newUpdateStore } = await import('./stores');
-  return newUpdateStore(mallId, storeId, data);
+  return newUpdateStore(_mallId, storeId, data);
 }
 
 /**
@@ -384,7 +382,7 @@ export async function updateStore(_mallId: string, storeId: string, data: Partia
 export async function getStore(_mallId: string, storeId: string): Promise<Store | null> {
   // Import and use the new stores service
   const { getStore: newGetStore } = await import('./stores');
-  return newGetStore(mallId, storeId);
+  return newGetStore(_mallId, storeId);
 }
 
 
@@ -395,7 +393,7 @@ export async function getStore(_mallId: string, storeId: string): Promise<Store 
 export async function deleteStore(_mallId: string, storeId: string): Promise<void> {
   // Import and use the new stores service
   const { deleteStore: newDeleteStore } = await import('./stores');
-  return newDeleteStore(mallId, storeId);
+  return newDeleteStore(_mallId, storeId);
 }
 
 /**

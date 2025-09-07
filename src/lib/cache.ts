@@ -62,9 +62,9 @@ export const cache = new SimpleCache();
 // Cache keys
 export const CACHE_KEYS = {
   MALLS: 'malls:all',
-  STORES: (_mallId: string) => `stores:${mallId}`,
+  STORES: (mallId: string) => `stores:${mallId}`,
   STORES_ALL: 'stores:all',
-  FLOORS: (_mallId: string) => `floors:${mallId}`,
-  MALL: (_mallId: string) => `mall:${mallId}`,
-  STORE: (_mallId: string, storeId: string) => `store:${mallId}:${storeId}`
+  FLOORS: (mallId: string) => `floors:${mallId}`,
+  MALL: (mallId: string) => `mall:${mallId}`,
+  STORE: (mallId: string, storeId: string) => `store:${mallId}:${storeId}`
 } as const;

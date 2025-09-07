@@ -119,7 +119,7 @@ export async function listMalls(limitCount?: number): Promise<Mall[]> {
  * ดึงข้อมูลห้างตาม ID
  */
 export async function getMall(_mallId: string): Promise<Mall | null> {
-  const docRef = doc(db, 'malls', mallId);
+  const docRef = doc(db, 'malls', _mallId);
   const docSnap = await getDoc(docRef);
 
   if (!docSnap.exists()) {
@@ -198,7 +198,7 @@ export async function deleteMall(_mallId: string): Promise<void> {
 
   // ลบ stores ทั้งหมดในห้าง
   const storesSnapshot = await getDocs(
-    collection(db, 'malls', mallId, 'stores'),
+    collection(db, 'malls', _mallId, 'stores'),
   );
   storesSnapshot.docs.forEach(doc => {
     batch.delete(doc.ref);
@@ -206,14 +206,14 @@ export async function deleteMall(_mallId: string): Promise<void> {
 
   // ลบ floors ทั้งหมด
   const floorsSnapshot = await getDocs(
-    collection(db, 'malls', mallId, 'floors'),
+    collection(db, 'malls', _mallId, 'floors'),
   );
   floorsSnapshot.docs.forEach(doc => {
     batch.delete(doc.ref);
   });
 
   // ลบห้าง
-  batch.delete(doc(db, 'malls', mallId));
+  batch.delete(doc(db, 'malls', _mallId));
 
   await batch.commit();
 }
@@ -233,7 +233,7 @@ async function createDefaultFloors(_mallId: string): Promise<void> {
     { label: '3', order: 3 },
   ];
 
-  const promises = defaultFloors.map(floor => createFloor(mallId, floor));
+  const promises = defaultFloors.map(floor => createFloor(_mallId, floor));
   await Promise.all(promises);
 }
 
@@ -254,7 +254,7 @@ export async function createFloor(
   };
 
   const docRef = await addDoc(
-    collection(db, 'malls', mallId, 'floors'),
+    collection(db, 'malls', _mallId, 'floors'),
     floorData,
   );
   return docRef.id;
@@ -264,7 +264,7 @@ export async function createFloor(
  * ดึงรายการ floors ของห้าง
  */
 export async function listFloors(_mallId: string): Promise<Floor[]> {
-  const q = query(collection(db, 'malls', mallId, 'floors'), orderBy('order'));
+  const q = query(collection(db, 'malls', _mallId, 'floors'), orderBy('order'));
   const snapshot = await getDocs(q);
 
   return snapshot.docs.map(doc => ({
@@ -296,7 +296,7 @@ export async function createStore(
     phone: data.phone,
     hours: data.hours,
     status: data.status,
-    _mallId: mallId, // Add mallId reference
+    _mallId: _mallId, // Add mallId reference
     mallCoords: (data as any).mallCoords, // Add mall coordinates for distance calculation
     floorLabel: (data as any).floorLabel, // Add floor label for display
     createdAt: now,
@@ -304,7 +304,7 @@ export async function createStore(
   };
 
   const docRef = await addDoc(
-    collection(db, 'malls', mallId, 'stores'),
+    collection(db, 'malls', _mallId, 'stores'),
     storeData,
   );
 
@@ -327,7 +327,7 @@ export async function listStores(
     query?: string;
   },
 ): Promise<Store[]> {
-  let q = query(collection(db, 'malls', mallId, 'stores'));
+  let q = query(collection(db, 'malls', _mallId, 'stores'));
 
   // Apply filters
   if (filters?.floorId) {
@@ -415,7 +415,7 @@ export async function getStore(
   _mallId: string,
   storeId: string,
 ): Promise<Store | null> {
-  const docRef = doc(db, 'malls', mallId, 'stores', storeId);
+  const docRef = doc(db, 'malls', _mallId, 'stores', storeId);
   const docSnap = await getDoc(docRef);
 
   if (!docSnap.exists()) {
@@ -441,7 +441,7 @@ export async function updateStore(
     updatedAt: serverTimestamp(),
   };
 
-  const docRef = doc(db, 'malls', mallId, 'stores', storeId);
+  const docRef = doc(db, 'malls', _mallId, 'stores', storeId);
   await updateDoc(docRef, updateData);
 }
 
@@ -452,7 +452,7 @@ export async function deleteStore(
   _mallId: string,
   storeId: string,
 ): Promise<void> {
-  const docRef = doc(db, 'malls', mallId, 'stores', storeId);
+  const docRef = doc(db, 'malls', _mallId, 'stores', storeId);
   await deleteDoc(docRef);
 }
 

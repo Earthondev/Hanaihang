@@ -19,7 +19,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
   const [showEditDrawer, setShowEditDrawer] = useState(false);
 
   const getMallName = (_mallId: string) => {
-    const mall = malls.find(m => m.id === mallId);
+    const mall = malls.find(m => m.id === _mallId);
     return mall ? (mall.displayName || mall.name) : 'ไม่พบข้อมูล';
   };
 
@@ -56,11 +56,11 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
 
     try {
       setDeletingId(storeId);
-      if (!mallId) {
+      if (!_mallId) {
         alert('❌ ไม่พบข้อมูลห้างสรรพสินค้า');
         return;
       }
-      await deleteStore(mallId, storeId);
+      await deleteStore(_mallId, storeId);
       onRefresh();
       alert('✅ ลบร้านค้าสำเร็จ!');
     } catch (error) {
@@ -92,7 +92,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
   const filteredStores = stores.filter(store => {
     const matchesSearch = !searchQuery || 
       store.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesMall = !mallFilter || store.mallId === mallFilter;
+    const matchesMall = !mallFilter || store._mallId === mallFilter;
     const matchesCategory = !categoryFilter || store.category === categoryFilter;
     
     return matchesSearch && matchesMall && matchesCategory;
@@ -216,7 +216,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {getMallName(store.mallId)}
+                  {getMallName(store._mallId)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   ชั้น {store.floorId} ยูนิต {store.unit}
@@ -239,7 +239,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
                       </svg>
                     </button>
                     <button
-                      onClick={() => handleDelete(store.id, store.mallId)}
+                      onClick={() => handleDelete(store.id, store._mallId)}
                       disabled={deletingId === store.id}
                       className="text-red-600 hover:text-red-900 transition-colors disabled:opacity-50"
                       title="ลบ"

@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { ArrowLeft, Building2, Tag, Phone, Clock } from 'lucide-react';
+import { ArrowLeft, Building2, Store, Phone, Clock } from 'lucide-react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { createStore, listMalls, listFloors, findStoreById, updateStore } from '../services/firebase/firestore';
-import { storeSchemaInput } from '../legacy/validation/store.schema';
+import { storeSchema, StoreInput } from '../legacy/validation/store.schema';
 import { useSafeSubmit } from '../legacy/hooks/useSafeSubmit';
 import { getMall } from '../lib/malls';
 import TextField from '../components/ui/form/fields/TextField';
 import PhoneField from '../components/ui/form/fields/PhoneField';
+import SelectField from '../components/ui/form/fields/SelectField';
 import { BaseButton } from '../components/ui/BaseButton';
-import { Mall as StoreType } from '../types/mall-system';
+import { Mall, Floor, Store as StoreType } from '../types/mall-system';
 
 const StoreCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -84,7 +85,7 @@ const StoreCreatePage: React.FC = () => {
             setExistingStore(result.store);
             // Set form values
             form.reset({
-              _mallId: result.mallId,
+              _mallId: result._mallId,
               name: result.store.name,
               category: result.store.category as any,
               floorId: result.store.floorId,
@@ -130,7 +131,7 @@ const StoreCreatePage: React.FC = () => {
   }, [defaultMallId]);
 
   // Load floors when mall changes
-  const selectedMallId = form.watch("mallId");
+  const selectedMallId = form.watch("_mallId");
   useEffect(() => {
     const loadFloors = async () => {
       if (selectedMallId) {
@@ -166,19 +167,19 @@ const StoreCreatePage: React.FC = () => {
             phone: values.phone,
             hours: `${values.openTime}-${values.closeTime}`,
             status: values.status,
-            _mallId: values.mallId
+            _mallId: values._mallId
           };
           
-          await updateStore(result.mallId, storeId!, updateData);
+          await updateStore(result._mallId, storeId!, updateData);
           navigate(`/stores/${storeId}`);
         }
       } else {
         // Get mall data for denormalization
-        const mall = await getMall(values.mallId);
+        const mall = await getMall(values._mallId);
         const mallCoords = mall?.location ?? mall?.coords ?? null;
         
         // Get floor data for denormalization
-        const _selectedFloor = floors.find(f => f.id === values.floorId);
+        const selectedFloor = floors.find(f => f.id === values.floorId);
         const floorLabel = selectedFloor?.label ?? values.floorId;
         
         // Create store with denormalized data
@@ -189,7 +190,7 @@ const StoreCreatePage: React.FC = () => {
           floorLabel
         };
         
-        await createStore(values.mallId, storeData);
+        await createStore(values._mallId, storeData);
         navigate('/admin?tab=stores');
       }
     });
@@ -246,7 +247,7 @@ const StoreCreatePage: React.FC = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <SelectField
-                  name="mallId"
+                  name="_mallId"
                   label="ห้างสรรพสินค้า"
                   options={malls.map(mall => ({ label: mall.displayName || mall.name, value: mall.id }))}
                   required

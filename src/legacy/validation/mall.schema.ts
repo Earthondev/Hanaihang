@@ -9,12 +9,12 @@ export const mallSchema = z.object({
     .string()
     .optional()
     .transform(v => v?.trim() || "")
-    .refine(v => v === "" || /^+?\d[\d\s-]{6,}$/.test(v), "รูปแบบเบอร์ไม่ถูกต้อง"),
+    .refine(v => v === "" || /^\+?\d[\d\s-]{6,}$/.test(v), "รูปแบบเบอร์ไม่ถูกต้อง"),
   website: z
     .string()
     .optional()
     .transform(v => v?.trim() || "")
-    .refine(v => v === "" || /^https?://.+/.test(v), "ต้องขึ้นต้นด้วย http:// หรือ https://"),
+    .refine(v => v === "" || /^https?:\/\/.+/.test(v), "ต้องขึ้นต้นด้วย http:// หรือ https://"),
   social: z.string().optional(),
   location: z.object({
     lat: z.number().min(-90).max(90),

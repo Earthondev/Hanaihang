@@ -14,7 +14,6 @@ import EnhancedSearchBox from '@/components/search/EnhancedSearchBox';
 import { UnifiedSearchResult } from '@/lib/enhanced-search';
 import { ErrorState } from '@/ui';
 import { EmptyState } from '@/ui/EmptyState';
-import { GlobalSearchBox } from '@/features/search';
 import MapView from '@/components/map/MapView';
 import MapControls from '@/components/map/MapControls';
 import MapFilters from '@/components/map/MapFilters';
@@ -285,7 +284,7 @@ const Home: React.FC = () => {
       'terminal-21-asok': 'bg-purple-500',
       'the-mall-bangkapi': 'bg-green-500',
     };
-    return colors[mallId as keyof typeof colors] || 'bg-gray-500';
+    return colors[_mallId as keyof typeof colors] || 'bg-gray-500';
   }
 
   function getMallInitial(mall: Mall) {
@@ -343,8 +342,8 @@ const Home: React.FC = () => {
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center space-x-3">
+            {/* Logo - Centered */}
+            <div className="flex items-center space-x-3 mx-auto">
               <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
                 <MapPin className="w-6 h-6 text-green-600" />
               </div>
@@ -354,22 +353,13 @@ const Home: React.FC = () => {
               </div>
             </div>
 
-            {/* Center - Search (hidden on mobile) */}
-            <div className="hidden md:block flex-1 max-w-md mx-8">
-              <GlobalSearchBox
-                onMallSelect={handleMallSelect}
-                onStoreSelect={handleStoreSelect}
-                className="w-full"
-                placeholder="ค้นหาห้างหรือแบรนด์..."
-              />
-            </div>
-
             {/* Right side - Profile/Settings */}
             <div className="flex items-center space-x-3">
               <Link
                 to="/admin"
                 className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 aria-label="Admin Panel"
+                data-testid="admin-button"
               >
                 <Settings className="w-5 h-5" />
               </Link>

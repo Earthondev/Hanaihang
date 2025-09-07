@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Loader2, Image as ImageIcon, Trash2 } from 'lucide-react';
 
 import Card from '../ui/Card';
@@ -39,15 +39,15 @@ export default function MallLogoManager({
 
   const handleLogoChange = async (_mallId: string, logoUrl: string | null) => {
     try {
-      await updateMall(mallId, { logoUrl } as any);
+      await updateMall(_mallId, { logoUrl } as any);
 
       // Update local state
       setMalls(prev =>
-        prev.map(mall => (mall.id === mallId ? { ...mall, logoUrl } : mall)),
+        prev.map(mall => (mall.id === _mallId ? { ...mall, logoUrl } : mall)),
       );
 
       // Update selected mall if it's the same one
-      if (selectedMall?.id === mallId) {
+      if (selectedMall?.id === _mallId) {
         setSelectedMall(prev => (prev ? { ...prev, logoUrl } : null));
       }
     } catch (err) {
@@ -138,7 +138,7 @@ export default function MallLogoManager({
                 อัปโหลดโลโก้: {selectedMall.displayName}
               </h3>
               <LogoUpload
-                mallId={selectedMall.id!}
+                _mallId={selectedMall.id!}
                 currentLogoUrl={selectedMall.logoUrl}
                 onLogoChange={logoUrl =>
                   handleLogoChange(selectedMall.id!, logoUrl)

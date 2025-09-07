@@ -3,7 +3,7 @@
  * Real-time monitoring of search performance and user behavior
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
   TrendingUp, 

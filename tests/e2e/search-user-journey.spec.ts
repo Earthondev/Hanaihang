@@ -438,6 +438,21 @@ test.describe('Admin Mode', () => {
   });
 
   test('should access admin panel from header', async ({ page }) => {
+    // Mock authentication by setting localStorage
+    await page.addInitScript(() => {
+      const mockUser = {
+        uid: 'mock-admin-123',
+        email: 'admin@haanaihang.com',
+        displayName: 'Admin',
+        photoURL: null,
+        role: 'admin',
+        lastLogin: new Date().toISOString()
+      };
+      localStorage.setItem('firebaseUser', JSON.stringify(mockUser));
+      localStorage.setItem('firebaseToken', 'mock-token-123');
+    });
+    
+    await page.goto('/');
     await page.click('[data-testid="admin-button"]');
     
     // Should navigate to admin panel
@@ -445,6 +460,21 @@ test.describe('Admin Mode', () => {
   });
 
   test('should add new mall through drawer', async ({ page }) => {
+    // Mock authentication by setting localStorage
+    await page.addInitScript(() => {
+      const mockUser = {
+        uid: 'mock-admin-123',
+        email: 'admin@haanaihang.com',
+        displayName: 'Admin',
+        photoURL: null,
+        role: 'admin',
+        lastLogin: new Date().toISOString()
+      };
+      localStorage.setItem('firebaseUser', JSON.stringify(mockUser));
+      localStorage.setItem('firebaseToken', 'mock-token-123');
+    });
+    
+    await page.goto('/');
     await page.click('[data-testid="admin-button"]');
     await page.click('[data-testid="add-mall-button"]');
     
@@ -463,6 +493,21 @@ test.describe('Admin Mode', () => {
   });
 
   test('should edit store through table', async ({ page }) => {
+    // Mock authentication by setting localStorage
+    await page.addInitScript(() => {
+      const mockUser = {
+        uid: 'mock-admin-123',
+        email: 'admin@haanaihang.com',
+        displayName: 'Admin',
+        photoURL: null,
+        role: 'admin',
+        lastLogin: new Date().toISOString()
+      };
+      localStorage.setItem('firebaseUser', JSON.stringify(mockUser));
+      localStorage.setItem('firebaseToken', 'mock-token-123');
+    });
+    
+    await page.goto('/');
     await page.click('[data-testid="admin-button"]');
     
     // Click edit button on first store

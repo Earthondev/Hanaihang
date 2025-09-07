@@ -9,7 +9,7 @@ import UrlField from '../ui/form/fields/UrlField';
 import MapPicker from '../ui/form/fields/MapPicker';
 import TimeField from '../ui/form/fields/TimeField';
 import Switch from '../ui/Switch';
-import { mallSchemaInput } from '../../validation/mall.schema';
+import { mallSchema, MallInput } from '../../validation/mall.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createMall } from '../../lib/firestore';
 import { toSlug } from '../../lib/firestore';

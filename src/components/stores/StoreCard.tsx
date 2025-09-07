@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Store } from '../../types/mall-system';
 import { formatDistance } from '../../lib/geo-utils';

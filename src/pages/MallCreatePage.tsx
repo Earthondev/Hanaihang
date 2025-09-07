@@ -12,7 +12,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { createMall } from '../services/firebase/firestore';
-import { mallSchemaInput } from '../legacy/validation/mall.schema';
+import { mallSchema, MallInput } from '../legacy/validation/mall.schema';
 import { useSafeSubmit } from '../legacy/hooks/useSafeSubmit';
 import TextField from '../components/ui/form/fields/TextField';
 // 
@@ -48,7 +48,7 @@ const MallCreatePage: React.FC = () => {
       location: { lat: 0, lng: 0 },
       openTime: '10:00',
       closeTime: '22:00',
-    },
+    } as MallInput,
   });
 
   const handleSubmit = async (values: any) => {
@@ -267,7 +267,7 @@ const MallCreatePage: React.FC = () => {
               </div>
 
               <LogoUpload
-                mallId="new"
+                _mallId="new"
                 currentLogoUrl={logoUrl}
                 onLogoChange={setLogoUrl}
               />

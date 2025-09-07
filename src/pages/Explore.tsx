@@ -11,11 +11,11 @@ import {
 } from 'lucide-react';
 
 import { getStores, getFloors } from '@/legacy/services/api';
-import { malls } from '@/test/fixtures/data/malls';
+import { malls } from '@/data/malls';
 import { isStoreOpen } from '@/legacy/utils';
 
 const Explore: React.FC = () => {
-  const { mallId } = useParams<{ _mallId: string }>();
+  const { _mallId: mallId } = useParams<{ _mallId: string }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFloor, setSelectedFloor] = useState('all');
   const [selectedCategories, setSelectedCategories] = useState(['all']);

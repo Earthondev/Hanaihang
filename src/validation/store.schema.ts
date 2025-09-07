@@ -9,7 +9,7 @@ export const storeSchema = z.object({
   floorId: z.string().min(1, "กรุณาเลือกชั้น"),
   unit: z.string().optional(),
   phone: z.string().optional().refine(
-    (v) => !v || /^+?\d{8,15}$/.test(v),
+    (v) => !v || /^\+?\d{8,15}$/.test(v),
     "รูปแบบเบอร์โทรไม่ถูกต้อง"
   ),
   hours: z.string().optional(),

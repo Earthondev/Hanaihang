@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Search, TrendingUp, MapPin, History, Trash2 } from 'lucide-react';
 
 import { useSearchHistory } from '../../hooks/useSearchHistory';
