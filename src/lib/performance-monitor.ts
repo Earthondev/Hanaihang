@@ -159,7 +159,7 @@ class PerformanceMonitor {
         }
         break;
 
-      case 'cache_performance':
+      case 'cache_performance': {
         const hitRate = this.calculateCacheHitRate();
         if (hitRate < thresholds.CACHE_HIT_RATE_MIN) {
           alert = {
@@ -172,6 +172,7 @@ class PerformanceMonitor {
           };
         }
         break;
+      }
     }
 
     if (alert) {

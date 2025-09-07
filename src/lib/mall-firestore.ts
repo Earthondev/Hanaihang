@@ -14,8 +14,9 @@ import {
   DocumentData,
   QueryConstraint
 } from 'firebase/firestore';
+
 import { db } from '../config/firebase';
-import { Mall, Floor, Store, SearchFilters, MallFormData, StoreFormData } from '../types/mall-system';
+import { Mall, SearchFiltersFormDataFormData } from '../types/mall-system';
 
 // Helper to create slug from display name
 function createSlug(displayName: string): string {
@@ -101,7 +102,7 @@ export async function listMalls(limitCount?: number): Promise<Mall[]> {
 /**
  * ดึงข้อมูลห้างตาม ID
  */
-export async function getMall(mallId: string): Promise<Mall | null> {
+export async function getMall(_mallId: string): Promise<Mall | null> {
   const docRef = doc(db, 'malls', mallId);
   const docSnap = await getDoc(docRef);
   
@@ -136,7 +137,7 @@ export async function getMallByName(name: string): Promise<Mall | null> {
 /**
  * อัปเดตข้อมูลห้าง
  */
-export async function updateMall(mallId: string, data: Partial<MallFormData>): Promise<void> {
+export async function updateMall(_mallId: string, data: Partial<MallFormData>): Promise<void> {
   const updateData: Partial<Mall> = {
     updatedAt: Timestamp.now()
   };
@@ -174,7 +175,7 @@ export async function updateMall(mallId: string, data: Partial<MallFormData>): P
 /**
  * ลบห้าง
  */
-export async function deleteMall(mallId: string): Promise<void> {
+export async function deleteMall(_mallId: string): Promise<void> {
   // ลบ stores ทั้งหมดในห้างก่อน
   await deleteAllStores(mallId);
   
@@ -193,7 +194,7 @@ export async function deleteMall(mallId: string): Promise<void> {
 /**
  * สร้าง floors เริ่มต้นสำหรับห้างใหม่
  */
-async function createDefaultFloors(mallId: string): Promise<void> {
+async function createDefaultFloors(_mallId: string): Promise<void> {
   const defaultFloors = [
     { label: 'G', order: 0 },
     { label: '1', order: 1 },
@@ -208,7 +209,7 @@ async function createDefaultFloors(mallId: string): Promise<void> {
 /**
  * สร้าง floor ใหม่
  */
-export async function createFloor(mallId: string, data: { label: string; order: number }): Promise<string> {
+export async function createFloor(_mallId: string, data: { label: string; order: number }): Promise<string> {
   const now = Timestamp.now();
   
   const floorData: Omit<Floor, 'id'> = {
@@ -225,7 +226,7 @@ export async function createFloor(mallId: string, data: { label: string; order: 
 /**
  * ดึงรายการ floors ของห้าง
  */
-export async function listFloors(mallId: string): Promise<Floor[]> {
+export async function listFloors(_mallId: string): Promise<Floor[]> {
   const q = query(
     collection(db, 'malls', mallId, 'floors'),
     orderBy('order')
@@ -241,7 +242,7 @@ export async function listFloors(mallId: string): Promise<Floor[]> {
 /**
  * ลบ floors ทั้งหมดของห้าง
  */
-async function deleteAllFloors(mallId: string): Promise<void> {
+async function deleteAllFloors(_mallId: string): Promise<void> {
   const floors = await listFloors(mallId);
   const promises = floors.map(floor => 
     deleteDoc(doc(db, 'malls', mallId, 'floors', floor.id!))
@@ -256,7 +257,7 @@ async function deleteAllFloors(mallId: string): Promise<void> {
 /**
  * สร้างร้านใหม่
  */
-export async function createStore(mallId: string, data: StoreFormData): Promise<string> {
+export async function createStore(_mallId: string, data: StoreFormData): Promise<string> {
   const now = Timestamp.now();
   
   const storeData: Omit<Store, 'id'> = {
@@ -278,7 +279,7 @@ export async function createStore(mallId: string, data: StoreFormData): Promise<
 /**
  * ดึงรายการร้านของห้าง
  */
-export async function listStores(mallId: string, filters?: SearchFilters): Promise<Store[]> {
+export async function listStores(_mallId: string, filters?: SearchFilters): Promise<Store[]> {
   let q = query(collection(db, 'malls', mallId, 'stores'));
 
   // Apply filters
@@ -317,15 +318,15 @@ export async function listStores(mallId: string, filters?: SearchFilters): Promi
 /**
  * ค้นหาร้านข้ามทุกห้าง
  */
-export async function searchStoresGlobally(query: string, limitCount = 50): Promise<{ store: Store; mallId: string }[]> {
+export async function searchStoresGlobally(query: string, limitCount = 50): Promise<{ store: Store; _mallId: string }[]> {
   // ดึงรายการห้างทั้งหมด
   const malls = await listMalls();
-  const results: { store: Store; mallId: string }[] = [];
+  const results: { store: Store; _mallId: string }[] = [];
 
   // ค้นหาในแต่ละห้าง
   for (const mall of malls) {
     const stores = await listStores(mall.id!, { query });
-    results.push(...stores.map(store => ({ store, mallId: mall.id! })));
+    results.push(...stores.map(store => ({ store, _mallId: mall.id! })));
     
     // หยุดถ้าเกิน limit
     if (results.length >= limitCount) {
@@ -339,7 +340,7 @@ export async function searchStoresGlobally(query: string, limitCount = 50): Prom
 /**
  * ดึงข้อมูลร้านตาม ID
  */
-export async function getStore(mallId: string, storeId: string): Promise<Store | null> {
+export async function getStore(_mallId: string, storeId: string): Promise<Store | null> {
   const docRef = doc(db, 'malls', mallId, 'stores', storeId);
   const docSnap = await getDoc(docRef);
   
@@ -356,7 +357,7 @@ export async function getStore(mallId: string, storeId: string): Promise<Store |
 /**
  * อัปเดตข้อมูลร้าน
  */
-export async function updateStore(mallId: string, storeId: string, data: Partial<StoreFormData>): Promise<void> {
+export async function updateStore(_mallId: string, storeId: string, data: Partial<StoreFormData>): Promise<void> {
   const updateData: Partial<Store> = {
     ...data,
     updatedAt: Timestamp.now()
@@ -369,7 +370,7 @@ export async function updateStore(mallId: string, storeId: string, data: Partial
 /**
  * ลบร้าน
  */
-export async function deleteStore(mallId: string, storeId: string): Promise<void> {
+export async function deleteStore(_mallId: string, storeId: string): Promise<void> {
   const docRef = doc(db, 'malls', mallId, 'stores', storeId);
   await deleteDoc(docRef);
 }
@@ -377,7 +378,7 @@ export async function deleteStore(mallId: string, storeId: string): Promise<void
 /**
  * ลบร้านทั้งหมดในห้าง
  */
-async function deleteAllStores(mallId: string): Promise<void> {
+async function deleteAllStores(_mallId: string): Promise<void> {
   const stores = await listStores(mallId);
   const promises = stores.map(store => 
     deleteDoc(doc(db, 'malls', mallId, 'stores', store.id!))

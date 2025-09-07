@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Store, Mall } from '../../types/mall-system';
+import React, { useState } from 'react';
+
+import { Store } from '../../types/mall-system';
 import { formatDistance } from '../../lib/geo-utils';
 import { resolveStoreComputed } from '../../lib/store-resolver';
 
@@ -53,7 +54,7 @@ const StoreCard: React.FC<StoreCardProps> = ({
         const resolverStore = {
           id: store.id,
           name: store.name,
-          mallId: store.mallId || '',
+          _mallId: store.mallId || '',
           mallSlug: store.mallSlug || '',
           floorId: store.floorId,
           unit: store.unit,

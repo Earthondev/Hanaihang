@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, MapPin, Building2, Store as StoreIcon, X, Loader2 } from 'lucide-react';
+import React, { useState, useRef, useCallback } from 'react';
+import { Search, MapPin, Building2 as StoreIcon, X, Loader2 } from 'lucide-react';
 
 import { useSearchAll } from '@/features/search/hooks/useSearchAll';
 import { useUserLocation } from '@/features/search/hooks/useUserLocation';
-import { SearchResult, Mall, Store } from '@/types/mall-system';
+import { SearchResult } from '@/types/mall-system';
 import { cn } from '@/utils/cn';
 
 interface GlobalSearchBoxProps {

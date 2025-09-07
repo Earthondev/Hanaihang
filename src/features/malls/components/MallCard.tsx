@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
+
 import { Mall } from '@/types/mall-system';
 import { formatDistance } from '@/services/geoutils/geo-utils';
 

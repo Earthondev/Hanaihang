@@ -20,7 +20,7 @@ export interface FirestoreStore {
   id?: string;
   name: string;
   nameEN: string;
-  mallId: string;
+  _mallId: string;
   floor: string;
   unit: string;
   category: string;
@@ -45,7 +45,7 @@ export interface FirestoreStore {
 
 export interface FirestoreFloor {
   id?: string;
-  mallId: string;
+  _mallId: string;
   name: string;
   floorCode: string;
   description: string;
@@ -61,7 +61,7 @@ export interface FirestorePromotion {
   id?: string;
   title: string;
   subtitle: string;
-  mallId: string;
+  _mallId: string;
   scope: 'mall' | 'store' | 'event';
   floors: string[];
   startDate: string;
@@ -134,7 +134,7 @@ export interface FirestoreEvent {
   id?: string;
   title: string;
   subtitle: string;
-  mallId: string;
+  _mallId: string;
   startDate: string;
   endDate: string;
   timeNote: string;

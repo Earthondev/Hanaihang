@@ -7,6 +7,7 @@ import {
   updateProfile,
   sendPasswordResetEmail
 } from 'firebase/auth';
+
 import { auth } from '../config/firebase';
 
 export interface AuthUser {

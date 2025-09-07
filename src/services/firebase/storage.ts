@@ -1,4 +1,5 @@
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+
 import { storage } from '@/config/firebase';
 
 /**
@@ -7,7 +8,7 @@ import { storage } from '@/config/firebase';
  * @param mallId - The mall ID to use as filename
  * @returns Promise<string> - The download URL of the uploaded image
  */
-export async function uploadMallLogo(file: File, mallId: string): Promise<string> {
+export async function uploadMallLogo(file: File, _mallId: string): Promise<string> {
   try {
     // Validate file type
     if (!file.type.startsWith('image/')) {
@@ -40,7 +41,7 @@ export async function uploadMallLogo(file: File, mallId: string): Promise<string
  * Delete mall logo from Firebase Storage
  * @param mallId - The mall ID to delete logo for
  */
-export async function deleteMallLogo(mallId: string): Promise<void> {
+export async function deleteMallLogo(_mallId: string): Promise<void> {
   try {
     const storageRef = ref(storage, `mall_logos/${mallId}`);
     await deleteObject(storageRef);
@@ -55,7 +56,7 @@ export async function deleteMallLogo(mallId: string): Promise<void> {
  * @param mallId - The mall ID to get logo for
  * @returns Promise<string | null> - The download URL or null if not found
  */
-export async function getMallLogoUrl(mallId: string): Promise<string | null> {
+export async function getMallLogoUrl(_mallId: string): Promise<string | null> {
   try {
     const storageRef = ref(storage, `mall_logos/${mallId}`);
     const downloadURL = await getDownloadURL(storageRef);

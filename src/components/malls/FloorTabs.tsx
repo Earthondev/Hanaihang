@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Floor } from '../../types/mall-system';
 
 interface FloorTabsProps {

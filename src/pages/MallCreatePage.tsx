@@ -12,10 +12,10 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { createMall } from '../services/firebase/firestore';
-import { mallSchema, MallInput } from '../legacy/validation/mall.schema';
+import { mallSchemaInput } from '../legacy/validation/mall.schema';
 import { useSafeSubmit } from '../legacy/hooks/useSafeSubmit';
 import TextField from '../components/ui/form/fields/TextField';
-// import SelectField from '../components/ui/form/fields/SelectField';
+// 
 import PhoneField from '../components/ui/form/fields/PhoneField';
 import UrlField from '../components/ui/form/fields/UrlField';
 import MapPicker from '../components/ui/form/fields/MapPicker';

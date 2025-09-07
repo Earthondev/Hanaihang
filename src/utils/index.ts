@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { format, isWithinInterval, parseISO } from 'date-fns';
-import { Store, StoreStatus } from '../types';
+
+import { StoreStatus } from '../types';
 
 // Device ID management
 const DEVICE_ID_KEY = 'haanaihang_device_id';
@@ -151,11 +152,11 @@ export function sortStores(stores: Store[], sortBy: string): Store[] {
 }
 
 // URL utilities
-export function createStoreUrl(mallId: string, storeId: string): string {
+export function createStoreUrl(_mallId: string, storeId: string): string {
   return `/${mallId}/stores/${storeId}`;
 }
 
-export function createFloorUrl(mallId: string, floorId: string): string {
+export function createFloorUrl(_mallId: string, floorId: string): string {
   return `/${mallId}/floors/${floorId}`;
 }
 
@@ -166,7 +167,7 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function isValidPhone(phone: string): boolean {
-  const phoneRegex = /^[\d\s\-\+\(\)]+$/;
+  const phoneRegex = /^[\d\s\-+()]+$/;
   return phoneRegex.test(phone);
 }
 

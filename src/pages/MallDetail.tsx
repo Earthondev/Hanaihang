@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Building2, Search, Filter, X, Heart } from 'lucide-react';
+
 import { getMallByName, listStores, listFloors } from '../services/firebase/firestore';
-import { Mall, Store, Floor } from '../types/mall-system';
+import { Mall } from '../types/mall-system';
 import { useToast } from '../ui/feedback/Toast';
 
 interface FilterState {
@@ -13,7 +14,7 @@ interface FilterState {
 }
 
 export default function MallDetail() {
-  const { mallId } = useParams<{ mallId: string }>();
+  const { mallId } = useParams<{ _mallId: string }>();
   const navigate = useNavigate();
   // const { push } = useToast();
   

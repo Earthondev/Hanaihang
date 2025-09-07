@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
+
 import { SkeletonTable } from '../feedback/SkeletonList';
 import { ErrorState } from '../feedback/ErrorState';
 import { EmptyState } from '../ui/EmptyState';

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
-import { Store, Mall } from '@/types/mall-system';
+import { Store } from '@/types/mall-system';
 import { formatDistance } from '@/services/geoutils/geo-utils';
 import { resolveStoreComputed } from '@/lib/store-resolver';
 

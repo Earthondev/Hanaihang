@@ -19,7 +19,7 @@ export const mallsCol = () => collection(db, 'malls');
 /**
  * Get specific mall document reference
  */
-export const mallDoc = (mallId: string) => doc(db, 'malls', mallId);
+export const mallDoc = (_mallId: string) => doc(db, 'malls', mallId);
 
 // ======================
 // STORE COLLECTIONS
@@ -29,14 +29,14 @@ export const mallDoc = (mallId: string) => doc(db, 'malls', mallId);
  * Get stores subcollection for specific mall
  * Path: malls/{mallId}/stores
  */
-export const mallStoresCol = (mallId: string) =>
+export const mallStoresCol = (_mallId: string) =>
   collection(db, 'malls', mallId, 'stores');
 
 /**
  * Get specific store document reference
  * Path: malls/{mallId}/stores/{storeId}
  */
-export const storeDoc = (mallId: string, storeId: string) =>
+export const storeDoc = (_mallId: string, storeId: string) =>
   doc(db, 'malls', mallId, 'stores', storeId);
 
 /**
@@ -53,14 +53,14 @@ export const allStoresGroup = () => collectionGroup(db, 'stores');
  * Get floors subcollection for specific mall
  * Path: malls/{mallId}/floors
  */
-export const mallFloorsCol = (mallId: string) =>
+export const mallFloorsCol = (_mallId: string) =>
   collection(db, 'malls', mallId, 'floors');
 
 /**
  * Get specific floor document reference
  * Path: malls/{mallId}/floors/{floorId}
  */
-export const floorDoc = (mallId: string, floorId: string) =>
+export const floorDoc = (_mallId: string, floorId: string) =>
   doc(db, 'malls', mallId, 'floors', floorId);
 
 // ======================
@@ -82,7 +82,7 @@ export const legacyStoresCol = () => collection(db, 'stores');
  * Useful for migration and data processing
  */
 export function extractMallIdFromPath(path: string): string | null {
-  const match = path.match(/malls\/([^/]+)\/stores/);
+  const match = path.match(/\/malls\/([^/]+)\/stores\//);
   return match ? match[1] : null;
 }
 

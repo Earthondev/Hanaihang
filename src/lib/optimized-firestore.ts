@@ -11,8 +11,10 @@ import {
   DocumentSnapshot,
   QueryDocumentSnapshot
 } from 'firebase/firestore';
+
 import { db } from '../config/firebase';
-import { Mall, Store } from '../types/mall-system';
+import { Mall } from '../types/mall-system';
+
 import { cache, CACHE_KEYS } from './cache';
 
 // Helper to convert Firestore document to typed object
@@ -63,7 +65,7 @@ export async function listMallsOptimized(): Promise<Mall[]> {
 /**
  * ดึงรายการร้านของห้าง (with caching)
  */
-export async function listStoresOptimized(mallId: string): Promise<Store[]> {
+export async function listStoresOptimized(_mallId: string): Promise<Store[]> {
   // Check cache first
   const cached = cache.get<Store[]>(CACHE_KEYS.STORES(mallId));
   if (cached) {
@@ -94,9 +96,9 @@ export async function listStoresOptimized(mallId: string): Promise<Store[]> {
 /**
  * ดึงร้านทั้งหมดจากทุกห้าง (optimized with caching)
  */
-export async function listAllStoresOptimized(): Promise<{ store: Store; mallId: string }[]> {
+export async function listAllStoresOptimized(): Promise<{ store: Store; _mallId: string }[]> {
   // Check cache first
-  const cached = cache.get<{ store: Store; mallId: string }[]>(CACHE_KEYS.STORES_ALL);
+  const cached = cache.get<{ store: Store; _mallId: string }[]>(CACHE_KEYS.STORES_ALL);
   if (cached) {
     console.log('📦 Using cached all stores data');
     return cached;
@@ -106,13 +108,13 @@ export async function listAllStoresOptimized(): Promise<{ store: Store; mallId: 
   const start = Date.now();
   
   const malls = await listMallsOptimized();
-  const results: { store: Store; mallId: string }[] = [];
+  const results: { store: Store; _mallId: string }[] = [];
 
   // Use Promise.all to fetch stores from all malls in parallel
   const storePromises = malls.map(async (mall) => {
     try {
       const stores = await listStoresOptimized(mall.id!);
-      return stores.map(store => ({ store, mallId: mall.id! }));
+      return stores.map(store => ({ store, _mallId: mall.id! }));
     } catch (error) {
       console.error(`Error loading stores for mall ${mall.id}:`, error);
       return [];
@@ -136,9 +138,9 @@ export async function listAllStoresOptimized(): Promise<{ store: Store; mallId: 
 /**
  * ดึงร้านทั้งหมดจากทุกห้าง (batch optimized - แนะนำ)
  */
-export async function listAllStoresBatchOptimized(): Promise<{ store: Store; mallId: string }[]> {
+export async function listAllStoresBatchOptimized(): Promise<{ store: Store; _mallId: string }[]> {
   // Check cache first
-  const cached = cache.get<{ store: Store; mallId: string }[]>(CACHE_KEYS.STORES_ALL);
+  const cached = cache.get<{ store: Store; _mallId: string }[]>(CACHE_KEYS.STORES_ALL);
   if (cached) {
     console.log('📦 Using cached all stores data');
     return cached;
@@ -148,7 +150,7 @@ export async function listAllStoresBatchOptimized(): Promise<{ store: Store; mal
   const start = Date.now();
   
   const malls = await listMallsOptimized();
-  const results: { store: Store; mallId: string }[] = [];
+  const results: { store: Store; _mallId: string }[] = [];
 
   // Process malls in batches of 5 to avoid overwhelming Firebase
   const batchSize = 5;
@@ -158,7 +160,7 @@ export async function listAllStoresBatchOptimized(): Promise<{ store: Store; mal
     const batchPromises = batch.map(async (mall) => {
       try {
         const stores = await listStoresOptimized(mall.id!);
-        return stores.map(store => ({ store, mallId: mall.id! }));
+        return stores.map(store => ({ store, _mallId: mall.id! }));
       } catch (error) {
         console.error(`Error loading stores for mall ${mall.id}:`, error);
         return [];

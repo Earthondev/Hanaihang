@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Settings, Navigation } from 'lucide-react';
 
@@ -278,7 +278,7 @@ const Home: React.FC = () => {
     }, 3000);
   }
 
-  function getMallColor(mallId: string) {
+  function getMallColor(_mallId: string) {
     const colors = {
       'central-rama-3': 'bg-red-500',
       'siam-paragon': 'bg-blue-500',

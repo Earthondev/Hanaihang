@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 
 import { listMalls } from '../services/firebase/firestore';
 import { searchStoresGlobally } from '../services/firebase/stores';
@@ -156,7 +156,7 @@ async function searchStores(
       name: store.name,
       displayName: store.name,
       mallName: '', // Will be populated later if needed
-      mallId: mallId,
+      _mallId: mallId,
       mallSlug: store.mallSlug || mallId,
       coords: store.location,
       mallCoords: undefined, // Will be populated later if needed
@@ -204,7 +204,7 @@ function unifySearchResults(
       name: store.name,
       displayName: store.name,
       mallName: store.mallName,
-      mallId: store.mallId,
+      _mallId: store.mallId,
       mallSlug: store.mallSlug,
       mallCoords: store.mallCoords,
       floorLabel: store.floorLabel,

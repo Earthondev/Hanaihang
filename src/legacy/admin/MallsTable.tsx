@@ -1,9 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { DeleteButton } from './DeleteButton';
+
 import { deleteMall } from '@/services/firebase/firestore';
 
-import { DeleteButton } from './DeleteButton';
 
 interface MallsTableProps {
   malls: any[];
@@ -13,12 +14,12 @@ interface MallsTableProps {
 const MallsTable: React.FC<MallsTableProps> = ({ malls, onRefresh }) => {
   const navigate = useNavigate();
 
-  const handleDelete = async (mallId: string) => {
+  const handleDelete = async (_mallId: string) => {
     await deleteMall(mallId);
     onRefresh();
   };
 
-  const handleEdit = (mallId: string) => {
+  const handleEdit = (_mallId: string) => {
     navigate(`/admin/malls/${mallId}/edit`);
   };
 

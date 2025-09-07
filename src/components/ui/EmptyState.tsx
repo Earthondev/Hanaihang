@@ -1,5 +1,6 @@
 import React from 'react';
 import { Store, Building, Search } from 'lucide-react';
+
 import { BaseButton } from './BaseButton';
 
 interface EmptyStateProps {

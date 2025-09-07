@@ -14,7 +14,7 @@ export interface Store {
   id: string;
   name: string;
   nameEN: string;
-  mallId: string;
+  _mallId: string;
   floor: string;
   unit: string;
   category: string;
@@ -39,7 +39,7 @@ export interface Store {
 
 export interface Floor {
   id: string;
-  mallId: string;
+  _mallId: string;
   name: string;
   floorCode: string;
   description: string;
@@ -54,7 +54,7 @@ export interface Promotion {
   id: string;
   title: string;
   subtitle: string;
-  mallId: string;
+  _mallId: string;
   scope: 'mall' | 'store' | 'event';
   floors: string[];
   startDate: string;
@@ -104,7 +104,7 @@ const mockStores: Store[] = [
     id: '1',
     name: 'Zara',
     nameEN: 'Zara',
-    mallId: 'central-rama-3',
+    _mallId: 'central-rama-3',
     floor: '2',
     unit: '2-22',
     category: 'Fashion',
@@ -130,7 +130,7 @@ const mockStores: Store[] = [
     id: '2',
     name: 'H&M',
     nameEN: 'H&M',
-    mallId: 'central-rama-3',
+    _mallId: 'central-rama-3',
     floor: '2',
     unit: '2-15',
     category: 'Fashion',
@@ -156,7 +156,7 @@ const mockStores: Store[] = [
     id: '3',
     name: 'Sephora',
     nameEN: 'Sephora',
-    mallId: 'central-rama-3',
+    _mallId: 'central-rama-3',
     floor: '2',
     unit: '2-08',
     category: 'Beauty',
@@ -263,7 +263,7 @@ export const adminApi = {
   },
 
   // Floors
-  async getFloors(mallId: string): Promise<Floor[]> {
+  async getFloors(_mallId: string): Promise<Floor[]> {
     await new Promise(resolve => setTimeout(resolve, 500));
     return [
       {
@@ -313,7 +313,7 @@ export const adminApi = {
         id: '1',
         title: 'My Mom, My Shopping Mate',
         subtitle: 'โปรโมชั่นวันแม่',
-        mallId: 'central-rama-3',
+        _mallId: 'central-rama-3',
         scope: 'mall',
         floors: ['G', '1', '2', '3'],
         startDate: '2025-08-01',

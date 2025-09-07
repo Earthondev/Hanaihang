@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Filter, MapPin, Clock, Building } from 'lucide-react';
+
 import { Mall } from '@/types/mall-system';
 
 interface MapFiltersProps {

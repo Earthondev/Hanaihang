@@ -1,5 +1,6 @@
 import React from 'react';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
+
 import { BaseButton } from '../ui/BaseButton';
 
 interface ErrorBoundaryState {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   Search, 
@@ -15,7 +15,7 @@ import { malls } from '@/test/fixtures/data/malls';
 import { isStoreOpen } from '@/legacy/utils';
 
 const Explore: React.FC = () => {
-  const { mallId } = useParams<{ mallId: string }>();
+  const { mallId } = useParams<{ _mallId: string }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFloor, setSelectedFloor] = useState('all');
   const [selectedCategories, setSelectedCategories] = useState(['all']);
@@ -122,7 +122,7 @@ const Explore: React.FC = () => {
   // Get store status
   const getStoreStatus = (store: any) => {
     try {
-      const status = isStoreOpen(store);
+      const _status = isStoreOpen(store);
       return {
         status,
         text: status === 'open' ? 'Open now' : status === 'closed' ? 'Closed' : 'Unknown',

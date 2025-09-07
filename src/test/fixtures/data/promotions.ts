@@ -4,7 +4,7 @@ export const promotionsByMall = {
       id: "my-mom-my-shopping-mate-2025",
       title: "My Mom, My Shopping Mate",
       subtitle: "เพื่อนคู่ซี้ มามี้ชวนช้อป!",
-      mallId: "central-rama-3",
+      _mallId: "central-rama-3",
       scope: "mall",
       startDate: "2025-08-01",
       endDate: "2025-08-31",

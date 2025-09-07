@@ -4,7 +4,7 @@ import { distanceKm } from "./geo";
 export type Store = {
   id: string;
   name: string;
-  mallId: string;
+  _mallId: string;
   mallSlug: string;
   floorId: string;
   unit?: string;

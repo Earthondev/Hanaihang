@@ -747,11 +747,11 @@ export function getMalls() {
   return Object.values(MALLS_META);
 }
 
-export function getMallById(mallId: string) {
+export function getMallById(_mallId: string) {
   return MALLS_META[mallId as keyof typeof MALLS_META];
 }
 
-export function getStores(mallId: string, filters?: {
+export function getStores(_mallId: string, filters?: {
   category?: string;
   floor?: string;
   openNow?: boolean;
@@ -798,7 +798,7 @@ export function getStoreById(storeId: string) {
   return null;
 }
 
-export function getFloors(mallId: string) {
+export function getFloors(_mallId: string) {
   const mall = MALLS_META[mallId as keyof typeof MALLS_META];
   if (!mall) return [];
   
@@ -812,7 +812,7 @@ export function getFloors(mallId: string) {
   }));
 }
 
-export function getFloorPins(mallId: string, floorId: string) {
+export function getFloorPins(_mallId: string, floorId: string) {
   const key = `${mallId}-${floorId}`;
   return FLOOR_PINS[key as keyof typeof FLOOR_PINS] || {};
 }
@@ -836,11 +836,11 @@ export function searchBrands(brandName: string) {
   return results;
 }
 
-export function getPromotions(mallId: string) {
+export function getPromotions(_mallId: string) {
   return PROMOTIONS_BY_MALL[mallId as keyof typeof PROMOTIONS_BY_MALL] || [];
 }
 
-export function getActivePromotions(mallId: string) {
+export function getActivePromotions(_mallId: string) {
   const promotions = getPromotions(mallId);
   const now = new Date();
   
@@ -855,11 +855,11 @@ export function getActivePromotions(mallId: string) {
 
 export const userApi = {
   getMalls: () => Promise.resolve(getMalls()),
-  getMallById: (mallId: string) => Promise.resolve(getMallById(mallId)),
-  getStores: (mallId: string, filters?: any) => Promise.resolve(getStores(mallId, filters)),
+  getMallById: (_mallId: string) => Promise.resolve(getMallById(mallId)),
+  getStores: (_mallId: string, filters?: any) => Promise.resolve(getStores(mallId, filters)),
   getStoreById: (storeId: string) => Promise.resolve(getStoreById(storeId)),
-  getFloors: (mallId: string) => Promise.resolve(getFloors(mallId)),
-  getFloorPins: (mallId: string, floorId: string) => Promise.resolve(getFloorPins(mallId, floorId)),
+  getFloors: (_mallId: string) => Promise.resolve(getFloors(mallId)),
+  getFloorPins: (_mallId: string, floorId: string) => Promise.resolve(getFloorPins(mallId, floorId)),
   searchBrands: (brandName: string) => Promise.resolve(searchBrands(brandName)),
   getPromotions: () => Promise.resolve([]),
   addFavorite: () => Promise.resolve({ success: true }),
@@ -877,7 +877,7 @@ export const PROMOTIONS_BY_MALL = {
       id: "my-mom-my-shopping-mate-2025",
       title: "My Mom, My Shopping Mate",
       subtitle: "เพื่อนคู่ซี้ มามี้ชวนช้อป!",
-      mallId: "central-rama-3",
+      _mallId: "central-rama-3",
       scope: "mall",
       floors: [],
       startDate: "2025-08-01",
@@ -915,7 +915,7 @@ export const PROMOTIONS_BY_MALL = {
       id: "event-power-mall-ai-2025",
       title: "POWER MALL ELECTRONICA SHOWCASE 2025",
       subtitle: "POWER OF A.I.",
-      mallId: "tm-bangkapi",
+      _mallId: "tm-bangkapi",
       scope: "event",
       floors: ["3"],
       startDate: "2025-08-12",

@@ -6,7 +6,7 @@
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
-import { Mall, Store } from '../types/mall-system';
+import { Mall } from '../types/mall-system';
 
 import { createSearchQuery } from './thai-normalize';
 
@@ -136,7 +136,7 @@ async function searchStores(
           ({
             id: doc.id,
             ...doc.data(),
-            mallId: mallDoc.id,
+            _mallId: mallDoc.id,
           }) as Store,
       );
 

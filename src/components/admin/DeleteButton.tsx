@@ -1,5 +1,6 @@
 import React from 'react';
 import { Trash2 } from 'lucide-react';
+
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { BaseButton } from '../ui/BaseButton';
 

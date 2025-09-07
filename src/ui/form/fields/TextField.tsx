@@ -23,7 +23,7 @@ export default function TextField({
   className = ""
 }: TextFieldProps) {
   const { register, formState: { errors } } = useFormContext();
-  const error = (errors as any)[name]?.message as string | undefined;
+  const _error = (errors as any)[name]?.message as string | undefined;
   const id = `f-${name}`;
   const helpId = helper ? `${id}-help` : undefined;
   const errorId = error ? `${id}-error` : undefined;
@@ -33,7 +33,7 @@ export default function TextField({
   if (error) describedBy.push(errorId);
 
   // Analytics tracking for field changes
-  const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFieldChange = (_e: React.ChangeEvent<HTMLInputElement>) => {
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', 'form_field_change', {
         event_category: 'form_actions',

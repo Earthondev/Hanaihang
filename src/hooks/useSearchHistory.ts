@@ -3,7 +3,7 @@
  * Manages recent searches, popular queries, and search suggestions
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 interface SearchHistoryItem {
   query: string;

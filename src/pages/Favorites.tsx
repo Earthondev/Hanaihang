@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { getMall, getStore } from '@/services/firebase/firestore';
-import { Store, Mall } from '@/types/mall-system';
+import { Store } from '@/types/mall-system';
 
 interface FavoriteStore {
   store: Store;
@@ -56,7 +56,7 @@ const Favorites: React.FC = () => {
     }
   };
 
-  const removeFavorite = (mallId: string, storeId: string) => {
+  const removeFavorite = (_mallId: string, storeId: string) => {
     const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
     const updatedFavorites = favoriteIds.filter(
       (fav: any) => !(fav.mallId === mallId && fav.storeId === storeId)

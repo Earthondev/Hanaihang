@@ -12,6 +12,10 @@ permissions:
   contents: read
   pull-requests: write
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -40,6 +44,7 @@ jobs:
       - name: Resolve BASE_URL
         id: resolve
         uses: actions/github-script@v7
+        continue-on-error: true
         with:
           script: |
             try {
@@ -54,25 +59,23 @@ jobs:
                 const body = comments.map(c => c.body || '').join('\n');
                 const re = /https:\/\/[a-z0-9-]+--[a-z0-9-]+\.netlify\.app/gi;
                 const matches = body.match(re);
-                if (matches && matches.length) {
+                if (matches?.length) {
                   preview = matches[matches.length - 1];
                   core.info(`Found Netlify preview in PR comments: ${preview}`);
                 }
               }
-              const base = preview || 'https://hanaihang.netlify.app';
-              core.info(`Using BASE_URL: ${base}`);
-              core.setOutput('base_url', base);
-            } catch (error) {
-              core.warning(`Failed to resolve BASE_URL: ${error.message}`);
+              core.setOutput('base_url', preview || 'https://hanaihang.netlify.app');
+            } catch (e) {
+              core.warning(`Failed to resolve BASE_URL: ${e.message}`);
               core.setOutput('base_url', 'https://hanaihang.netlify.app');
             }
-      
-      - name: Set BASE_URL environment variable
-        env:
-          RESOLVED_BASE_URL: ${{ steps.resolve.outputs.base_url }}
+
+      - name: Export BASE_URL
+        id: export
         run: |
-          BASE_URL="${RESOLVED_BASE_URL:-https://hanaihang.netlify.app}"
-          echo "BASE_URL=${BASE_URL}" >> $GITHUB_ENV
+          BASE_URL="${{ steps.resolve.outputs.base_url }}"
+          : "${BASE_URL:=https://hanaihang.netlify.app}"
+          echo "BASE_URL=${BASE_URL}" >> $GITHUB_OUTPUT
           echo "✅ Using BASE_URL=${BASE_URL}"
       
       - name: Run Playwright E2E
@@ -120,6 +123,7 @@ jobs:
       - name: Resolve BASE_URL
         id: resolve
         uses: actions/github-script@v7
+        continue-on-error: true
         with:
           script: |
             try {
@@ -134,25 +138,23 @@ jobs:
                 const body = comments.map(c => c.body || '').join('\n');
                 const re = /https:\/\/[a-z0-9-]+--[a-z0-9-]+\.netlify\.app/gi;
                 const matches = body.match(re);
-                if (matches && matches.length) {
+                if (matches?.length) {
                   preview = matches[matches.length - 1];
                   core.info(`Found Netlify preview in PR comments: ${preview}`);
                 }
               }
-              const base = preview || 'https://hanaihang.netlify.app';
-              core.info(`Using BASE_URL: ${base}`);
-              core.setOutput('base_url', base);
-            } catch (error) {
-              core.warning(`Failed to resolve BASE_URL: ${error.message}`);
+              core.setOutput('base_url', preview || 'https://hanaihang.netlify.app');
+            } catch (e) {
+              core.warning(`Failed to resolve BASE_URL: ${e.message}`);
               core.setOutput('base_url', 'https://hanaihang.netlify.app');
             }
-      
-      - name: Set BASE_URL environment variable
-        env:
-          RESOLVED_BASE_URL: ${{ steps.resolve.outputs.base_url }}
+
+      - name: Export BASE_URL
+        id: export
         run: |
-          BASE_URL="${RESOLVED_BASE_URL:-https://hanaihang.netlify.app}"
-          echo "BASE_URL=${BASE_URL}" >> $GITHUB_ENV
+          BASE_URL="${{ steps.resolve.outputs.base_url }}"
+          : "${BASE_URL:=https://hanaihang.netlify.app}"
+          echo "BASE_URL=${BASE_URL}" >> $GITHUB_OUTPUT
           echo "✅ Using BASE_URL=${BASE_URL}"
       
       - name: Lighthouse (mobile)
@@ -200,6 +202,7 @@ jobs:
       - name: Resolve BASE_URL
         id: resolve
         uses: actions/github-script@v7
+        continue-on-error: true
         with:
           script: |
             try {
@@ -214,31 +217,29 @@ jobs:
                 const body = comments.map(c => c.body || '').join('\n');
                 const re = /https:\/\/[a-z0-9-]+--[a-z0-9-]+\.netlify\.app/gi;
                 const matches = body.match(re);
-                if (matches && matches.length) {
+                if (matches?.length) {
                   preview = matches[matches.length - 1];
                   core.info(`Found Netlify preview in PR comments: ${preview}`);
                 }
               }
-              const base = preview || 'https://hanaihang.netlify.app';
-              core.info(`Using BASE_URL: ${base}`);
-              core.setOutput('base_url', base);
-            } catch (error) {
-              core.warning(`Failed to resolve BASE_URL: ${error.message}`);
+              core.setOutput('base_url', preview || 'https://hanaihang.netlify.app');
+            } catch (e) {
+              core.warning(`Failed to resolve BASE_URL: ${e.message}`);
               core.setOutput('base_url', 'https://hanaihang.netlify.app');
             }
 
-      - name: Set BASE_URL environment variable
-        env:
-          RESOLVED_BASE_URL: ${{ steps.resolve.outputs.base_url }}
+      - name: Export BASE_URL
+        id: export
         run: |
-          BASE_URL="${RESOLVED_BASE_URL:-https://hanaihang.netlify.app}"
-          echo "BASE_URL=${BASE_URL}" >> $GITHUB_ENV
+          BASE_URL="${{ steps.resolve.outputs.base_url }}"
+          : "${BASE_URL:=https://hanaihang.netlify.app}"
+          echo "BASE_URL=${BASE_URL}" >> $GITHUB_OUTPUT
           echo "✅ Using BASE_URL=${BASE_URL}"
 
       - name: Replace BASE_URL in pa11y config (optional)
         run: |
           if [ "${BASE_URL}" != "https://hanaihang.netlify.app" ]; then
-            sed -i 's#https://hanaihang.netlify.app#'${BASE_URL}'#g' .pa11yci.json
+            sed -i 's#https://hanaihang.netlify.app#'"${BASE_URL}"'#g' .pa11yci.json
           fi
 
       # ✅ รันด้วย config และเก็บผลเป็น JSON (ใช้ chrome-launcher-options)
@@ -305,8 +306,17 @@ jobs:
           [ $fail -eq 0 ] || exit 1
 
       - name: Post QA summary to PR
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
+        env:
+          MP:  ${{ needs.audits.outputs.mobile_perf }}
+          MA:  ${{ needs.audits.outputs.mobile_a11y }}
+          MBP: ${{ needs.audits.outputs.mobile_bp }}
+          MS:  ${{ needs.audits.outputs.mobile_seo }}
+          DP:  ${{ needs.audits.outputs.desktop_perf }}
+          DA:  ${{ needs.audits.outputs.desktop_a11y }}
+          DBP: ${{ needs.audits.outputs.desktop_bp }}
+          DS:  ${{ needs.audits.outputs.desktop_seo }}
         with:
           script: |
             const o = {

@@ -37,7 +37,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
     onFiltersChange(newFilters);
   };
 
-  const handleMallToggle = (mallId: string) => {
+  const handleMallToggle = (_mallId: string) => {
     const newMallIds = filters.mallIds.includes(mallId)
       ? filters.mallIds.filter(id => id !== mallId)
       : [...filters.mallIds, mallId];

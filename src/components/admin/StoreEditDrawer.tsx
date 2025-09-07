@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Save } from 'lucide-react';
 
-import { Store, StoreCategory, StoreStatus } from '@/types/mall-system';
+import { StoreCategoryStatus } from '@/types/mall-system';
 import { updateStore } from '@/services/firebase/firestore';
 import { getMall } from '@/lib/malls';
 import { listFloors } from '@/services/firebase/firestore';
@@ -89,7 +89,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
       const mallCoords = mallData?.location ?? mallData?.coords ?? null;
 
       // Get floor data for denormalization
-      const selectedFloor = floors.find(f => f.id === formData.floorId);
+      const _selectedFloor = floors.find(f => f.id === formData.floorId);
       const floorLabel =
         selectedFloor?.name ?? selectedFloor?.label ?? formData.floorId;
 

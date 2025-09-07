@@ -23,7 +23,7 @@ export default function TextAreaField({
   className = ""
 }: TextAreaFieldProps) {
   const { register, formState: { errors }, watch } = useFormContext();
-  const error = (errors as any)[name]?.message as string | undefined;
+  const _error = (errors as any)[name]?.message as string | undefined;
   const value = watch(name);
   const id = `f-${name}`;
   const helpId = helper ? `${id}-help` : undefined;

@@ -22,7 +22,7 @@ export default function MapPicker({
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   
   const location = watch(name);
-  const error = errors[name]?.message as string;
+  const _error = errors[name]?.message as string;
 
   const getUserLocation = () => {
     if (navigator.geolocation) {

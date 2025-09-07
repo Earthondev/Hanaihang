@@ -5,13 +5,12 @@ import { Building2, MapPin, Clock, Phone, Globe, Facebook, MessageCircle } from 
 
 import Card from '../../ui/Card';
 import TextField from '../../ui/form/fields/TextField';
-import SelectField from '../../ui/form/fields/SelectField';
 import PhoneField from '../../ui/form/fields/PhoneField';
 import UrlField from '../../ui/form/fields/UrlField';
 import MapPicker from '../../ui/form/fields/MapPicker';
 import TimeField from '../../ui/form/fields/TimeField';
 import Switch from '../../ui/Switch';
-import { mallSchema, MallInput } from '../validation/mall.schema';
+import { mallSchemaInput } from '../validation/mall.schema';
 import { useSafeSubmit } from '../hooks/useSafeSubmit';
 import { createMall, updateMall } from '../../services/firebase/firestore';
 import { toSlug } from '../../services/firebase/firestore';
@@ -76,7 +75,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
     });
   };
 
-  const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const _handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value.trim();
     if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
       form.setValue('website', `https://${value}`);

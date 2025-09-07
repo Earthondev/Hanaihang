@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { collection, getDocs, query, where, orderBy, limit, startAt, endAt } from 'firebase/firestore';
 
 import { db } from '@/services/firebase/firebase';
-import { SearchResult, SearchOptions, Mall, Store } from '@/types/mall-system';
+import { SearchResult, SearchOptions } from '@/types/mall-system';
 
 // Helper function to convert search keyword to lowercase
 const toKey = (s: string): string => (s || "").trim().toLowerCase();
@@ -105,7 +105,7 @@ export function useSearchAll() {
 
           // 3) Enrich store data with mall information
           const mallIds = [...new Set(stores.map(s => s.mallId).filter(Boolean))];
-          const mallMap = new Map<string, Mall>();
+          const mallMap = new Map<string>();
           
           if (mallIds.length > 0) {
             const mallPromises = mallIds.map(async (mallId) => {

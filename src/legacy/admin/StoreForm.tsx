@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import { useSafeSubmit } from '@/legacy/hooks/useSafeSubmit';
 import { BaseButton } from '@/ui/BaseButton';
@@ -19,7 +19,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ malls, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     name: '',
     category: '',
-    mallId: '',
+    _mallId: '',
     floorId: '',
     unit: '',
     phone: '',
@@ -60,7 +60,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ malls, onClose, onSubmit }) => {
     }
   }, [formData.mallId]);
 
-  const loadFloors = async (mallId: string) => {
+  const loadFloors = async (_mallId: string) => {
     try {
       setLoadingFloors(true);
       // This would call the actual API to get floors for the selected mall

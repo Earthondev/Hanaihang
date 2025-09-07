@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+
 import { SlideOver } from '../ui/SlideOver';
 import TextField from '../ui/form/fields/TextField';
-import SelectField from '../ui/form/fields/SelectField';
 import PhoneField from '../ui/form/fields/PhoneField';
 import UrlField from '../ui/form/fields/UrlField';
 import MapPicker from '../ui/form/fields/MapPicker';
 import TimeField from '../ui/form/fields/TimeField';
 import Switch from '../ui/Switch';
-import { mallSchema, MallInput } from '../../validation/mall.schema';
+import { mallSchemaInput } from '../../validation/mall.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createMall } from '../../lib/firestore';
 import { toSlug } from '../../lib/firestore';
@@ -58,7 +58,7 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
         closeTime: values.closeTime,
       };
 
-      const newMall = await createMall(mallData);
+      const _newMall = await createMall(mallData);
       
       // Note: Logo upload will be handled in the edit form after mall creation
       // This is because we need the mall ID to upload the logo
@@ -68,7 +68,7 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
     });
   };
 
-  const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const _handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value.trim();
     if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
       form.setValue('website', `https://${value}`);

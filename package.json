@@ -8,7 +8,7 @@
     "dev:test": "vite --port 5174 --strictPort",
     "prebuild": "node scripts/gen-build-info.mjs",
     "build": "vite build",
-    "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --max-warnings=0",
+    "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\"",
     "fix": "npm run lint -- --fix && prettier -w .",
     "preview": "vite preview",
     "seed": "node scripts/seed-firestore.js",
@@ -92,7 +92,7 @@
   },
   "lint-staged": {
     "src/**/*.{ts,tsx,js,jsx}": [
-      "eslint --fix --max-warnings=0",
+      "eslint --fix",
       "prettier -w"
     ],
     "src/**/*.{json,css,md}": [

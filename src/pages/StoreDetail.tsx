@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   MapPin, 
@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 import { getMall, listStores, findStoreById } from '@/services/firebase/firestore';
-import { Store, Mall } from '@/types/mall-system';
+import { Store } from '@/types/mall-system';
 
 const StoreDetail: React.FC = () => {
   const { mallId, storeId } = useParams<{ mallId?: string; storeId: string }>();

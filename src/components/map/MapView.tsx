@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Icon } from 'leaflet';
-import { MapPin, Navigation, Building, Store, Clock, Phone } from 'lucide-react';
+import { MapPin, Navigation, Building, Clock, Phone } from 'lucide-react';
+
 import { Mall } from '@/types/mall-system';
 import { distanceKm } from '@/services/geoutils/geo-utils';
 import 'leaflet/dist/leaflet.css';

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Trash2 } from 'lucide-react';
 
 import { useToast } from '../ui/feedback/Toast';
 import MallForm from '../legacy/forms/MallForm';
 import { getMall, listFloors, createFloor, deleteFloor, updateFloorOrder } from '../services/firebase/firestore';
-import { Mall, Floor } from '../types/mall-system';
+import { Mall } from '../types/mall-system';
 
 export default function MallEditPage() {
   const { id } = useParams<{ id: string }>();

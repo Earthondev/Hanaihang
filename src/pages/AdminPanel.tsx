@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/config/contexts/AuthContext';
@@ -21,7 +21,7 @@ const AdminPanel: React.FC = () => {
   // const [showStoreForm, setShowStoreForm] = useState(false);
   const [malls, setMalls] = useState<any[]>([]);
   const [stores, setStores] = useState<any[]>([]);
-  const [storesWithMallId, setStoresWithMallId] = useState<{ store: any; mallId: string }[]>([]);
+  const [storesWithMallId, setStoresWithMallId] = useState<{ store: any; _mallId: string }[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -112,7 +112,7 @@ const AdminPanel: React.FC = () => {
       // เก็บข้อมูล stores ในรูปแบบเดิมสำหรับ StoresTable
       setStores(storesData.map(item => ({
         ...item.store,
-        mallId: item.mallId
+        _mallId: item.mallId
       })));
       // เก็บข้อมูล stores ในรูปแบบใหม่สำหรับ MallsTableView
       setStoresWithMallId(storesData);

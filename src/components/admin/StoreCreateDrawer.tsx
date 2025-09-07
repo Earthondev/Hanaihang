@@ -1,14 +1,14 @@
 import React from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+
 import { SlideOver } from '../ui/SlideOver';
 import TextField from '../ui/form/fields/TextField';
-import SelectField from '../ui/form/fields/SelectField';
 import PhoneField from '../ui/form/fields/PhoneField';
-import { storeSchema, StoreInput } from '../../validation/store.schema';
+import { storeSchemaInput } from '../../validation/store.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createStore, listMalls, listFloors } from '../../lib/firestore';
-import { Mall, Floor } from '../../types/mall-system';
+import { Mall } from '../../types/mall-system';
 
 interface StoreCreateDrawerProps {
   open: boolean;
@@ -49,7 +49,7 @@ export function StoreCreateDrawer({
   const form = useForm<StoreInput>({
     resolver: zodResolver(storeSchema),
     defaultValues: {
-      mallId: defaultMallId || "",
+      _mallId: defaultMallId || "",
       name: "",
       category: "Fashion" as any,
       floorId: "",

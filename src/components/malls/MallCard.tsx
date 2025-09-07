@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Mall } from '../../types/mall-system';
 import { formatDistance } from '../../lib/geo-utils';
 

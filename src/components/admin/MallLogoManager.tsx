@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Loader2, Image as ImageIcon, Trash2 } from 'lucide-react';
 
 import Card from '../ui/Card';
@@ -37,7 +37,7 @@ export default function MallLogoManager({
     }
   };
 
-  const handleLogoChange = async (mallId: string, logoUrl: string | null) => {
+  const handleLogoChange = async (_mallId: string, logoUrl: string | null) => {
     try {
       await updateMall(mallId, { logoUrl } as any);
 

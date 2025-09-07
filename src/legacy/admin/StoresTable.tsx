@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 
-import { deleteStore } from '@/services/firebase/firestore';
 import StoreEditDrawer from '../../components/admin/StoreEditDrawer';
+
+import { deleteStore } from '@/services/firebase/firestore';
 
 interface StoresTableProps {
   stores: any[];
@@ -17,7 +18,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
   const [editingStore, setEditingStore] = useState<any>(null);
   const [showEditDrawer, setShowEditDrawer] = useState(false);
 
-  const getMallName = (mallId: string) => {
+  const getMallName = (_mallId: string) => {
     const mall = malls.find(m => m.id === mallId);
     return mall ? (mall.displayName || mall.name) : 'ไม่พบข้อมูล';
   };
@@ -48,7 +49,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
     }
   };
 
-  const handleDelete = async (storeId: string, mallId: string) => {
+  const handleDelete = async (storeId: string, _mallId: string) => {
     if (!confirm('คุณแน่ใจหรือไม่ที่จะลบร้านค้านี้?')) {
       return;
     }

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Search, X } from "lucide-react";
+
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 
 type Option = { label: string; value: string };

@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { ArrowLeft, Store, Building2, Tag, Phone, Clock } from 'lucide-react';
+import { ArrowLeft, Building2, Tag, Phone, Clock } from 'lucide-react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { createStore, listMalls, listFloors, findStoreById, updateStore } from '../services/firebase/firestore';
-import { storeSchema, StoreInput } from '../legacy/validation/store.schema';
+import { storeSchemaInput } from '../legacy/validation/store.schema';
 import { useSafeSubmit } from '../legacy/hooks/useSafeSubmit';
 import { getMall } from '../lib/malls';
 import TextField from '../components/ui/form/fields/TextField';
-import SelectField from '../components/ui/form/fields/SelectField';
 import PhoneField from '../components/ui/form/fields/PhoneField';
 import { BaseButton } from '../components/ui/BaseButton';
-import { Mall, Floor, Store as StoreType } from '../types/mall-system';
+import { Mall as StoreType } from '../types/mall-system';
 
 const StoreCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -54,7 +53,7 @@ const StoreCreatePage: React.FC = () => {
   const form = useForm<StoreInput>({
     resolver: zodResolver(storeSchema),
     defaultValues: {
-      mallId: defaultMallId,
+      _mallId: defaultMallId,
       name: "",
       category: "Fashion" as any,
       floorId: "",
@@ -85,7 +84,7 @@ const StoreCreatePage: React.FC = () => {
             setExistingStore(result.store);
             // Set form values
             form.reset({
-              mallId: result.mallId,
+              _mallId: result.mallId,
               name: result.store.name,
               category: result.store.category as any,
               floorId: result.store.floorId,
@@ -167,7 +166,7 @@ const StoreCreatePage: React.FC = () => {
             phone: values.phone,
             hours: `${values.openTime}-${values.closeTime}`,
             status: values.status,
-            mallId: values.mallId
+            _mallId: values.mallId
           };
           
           await updateStore(result.mallId, storeId!, updateData);
@@ -179,7 +178,7 @@ const StoreCreatePage: React.FC = () => {
         const mallCoords = mall?.location ?? mall?.coords ?? null;
         
         // Get floor data for denormalization
-        const selectedFloor = floors.find(f => f.id === values.floorId);
+        const _selectedFloor = floors.find(f => f.id === values.floorId);
         const floorLabel = selectedFloor?.label ?? values.floorId;
         
         // Create store with denormalized data

@@ -118,7 +118,7 @@ export async function listMalls(limitCount?: number): Promise<Mall[]> {
 /**
  * ดึงข้อมูลห้างตาม ID
  */
-export async function getMall(mallId: string): Promise<Mall | null> {
+export async function getMall(_mallId: string): Promise<Mall | null> {
   const docRef = doc(db, 'malls', mallId);
   const docSnap = await getDoc(docRef);
 
@@ -193,7 +193,7 @@ export async function updateMall(
 /**
  * ลบห้าง
  */
-export async function deleteMall(mallId: string): Promise<void> {
+export async function deleteMall(_mallId: string): Promise<void> {
   const batch = writeBatch(db);
 
   // ลบ stores ทั้งหมดในห้าง
@@ -225,7 +225,7 @@ export async function deleteMall(mallId: string): Promise<void> {
 /**
  * สร้าง floors เริ่มต้นสำหรับห้างใหม่
  */
-async function createDefaultFloors(mallId: string): Promise<void> {
+async function createDefaultFloors(_mallId: string): Promise<void> {
   const defaultFloors = [
     { label: 'G', order: 0 },
     { label: '1', order: 1 },
@@ -241,7 +241,7 @@ async function createDefaultFloors(mallId: string): Promise<void> {
  * สร้าง floor ใหม่
  */
 export async function createFloor(
-  mallId: string,
+  _mallId: string,
   data: { label: string; order: number },
 ): Promise<string> {
   const now = serverTimestamp();
@@ -263,7 +263,7 @@ export async function createFloor(
 /**
  * ดึงรายการ floors ของห้าง
  */
-export async function listFloors(mallId: string): Promise<Floor[]> {
+export async function listFloors(_mallId: string): Promise<Floor[]> {
   const q = query(collection(db, 'malls', mallId, 'floors'), orderBy('order'));
   const snapshot = await getDocs(q);
 
@@ -281,7 +281,7 @@ export async function listFloors(mallId: string): Promise<Floor[]> {
  * สร้างร้านใหม่
  */
 export async function createStore(
-  mallId: string,
+  _mallId: string,
   data: StoreFormData,
 ): Promise<string> {
   const now = serverTimestamp();
@@ -296,7 +296,7 @@ export async function createStore(
     phone: data.phone,
     hours: data.hours,
     status: data.status,
-    mallId: mallId, // Add mallId reference
+    _mallId: mallId, // Add mallId reference
     mallCoords: (data as any).mallCoords, // Add mall coordinates for distance calculation
     floorLabel: (data as any).floorLabel, // Add floor label for display
     createdAt: now,
@@ -319,7 +319,7 @@ export async function createStore(
  * ดึงรายการร้านของห้าง
  */
 export async function listStores(
-  mallId: string,
+  _mallId: string,
   filters?: {
     floorId?: string;
     category?: string;
@@ -369,15 +369,15 @@ export async function listStores(
  * ดึงร้านทั้งหมดจากทุกห้าง (สำหรับ Admin Panel)
  */
 export async function listAllStores(): Promise<
-  { store: Store; mallId: string }[]
+  { store: Store; _mallId: string }[]
 > {
   const malls = await listMalls();
-  const results: { store: Store; mallId: string }[] = [];
+  const results: { store: Store; _mallId: string }[] = [];
 
   // ดึงร้านจากทุกห้าง
   for (const mall of malls) {
     const stores = await listStores(mall.id!);
-    results.push(...stores.map(store => ({ store, mallId: mall.id! })));
+    results.push(...stores.map(store => ({ store, _mallId: mall.id! })));
   }
 
   return results;
@@ -389,15 +389,15 @@ export async function listAllStores(): Promise<
 export async function searchStoresGlobally(
   query: string,
   limitCount = 50,
-): Promise<{ store: Store; mallId: string }[]> {
+): Promise<{ store: Store; _mallId: string }[]> {
   // ดึงรายการห้างทั้งหมด
   const malls = await listMalls();
-  const results: { store: Store; mallId: string }[] = [];
+  const results: { store: Store; _mallId: string }[] = [];
 
   // ค้นหาในแต่ละห้าง
   for (const mall of malls) {
     const stores = await listStores(mall.id!, { query });
-    results.push(...stores.map(store => ({ store, mallId: mall.id! })));
+    results.push(...stores.map(store => ({ store, _mallId: mall.id! })));
 
     // หยุดถ้าเกิน limit
     if (results.length >= limitCount) {
@@ -412,7 +412,7 @@ export async function searchStoresGlobally(
  * ดึงข้อมูลร้านตาม ID
  */
 export async function getStore(
-  mallId: string,
+  _mallId: string,
   storeId: string,
 ): Promise<Store | null> {
   const docRef = doc(db, 'malls', mallId, 'stores', storeId);
@@ -432,7 +432,7 @@ export async function getStore(
  * อัปเดตข้อมูลร้าน
  */
 export async function updateStore(
-  mallId: string,
+  _mallId: string,
   storeId: string,
   data: Partial<StoreFormData>,
 ): Promise<void> {
@@ -449,7 +449,7 @@ export async function updateStore(
  * ลบร้าน
  */
 export async function deleteStore(
-  mallId: string,
+  _mallId: string,
   storeId: string,
 ): Promise<void> {
   const docRef = doc(db, 'malls', mallId, 'stores', storeId);

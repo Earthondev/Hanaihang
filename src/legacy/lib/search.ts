@@ -1,5 +1,4 @@
-import { Mall, Store, StoreSearchResult } from '@/types/mall-system';
-
+import { MallSearchResult } from '@/types/mall-system';
 import { listMalls, listStores } from '@/services/firebase/firestore';
 
 /**
@@ -59,7 +58,7 @@ export async function searchMallsAndBrands(query: string): Promise<{
  * ค้นหาร้านค้าในห้างเดียว
  */
 export async function searchStoresInMall(
-  mallId: string, 
+  _mallId: string, 
   query: string
 ): Promise<Store[]> {
   if (!query.trim()) {
@@ -78,7 +77,7 @@ export async function searchStoresInMall(
  * ค้นหาร้านค้าตามหมวดหมู่
  */
 export async function searchStoresByCategory(
-  mallId: string,
+  _mallId: string,
   category: string
 ): Promise<Store[]> {
   try {

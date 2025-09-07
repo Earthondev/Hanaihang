@@ -9,7 +9,7 @@ export const mallSchema = z.object({
     .string()
     .optional()
     .transform(v => v?.trim() || "")
-    .refine(v => v === "" || /^\+?\d[\d\s-]{6,}$/.test(v), "รูปแบบเบอร์ไม่ถูกต้อง"),
+    .refine(v => v === "" || /^+?\d[\d\s-]{6,}$/.test(v), "รูปแบบเบอร์ไม่ถูกต้อง"),
   website: z
     .string()
     .optional()

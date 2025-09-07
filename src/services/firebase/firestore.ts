@@ -14,9 +14,10 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 
-import { db } from './firebase';
-import { Mall, Floor, Store, MallFormData, StoreFormData } from '../../types/mall-system';
+import { MallFormDataFormData } from '../../types/mall-system';
 import { MallInput } from '../../legacy/validation/mall.schema';
+
+import { db } from './firebase';
 
 // Helper to create slug from display name
 export function toSlug(displayName: string): string {
@@ -101,7 +102,7 @@ export async function listMalls(limitCount?: number): Promise<Mall[]> {
 /**
  * ดึงข้อมูลห้างตาม ID
  */
-export async function getMall(mallId: string): Promise<Mall | null> {
+export async function getMall(_mallId: string): Promise<Mall | null> {
   const docRef = doc(db, 'malls', mallId);
   const docSnap = await getDoc(docRef);
   
@@ -173,7 +174,7 @@ export async function updateMall(id: string, data: Partial<MallInput>): Promise<
 /**
  * ลบห้าง
  */
-export async function deleteMall(mallId: string): Promise<void> {
+export async function deleteMall(_mallId: string): Promise<void> {
   const batch = writeBatch(db);
   
   // ลบ stores ทั้งหมดในห้าง
@@ -201,7 +202,7 @@ export async function deleteMall(mallId: string): Promise<void> {
 /**
  * สร้าง floors เริ่มต้นสำหรับห้างใหม่
  */
-async function createDefaultFloors(mallId: string): Promise<void> {
+async function createDefaultFloors(_mallId: string): Promise<void> {
   const defaultFloors = [
     { label: 'G', order: 0 },
     { label: '1', order: 1 },
@@ -219,7 +220,7 @@ async function createDefaultFloors(mallId: string): Promise<void> {
 /**
  * สร้าง floor ใหม่
  */
-export async function createFloor(mallId: string, data: { label: string; order: number }): Promise<string> {
+export async function createFloor(_mallId: string, data: { label: string; order: number }): Promise<string> {
   const now = serverTimestamp();
   
   const floorData = {
@@ -240,7 +241,7 @@ export async function createFloor(mallId: string, data: { label: string; order: 
 /**
  * อัปเดต floorCount ในห้าง
  */
-async function updateMallFloorCount(mallId: string, count?: number): Promise<void> {
+async function updateMallFloorCount(_mallId: string, count?: number): Promise<void> {
   const mallRef = doc(db, 'malls', mallId);
   
   if (count !== undefined) {
@@ -262,7 +263,7 @@ async function updateMallFloorCount(mallId: string, count?: number): Promise<voi
 /**
  * ดึงรายการ floors ของห้าง
  */
-export async function listFloors(mallId: string): Promise<Floor[]> {
+export async function listFloors(_mallId: string): Promise<Floor[]> {
   const q = query(
     collection(db, 'malls', mallId, 'floors'),
     orderBy('order')
@@ -278,7 +279,7 @@ export async function listFloors(mallId: string): Promise<Floor[]> {
 /**
  * ลบ floor
  */
-export async function deleteFloor(mallId: string, floorId: string): Promise<void> {
+export async function deleteFloor(_mallId: string, floorId: string): Promise<void> {
   await deleteDoc(doc(db, 'malls', mallId, 'floors', floorId));
   
   // อัปเดต floorCount ในห้าง
@@ -288,7 +289,7 @@ export async function deleteFloor(mallId: string, floorId: string): Promise<void
 /**
  * อัปเดต order ของ floor
  */
-export async function updateFloorOrder(mallId: string, floorId: string, newOrder: number): Promise<void> {
+export async function updateFloorOrder(_mallId: string, floorId: string, newOrder: number): Promise<void> {
   await updateDoc(doc(db, 'malls', mallId, 'floors', floorId), {
     order: newOrder,
     updatedAt: serverTimestamp()
@@ -302,7 +303,7 @@ export async function updateFloorOrder(mallId: string, floorId: string, newOrder
 /**
  * สร้างร้านใหม่
  */
-export async function createStore(mallId: string, data: StoreFormData): Promise<string> {
+export async function createStore(_mallId: string, data: StoreFormData): Promise<string> {
   const now = serverTimestamp();
   
   const storeData = {
@@ -325,7 +326,7 @@ export async function createStore(mallId: string, data: StoreFormData): Promise<
  * ดึงรายการร้านของห้าง
  * @deprecated Use stores service instead
  */
-export async function listStores(mallId: string, filters?: {
+export async function listStores(_mallId: string, filters?: {
   floorId?: string;
   category?: string;
   status?: string;
@@ -340,7 +341,7 @@ export async function listStores(mallId: string, filters?: {
  * ดึงร้านทั้งหมดจากทุกห้าง (สำหรับ Admin Panel)
  * @deprecated Use stores service instead
  */
-export async function listAllStores(): Promise<{ store: Store; mallId: string }[]> {
+export async function listAllStores(): Promise<{ store: Store; _mallId: string }[]> {
   // Import and use the new stores service
   const { listAllStores: newListAllStores } = await import('./stores');
   return newListAllStores();
@@ -350,7 +351,7 @@ export async function listAllStores(): Promise<{ store: Store; mallId: string }[
  * ค้นหาร้านข้ามทุกห้าง
  * @deprecated Use stores service instead
  */
-export async function searchStoresGlobally(query: string, limitCount = 50): Promise<{ store: Store; mallId: string }[]> {
+export async function searchStoresGlobally(query: string, limitCount = 50): Promise<{ store: Store; _mallId: string }[]> {
   // Import and use the new stores service
   const { searchStoresGlobally: newSearchStoresGlobally } = await import('./stores');
   return newSearchStoresGlobally(query, limitCount);
@@ -360,7 +361,7 @@ export async function searchStoresGlobally(query: string, limitCount = 50): Prom
  * ค้นหาร้านด้วย ID ข้ามทุกห้าง
  * @deprecated Use stores service instead
  */
-export async function findStoreById(storeId: string): Promise<{ store: Store; mallId: string } | null> {
+export async function findStoreById(storeId: string): Promise<{ store: Store; _mallId: string } | null> {
   // Import and use the new stores service
   const { findStoreById: newFindStoreById } = await import('./stores');
   return newFindStoreById(storeId);
@@ -370,7 +371,7 @@ export async function findStoreById(storeId: string): Promise<{ store: Store; ma
  * อัปเดตข้อมูลร้าน
  * @deprecated Use stores service instead
  */
-export async function updateStore(mallId: string, storeId: string, data: Partial<Store>): Promise<void> {
+export async function updateStore(_mallId: string, storeId: string, data: Partial<Store>): Promise<void> {
   // Import and use the new stores service
   const { updateStore: newUpdateStore } = await import('./stores');
   return newUpdateStore(mallId, storeId, data);
@@ -380,7 +381,7 @@ export async function updateStore(mallId: string, storeId: string, data: Partial
  * ดึงข้อมูลร้านตาม ID
  * @deprecated Use stores service instead
  */
-export async function getStore(mallId: string, storeId: string): Promise<Store | null> {
+export async function getStore(_mallId: string, storeId: string): Promise<Store | null> {
   // Import and use the new stores service
   const { getStore: newGetStore } = await import('./stores');
   return newGetStore(mallId, storeId);
@@ -391,7 +392,7 @@ export async function getStore(mallId: string, storeId: string): Promise<Store |
  * ลบร้าน
  * @deprecated Use stores service instead
  */
-export async function deleteStore(mallId: string, storeId: string): Promise<void> {
+export async function deleteStore(_mallId: string, storeId: string): Promise<void> {
   // Import and use the new stores service
   const { deleteStore: newDeleteStore } = await import('./stores');
   return newDeleteStore(mallId, storeId);

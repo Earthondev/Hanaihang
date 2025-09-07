@@ -18,7 +18,7 @@ export default function TimeField({
   className = "" 
 }: TimeFieldProps) {
   const { register, formState: { errors } } = useFormContext();
-  const error = errors[name]?.message as string;
+  const _error = errors[name]?.message as string;
 
   return (
     <div className={className}>

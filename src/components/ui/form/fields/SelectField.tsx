@@ -28,7 +28,7 @@ export default function SelectField({
   disabled = false
 }: SelectFieldProps) {
   const { register, formState: { errors } } = useFormContext();
-  const error = (errors as any)[name]?.message as string | undefined;
+  const _error = (errors as any)[name]?.message as string | undefined;
   const id = `f-${name}`;
   const helpId = helper ? `${id}-help` : undefined;
   const errorId = error ? `${id}-error` : undefined;

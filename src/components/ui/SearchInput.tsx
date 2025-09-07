@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 
 interface SearchInputProps {
   placeholder?: string;
@@ -42,7 +42,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
     }
   }, [autoFocus]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (_e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInternalValue(newValue);
     onChange?.(newValue);

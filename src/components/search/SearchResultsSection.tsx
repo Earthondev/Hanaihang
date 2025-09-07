@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
+
 import { UnifiedSearchResult } from '../../lib/unified-search';
+
 import SearchResultCard from './SearchResultCard';
 
 interface SearchResultsSectionProps {

@@ -4,13 +4,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { SlideOver } from '../../ui/SlideOver';
 import TextField from '../../ui/form/fields/TextField';
-import SelectField from '../../ui/form/fields/SelectField';
 import PhoneField from '../../ui/form/fields/PhoneField';
 import UrlField from '../../ui/form/fields/UrlField';
 import MapPicker from '../../ui/form/fields/MapPicker';
 import TimeField from '../../ui/form/fields/TimeField';
 import Switch from '../../ui/Switch';
-import { mallSchema, MallInput } from '@/legacy/validation/mall.schema';
+
+import { mallSchemaInput } from '@/legacy/validation/mall.schema';
 import { useSafeSubmit } from '@/legacy/hooks/useSafeSubmit';
 import { createMall } from '@/services/firebase/firestore';
 import { toSlug } from '@/services/firebase/firestore';
@@ -64,7 +64,7 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
     });
   };
 
-  // const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  // const _handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
   //   const value = e.target.value.trim();
   //   if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
   //     form.setValue('website', `https://${value}`);

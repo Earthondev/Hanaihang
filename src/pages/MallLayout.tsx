@@ -7,7 +7,7 @@ import { useFloors } from '@/legacy/hooks/useApi';
 import Button from '@/ui/Button';
 
 const MallLayout: React.FC = () => {
-  const { mallId } = useParams<{ mallId: string }>();
+  const { mallId } = useParams<{ _mallId: string }>();
   const location = useLocation();
   const [selectedFloor, setSelectedFloor] = useState<string>('all');
   const { data: floors } = useFloors(mallId || '');
@@ -23,7 +23,7 @@ const MallLayout: React.FC = () => {
   };
 
   const getCurrentFloor = () => {
-    const floorMatch = location.pathname.match(/\/floors\/(.+)/);
+    const floorMatch = location.pathname.match(/\/floors\/(.+)\//);
     return floorMatch ? floorMatch[1] : 'all';
   };
 

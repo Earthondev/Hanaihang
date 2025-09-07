@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+
 import { uploadMallLogo, deleteMallLogo } from '@/services/firebase/storage';
 
 interface LogoUploadProps {
-  mallId: string;
+  _mallId: string;
   currentLogoUrl?: string;
   onLogoChange: (logoUrl: string | null) => void;
   className?: string;

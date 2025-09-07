@@ -4,7 +4,8 @@
  */
 
 import React from 'react';
-import { Building, Store, MapPin, Clock, ArrowRight } from 'lucide-react';
+import { Building, MapPin, Clock, ArrowRight } from 'lucide-react';
+
 import { UnifiedSearchResult } from '../../lib/unified-search';
 import { formatDistance } from '../../lib/geo-utils';
 

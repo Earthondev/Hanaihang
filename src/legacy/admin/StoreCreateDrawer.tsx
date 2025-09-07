@@ -5,14 +5,13 @@ import { Building2, Tag, Phone, Clock } from 'lucide-react';
 
 import { SlideOver } from '../../ui/SlideOver';
 import TextField from '../../ui/form/fields/TextField';
-import SelectField from '../../ui/form/fields/SelectField';
 import PhoneField from '../../ui/form/fields/PhoneField';
 import TimeField from '../../ui/form/fields/TimeField';
 import Switch from '../../ui/Switch';
-import { storeSchema, StoreInput } from '../../legacy/validation/store.schema';
+import { storeSchemaInput } from '../../legacy/validation/store.schema';
 import { useSafeSubmit } from '../../legacy/hooks/useSafeSubmit';
 import { createStore, listMalls, listFloors } from '../../services/firebase/firestore';
-import { Mall, Floor } from '../../types/mall-system';
+import { Mall } from '../../types/mall-system';
 
 interface StoreCreateDrawerProps {
   open: boolean;
@@ -54,7 +53,7 @@ export function StoreCreateDrawer({
   const form = useForm<StoreInput>({
     resolver: zodResolver(storeSchema),
     defaultValues: {
-      mallId: defaultMallId || "",
+      _mallId: defaultMallId || "",
       name: "",
       category: "Fashion" as any,
       floorId: "",

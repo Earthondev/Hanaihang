@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { MapPin, Navigation } from 'lucide-react';
 
@@ -22,7 +22,7 @@ export default function MapPicker({
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   
   const location = watch(name);
-  const error = errors[name]?.message as string;
+  const _error = errors[name]?.message as string;
 
   // Get user location
   const getUserLocation = () => {

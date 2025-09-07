@@ -18,13 +18,14 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 
+import { StoreFormData } from '../../types/mall-system';
+
 import { 
   mallStoresCol, 
   storeDoc, 
   allStoresGroup,
   legacyStoresCol 
 } from './paths';
-import { Store, StoreFormData } from '../../types/mall-system';
 
 // Helper to convert Firestore document to typed object
 function convertTimestamps<T extends { createdAt?: any; updatedAt?: any }>(data: T): T {
@@ -47,7 +48,7 @@ function convertTimestamps<T extends { createdAt?: any; updatedAt?: any }>(data:
  * Path: malls/{mallId}/stores
  */
 export async function listStores(
-  mallId: string, 
+  _mallId: string, 
   filters?: {
     floorId?: string;
     category?: string;
@@ -94,7 +95,7 @@ export async function listStores(
  * ดึงข้อมูลร้านตาม ID ในห้างเดียว
  * Path: malls/{mallId}/stores/{storeId}
  */
-export async function getStore(mallId: string, storeId: string): Promise<Store | null> {
+export async function getStore(_mallId: string, storeId: string): Promise<Store | null> {
   const docRef = storeDoc(mallId, storeId);
   const docSnap = await getDoc(docRef);
   
@@ -112,7 +113,7 @@ export async function getStore(mallId: string, storeId: string): Promise<Store |
  * สร้างร้านใหม่ในห้าง
  * Path: malls/{mallId}/stores/{storeId}
  */
-export async function createStore(mallId: string, data: StoreFormData): Promise<string> {
+export async function createStore(_mallId: string, data: StoreFormData): Promise<string> {
   const now = serverTimestamp();
   
   const storeData = {
@@ -124,7 +125,7 @@ export async function createStore(mallId: string, data: StoreFormData): Promise<
     hours: data.hours,
     status: data.status,
     // Denormalized fields for search
-    mallId: mallId,
+    _mallId: mallId,
     mallName: '', // Will be populated from mall data
     mallCoords: null, // Will be populated from mall data
     createdAt: now,
@@ -144,7 +145,7 @@ export async function createStore(mallId: string, data: StoreFormData): Promise<
  * Path: malls/{mallId}/stores/{storeId}
  */
 export async function updateStore(
-  mallId: string, 
+  _mallId: string, 
   storeId: string, 
   data: Partial<Store>
 ): Promise<void> {
@@ -174,7 +175,7 @@ export async function updateStore(
  * ลบร้าน
  * Path: malls/{mallId}/stores/{storeId}
  */
-export async function deleteStore(mallId: string, storeId: string): Promise<void> {
+export async function deleteStore(_mallId: string, storeId: string): Promise<void> {
   const docRef = storeDoc(mallId, storeId);
   await deleteDoc(docRef);
   
@@ -190,9 +191,9 @@ export async function deleteStore(mallId: string, storeId: string): Promise<void
  * ดึงร้านทั้งหมดจากทุกห้าง (ใช้ collectionGroup)
  * Path: collectionGroup('stores')
  */
-export async function listAllStores(): Promise<{ store: Store; mallId: string }[]> {
+export async function listAllStores(): Promise<{ store: Store; _mallId: string }[]> {
   const snapshot = await getDocs(allStoresGroup());
-  const results: { store: Store; mallId: string }[] = [];
+  const results: { store: Store; _mallId: string }[] = [];
 
   snapshot.docs.forEach(doc => {
     const mallId = extractMallIdFromPath(doc.ref.path);
@@ -217,7 +218,7 @@ export async function listAllStores(): Promise<{ store: Store; mallId: string }[
 export async function searchStoresGlobally(
   searchQuery: string, 
   limitCount = 50
-): Promise<{ store: Store; mallId: string }[]> {
+): Promise<{ store: Store; _mallId: string }[]> {
   if (!searchQuery || searchQuery.trim().length < 1) {
     return [];
   }
@@ -234,7 +235,7 @@ export async function searchStoresGlobally(
     );
     
     const snapshot = await getDocs(q);
-    const results: { store: Store; mallId: string }[] = [];
+    const results: { store: Store; _mallId: string }[] = [];
 
     snapshot.docs.forEach(doc => {
       const mallId = extractMallIdFromPath(doc.ref.path);
@@ -259,7 +260,7 @@ export async function searchStoresGlobally(
 /**
  * ค้นหาร้านด้วย ID ข้ามทุกห้าง
  */
-export async function findStoreById(storeId: string): Promise<{ store: Store; mallId: string } | null> {
+export async function findStoreById(storeId: string): Promise<{ store: Store; _mallId: string } | null> {
   try {
     const snapshot = await getDocs(allStoresGroup());
     
@@ -293,14 +294,14 @@ export async function findStoreById(storeId: string): Promise<{ store: Store; ma
  * Extract mall ID from store document path
  */
 function extractMallIdFromPath(path: string): string | null {
-  const match = path.match(/malls\/([^\/]+)\/stores/);
+  const match = path.match(/\/malls\/([^/]+)\/stores\//);
   return match ? match[1] : null;
 }
 
 /**
  * Update mall store count
  */
-async function updateMallStoreCount(mallId: string): Promise<void> {
+async function updateMallStoreCount(_mallId: string): Promise<void> {
   try {
     const stores = await listStores(mallId);
     const mallRef = storeDoc(mallId, 'dummy').parent.parent; // Get mall ref
@@ -351,9 +352,9 @@ export async function duplicateStore(
  * Get stores from legacy top-level collection
  * Used only during migration
  */
-export async function getLegacyStores(): Promise<{ store: Store; mallId: string }[]> {
+export async function getLegacyStores(): Promise<{ store: Store; _mallId: string }[]> {
   const snapshot = await getDocs(legacyStoresCol());
-  const results: { store: Store; mallId: string }[] = [];
+  const results: { store: Store; _mallId: string }[] = [];
 
   snapshot.docs.forEach(doc => {
     const data = doc.data();

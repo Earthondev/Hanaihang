@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+
 import Form from '../ui/form/Form';
 import TextField from '../ui/form/fields/TextField';
-import SelectField from '../ui/form/fields/SelectField';
 import PhoneField from '../ui/form/fields/PhoneField';
 import FormActions from '../ui/form/FormActions';
-import { storeSchema, StoreInput } from '../../validation/store.schema';
+import { storeSchemaInput } from '../../validation/store.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createStore, updateStore, listMalls, listFloors } from '../../lib/firestore';
-import { Mall, Floor } from '../../types/mall-system';
+import { Mall } from '../../types/mall-system';
 import { getMall } from '../../lib/malls';
 
 interface StoreFormProps {
@@ -51,7 +51,7 @@ export default function StoreForm({
   const form = useForm<StoreInput>({
     resolver: zodResolver(storeSchema),
     defaultValues: {
-      mallId: "",
+      _mallId: "",
       name: "",
       category: "Fashion",
       floorId: "",
@@ -138,7 +138,7 @@ export default function StoreForm({
         
         // Get floor data for denormalization
         const floors = await listFloors(values.mallId);
-        const selectedFloor = floors.find(f => f.id === values.floorId);
+        const _selectedFloor = floors.find(f => f.id === values.floorId);
         const floorLabel = selectedFloor?.label ?? values.floorId;
         
         // Create store with denormalized data
@@ -158,7 +158,7 @@ export default function StoreForm({
           
           // Get floor data for denormalization
           const floors = await listFloors(values.mallId);
-          const selectedFloor = floors.find(f => f.id === values.floorId);
+          const _selectedFloor = floors.find(f => f.id === values.floorId);
           const floorLabel = selectedFloor?.label ?? values.floorId;
           
           // Update store with denormalized data

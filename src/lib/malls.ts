@@ -1,5 +1,6 @@
-import { db } from "./firebase";
 import { doc, getDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
+
+import { db } from "./firebase";
 
 // Cache สำหรับ Mall
 const mallCache = new Map<string, any>();
@@ -16,7 +17,7 @@ const floorCacheTimestamps = new Map<string, number>();
  * @param mallId ID ของห้าง
  * @returns ข้อมูลห้างหรือ null
  */
-export async function getMall(mallId: string): Promise<any | null> {
+export async function getMall(_mallId: string): Promise<any | null> {
   // ตรวจสอบ cache
   const cacheTime = mallCacheTimestamps.get(mallId);
   if (mallCache.has(mallId) && cacheTime && Date.now() - cacheTime < mallCacheTimeout) {
@@ -43,7 +44,7 @@ export async function getMall(mallId: string): Promise<any | null> {
  * @param mallId ID ของห้าง
  * @returns รายการชั้น
  */
-export async function listFloors(mallId: string): Promise<any[]> {
+export async function listFloors(_mallId: string): Promise<any[]> {
   // ตรวจสอบ cache
   const cacheTime = floorCacheTimestamps.get(mallId);
   if (floorCache.has(mallId) && cacheTime && Date.now() - cacheTime < floorCacheTimeout) {
@@ -73,7 +74,7 @@ export async function listFloors(mallId: string): Promise<any[]> {
  * @param floorId ID หรือ label ของชั้น
  * @returns ข้อมูลชั้นหรือ null
  */
-export async function getFloorInfo(mallId: string, floorId: string): Promise<any | null> {
+export async function getFloorInfo(_mallId: string, floorId: string): Promise<any | null> {
   const floors = await listFloors(mallId);
   return floors.find(f => f.id === floorId || f.label === floorId) ?? null;
 }
@@ -92,7 +93,7 @@ export function clearCache(): void {
  * ล้าง cache ของห้างเฉพาะ
  * @param mallId ID ของห้าง
  */
-export function clearMallCache(mallId: string): void {
+export function clearMallCache(_mallId: string): void {
   mallCache.delete(mallId);
   mallCacheTimestamps.delete(mallId);
   floorCache.delete(mallId);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Search, Clock, Building, Store, MapPin, ArrowRight, Heart } from 'lucide-react';
+import { Search, Clock, Building, MapPin, ArrowRight, Heart } from 'lucide-react';
 
 import { getStores, getFloors, getActivePromotions } from '@/legacy/services/api';
 import { malls } from '@/test/fixtures/data/malls';
@@ -11,7 +11,7 @@ import Button from '@/ui/Button';
 import MallHeroCampaign from '@/legacy/components/MallHeroCampaign';
 
 const MallHome: React.FC = () => {
-  const { mallId } = useParams<{ mallId: string }>();
+  const { mallId } = useParams<{ _mallId: string }>();
   const [selectedFloor, setSelectedFloor] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -44,7 +44,7 @@ const MallHome: React.FC = () => {
   });
 
   const getStoreStatus = (store: any) => {
-    const status = isStoreOpen(store);
+    const _status = isStoreOpen(store);
     return {
       status,
       text: status === 'open' ? 'เปิด' : status === 'closed' ? 'ปิด' : 'ไม่ทราบ',
@@ -295,7 +295,7 @@ const MallHome: React.FC = () => {
         {/* Store Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredStores.map((store) => {
-            const status = getStoreStatus(store);
+            const _status = getStoreStatus(store);
             return (
               <div key={store.id} className="store-card bg-white p-4 rounded-xl shadow-sm border hover:shadow-md transition-shadow" data-floor={store.floor} data-category={store.category}>
                 <div className="flex items-start justify-between mb-3">

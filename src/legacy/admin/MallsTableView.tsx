@@ -1,6 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Edit, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+import { DeleteButton } from './DeleteButton';
 
 import DataTable, { Column } from '@/ui/table/DataTable';
 import TableToolbar from '@/ui/table/TableToolbar';
@@ -8,14 +10,13 @@ import Pagination from '@/ui/table/Pagination';
 import { listMalls, deleteMall } from '@/services/firebase/firestore';
 import { Mall } from '@/types/mall-system';
 
-import { DeleteButton } from './DeleteButton';
 
 interface MallsTableViewProps {
   onRefresh?: () => void;
 }
 
 // Helper function to format date safely
-const formatDate = (date: any): string => {
+const _formatDate = (date: any): string => {
   if (!date) return '—';
   
   try {
@@ -145,7 +146,7 @@ export default function MallsTableView({ onRefresh }: MallsTableViewProps) {
   }, [malls]);
 
   // Handle delete
-  const handleDelete = async (mallId: string) => {
+  const handleDelete = async (_mallId: string) => {
     try {
       await deleteMall(mallId);
       // Refresh the data

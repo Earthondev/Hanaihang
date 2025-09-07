@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+
 import { BaseButton } from '../ui/BaseButton';
 
 interface ErrorStateProps {

@@ -1,21 +1,23 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Edit, Building } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
 import DataTable, { Column } from '../table/DataTable';
 import TableToolbar from '../table/TableToolbar';
 import Pagination from '../table/Pagination';
-import { DeleteButton } from './DeleteButton';
 import { listMalls, deleteMall, listAllStores, listFloors } from '../../lib/firestore';
 import { listMallsOptimized, listAllStoresBatchOptimized, clearStoresCache, clearMallsCache } from '../../lib/optimized-firestore';
 import { Mall } from '../../types/mall-system';
 
+import { DeleteButton } from './DeleteButton';
+
 interface MallsTableViewProps {
-  stores?: { store: any; mallId: string }[];
+  stores?: { store: any; _mallId: string }[];
   onRefresh?: () => void;
 }
 
 // Helper function to format date safely
-const formatDate = (date: any): string => {
+const _formatDate = (date: any): string => {
   if (!date) return '—';
   
   try {
@@ -67,7 +69,7 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [malls, setMalls] = useState<Mall[]>([]);
-  const [stores, setStores] = useState<{ store: any; mallId: string }[]>([]);
+  const [stores, setStores] = useState<{ store: any; _mallId: string }[]>([]);
   const [mallFloors, setMallFloors] = useState<Record<string, number>>({});
   const [filteredMalls, setFilteredMalls] = useState<Mall[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -186,12 +188,12 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
   }, [malls]);
 
   // Get store count for a mall
-  const getStoreCount = (mallId: string) => {
+  const getStoreCount = (_mallId: string) => {
     return stores.filter(storeItem => storeItem.mallId === mallId).length;
   };
 
   // Handle delete
-  const handleDelete = async (mallId: string) => {
+  const handleDelete = async (_mallId: string) => {
     try {
       await deleteMall(mallId);
       // Clear cache and refresh the data

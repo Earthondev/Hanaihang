@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 
 import UnifiedSearchResults from './UnifiedSearchResults';

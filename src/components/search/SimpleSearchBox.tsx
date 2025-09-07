@@ -3,8 +3,9 @@
  * No dropdown, just triggers search on input
  */
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Search, X } from 'lucide-react';
+
 import { useLocation } from '../../contexts/LocationContext';
 import { searchRateLimiter } from '../../lib/rate-limiter';
 import { trackSearchQuery } from '../../lib/analytics';
@@ -60,7 +61,7 @@ const SimpleSearchBox: React.FC<SimpleSearchBoxProps> = ({
     }, 120); // 120ms debounce as specified
   }, [onQuery]);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((_e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
     

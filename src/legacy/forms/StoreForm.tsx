@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Form from '../../ui/form/Form';
 import TextField from '../../ui/form/fields/TextField';
-import SelectField from '../../ui/form/fields/SelectField';
 import PhoneField from '../../ui/form/fields/PhoneField';
 import TextAreaField from '../../ui/form/fields/TextAreaField';
 import FormActions from '../../ui/form/FormActions';
-import { storeSchema, StoreInput } from '@/legacy/validation/store.schema';
+
+import { storeSchemaInput } from '@/legacy/validation/store.schema';
 import { useSafeSubmit } from '@/legacy/hooks/useSafeSubmit';
 import { createStore, listMalls, listFloors } from '@/services/firebase/firestore';
-import { Mall, Floor } from '@/types/mall-system';
+import { Mall } from '@/types/mall-system';
 
 interface StoreFormProps {
   defaultValues?: Partial<StoreInput>;
@@ -52,7 +52,7 @@ export default function StoreForm({
   const form = useForm<StoreInput>({
     resolver: zodResolver(storeSchema),
     defaultValues: {
-      mallId: "",
+      _mallId: "",
       name: "",
       category: "Fashion" as any,
       floorId: "",

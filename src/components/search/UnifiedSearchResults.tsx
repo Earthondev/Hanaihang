@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Clock, Building, Store, Navigation } from 'lucide-react';
+import { MapPin, Clock, Building, Navigation } from 'lucide-react';
+
 import { UnifiedSearchResult } from '@/lib/enhanced-search';
 
 interface UnifiedSearchResultsProps {

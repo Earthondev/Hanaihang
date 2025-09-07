@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+
 import { getSearchAnalytics } from '../../lib/analytics';
 
 interface AnalyticsData {

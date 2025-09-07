@@ -3,7 +3,7 @@
  * Real-time monitoring of search performance and user behavior
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -16,6 +16,7 @@ import {
   XCircle,
   RefreshCw
 } from 'lucide-react';
+
 import { useSearchAnalytics } from '@/lib/search-analytics';
 import { usePerformanceMonitor } from '@/lib/performance-monitor';
 import { useSearchHistory } from '@/hooks/useSearchHistory';

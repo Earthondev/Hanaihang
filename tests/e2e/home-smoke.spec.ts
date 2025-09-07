@@ -26,7 +26,8 @@ test('Use my location (mocked) shows distance or reorders list', async ({ page, 
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.getByTestId('use-my-location').click();
   // ตรวจสอบว่ามีระยะทาง หรือการเรียงตามใกล้-ไกล
-  await expect(page.locator('[data-testid="mall-card"]')).toHaveCountGreaterThan(0);
+  const mallCards = page.locator('[data-testid="mall-card"]');
+  await expect(mallCards.first()).toBeVisible();
 });
 
 test('Search mall by name', async ({ page }) => {
@@ -43,6 +44,7 @@ test('Search mall by name', async ({ page }) => {
   // รอให้ผลลัพธ์แสดง
   await page.waitForSelector('[data-testid="search-results"]', { state: 'attached', timeout: 10000 });
   await page.getByTestId('search-results').waitFor({ state: 'visible', timeout: 10000 });
-  
-  await expect(page.locator('[data-testid="mall-card"]')).toHaveCountGreaterThan(0);
+
+  const searchResults = page.locator('[data-testid="mall-card"]');
+  await expect(searchResults.first()).toBeVisible();
 });
