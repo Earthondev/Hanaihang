@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/config/contexts/AuthContext';
-import { listMalls, listAllStores } from '@/services/firebase/firestore';
-import { listMallsOptimized, listAllStoresBatchOptimized, clearStoresCache, clearMallsCache, getCacheStats } from '@/lib/optimized-firestore';
-import { firebaseFirestore } from '@/services/firebaseFirestore';
+import {
+  listMallsOptimized,
+  listAllStoresBatchOptimized,
+  getCacheStats,
+} from '@/lib/optimized-firestore';
 // import MallCreateDrawer from '@/legacy/admin/MallCreateDrawer';
 // import { StoreCreateDrawer } from '@/legacy/admin/StoreCreateDrawer';
 import MallsTableView from '@/components/admin/MallsTableView';
@@ -21,7 +23,9 @@ const AdminPanel: React.FC = () => {
   // const [showStoreForm, setShowStoreForm] = useState(false);
   const [malls, setMalls] = useState<any[]>([]);
   const [stores, setStores] = useState<any[]>([]);
-  const [storesWithMallId, setStoresWithMallId] = useState<{ store: any; _mallId: string }[]>([]);
+  const [storesWithMallId, setStoresWithMallId] = useState<
+    { store: any; _mallId: string }[]
+  >([]);
   const [lastUpdated, setLastUpdated] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,26 +102,37 @@ const AdminPanel: React.FC = () => {
   const loadData = async () => {
     try {
       setLoading(true);
+      setError(null);
       console.log('🔄 Loading data...');
+      const totalStart = Date.now();
 
-      const mallsData = await listMallsOptimized();
+      // Load malls and stores in parallel for better performance
+      const [mallsData, storesData] = await Promise.all([
+        listMallsOptimized(),
+        listAllStoresBatchOptimized(),
+      ]);
 
-      // ดึงร้านค้าจากทุกห้าง (optimized)
-      const storesData = await listAllStoresBatchOptimized();
-
+      const totalTime = Date.now() - totalStart;
       console.log('📊 Malls loaded:', mallsData.length);
       console.log('📊 Stores loaded:', storesData.length);
+      console.log(`⏱️ Total loading time: ${totalTime}ms`);
+
+      // แสดงเวลาการโหลดในหน้าเว็บ
+      setLastUpdated(
+        `${new Date().toLocaleString('th-TH')} (โหลดใน ${totalTime}ms)`,
+      );
 
       setMalls(mallsData);
       // เก็บข้อมูล stores ในรูปแบบเดิมสำหรับ StoresTable
-      setStores(storesData.map(item => ({
-        ...item.store,
-        _mallId: item.mallId
-      })));
+      setStores(
+        storesData.map(item => ({
+          ...item.store,
+          _mallId: item._mallId,
+        })),
+      );
       // เก็บข้อมูล stores ในรูปแบบใหม่สำหรับ MallsTableView
       setStoresWithMallId(storesData);
-      setLastUpdated(new Date().toLocaleString('th-TH'));
-      
+
       // Log cache stats
       const cacheStats = getCacheStats();
       console.log('📦 Cache stats:', cacheStats);
@@ -261,9 +276,20 @@ const AdminPanel: React.FC = () => {
         {/* Content */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           {loading && (
-            <div className="p-6 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-              <p className="mt-2 text-gray-600">กำลังโหลดข้อมูล...</p>
+            <div className="p-6">
+              <div className="animate-pulse space-y-4">
+                <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+                <div className="space-y-3">
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                  <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                  <div className="h-32 bg-gray-200 rounded"></div>
+                  <div className="h-32 bg-gray-200 rounded"></div>
+                  <div className="h-32 bg-gray-200 rounded"></div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -307,7 +333,7 @@ const AdminPanel: React.FC = () => {
                     }}
                     className="bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98]"
                     aria-label="เปิดฟอร์มเพิ่มห้างใหม่"
-                    data-testid="open-create-mall"
+                    data-testid="add-mall-button"
                   >
                     สร้างห้าง
                   </button>

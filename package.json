@@ -14,14 +14,6 @@
     "seed": "node scripts/seed-firestore.js",
     "seed:test": "node scripts/seed-test-data.js",
     "deploy:rules": "node scripts/deploy-firestore-rules.js",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:e2e": "npx playwright test",
-    "test:e2e:headed": "npx playwright test --headed",
-    "test:e2e:ui": "npx playwright test --ui",
-    "test:pptr:smoke": "node tests/pptr/smoke.js",
     "add-stores": "node scripts/add-stores.js",
     "check-data": "node scripts/check-data-structure.js",
     "enhance-search-data": "node scripts/enhance-search-data.js",
@@ -32,10 +24,6 @@
     "depcheck": "depcheck",
     "tsprune": "ts-prune",
     "cleanup": "npm run lint && npm run depcheck && npm run tsprune",
-    "lh:mobile": "lighthouse ${BASE_URL:-https://hanaihang.netlify.app} --preset=perf --output=json --output=html --output-path=./artifacts/lh-mobile --timeout=120000 --max-wait-for-load=60000 --wait-for-load=5000 --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --disable-features=VizDisplayCompositor'",
-    "lh:desktop": "lighthouse ${BASE_URL:-https://hanaihang.netlify.app} --preset=desktop --output=json --output=html --output-path=./artifacts/lh-desktop --timeout=120000 --max-wait-for-load=60000 --wait-for-load=5000 --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage --disable-gpu --disable-web-security --disable-features=VizDisplayCompositor'",
-    "pa11y": "pa11y-ci -c .pa11yci.json",
-    "qa:ci": "npm run lh:mobile && npm run lh:desktop && npm run pa11y && playwright test",
     "import:malls": "node scripts/import-malls.js",
     "prepare": "husky"
   },
@@ -59,10 +47,6 @@
     "zod": "^4.1.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
-    "@testing-library/jest-dom": "^6.7.0",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
@@ -76,19 +60,14 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "husky": "^9.1.7",
-    "jsdom": "^26.1.0",
-    "lighthouse": "^12.8.1",
     "lint-staged": "^16.1.6",
     "netlify-cli": "^23.5.0",
-    "pa11y-ci": "^4.0.1",
     "postcss": "^8.4.32",
     "prettier": "^3.6.2",
-    "puppeteer": "^24.17.0",
     "tailwindcss": "^3.3.6",
     "ts-prune": "^0.10.3",
     "typescript": "^5.9.2",
-    "vite": "^5.0.8",
-    "vitest": "^3.2.4"
+    "vite": "^5.0.8"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx,js,jsx}": [

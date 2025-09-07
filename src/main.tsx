@@ -23,6 +23,8 @@ import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import ProtectedRoute from './legacy/components/ProtectedRoute';
 import AuthTest from './pages/AuthTest';
+import AuthDebug from './pages/AuthDebug';
+import AdminTest from './pages/AdminTest';
 import { AuthProvider } from './config/contexts/AuthContext';
 import { LocationProvider } from './contexts/LocationContext';
 import { ToastProvider } from './ui/feedback/Toast';
@@ -58,6 +60,8 @@ const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
   { path: '/forgot-password', element: <ForgotPassword /> },
   { path: '/auth-test', element: <AuthTest /> },
+  { path: '/auth-debug', element: <AuthDebug /> },
+  { path: '/admin-test', element: <AdminTest /> },
   {
     path: '/admin',
     element: (
