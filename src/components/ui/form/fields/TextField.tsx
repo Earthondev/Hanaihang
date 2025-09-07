@@ -18,19 +18,22 @@ export default function TextField({
   placeholder,
   helper,
   required = false,
-  autoComplete = "off",
-  type = "text",
-  className = ""
+  autoComplete = 'off',
+  type = 'text',
+  className = '',
 }: TextFieldProps) {
-  const { register, formState: { errors } } = useFormContext();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
   const _error = (errors as any)[name]?.message as string | undefined;
   const id = `f-${name}`;
   const helpId = helper ? `${id}-help` : undefined;
-  const errorId = error ? `${id}-error` : undefined;
-  
+  const errorId = _error ? `${id}-error` : undefined;
+
   const describedBy = [];
   if (helper) describedBy.push(helpId);
-  if (error) describedBy.push(errorId);
+  if (_error) describedBy.push(errorId);
 
   // Analytics tracking for field changes
   const handleFieldChange = (_e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,8 +44,8 @@ export default function TextField({
         custom_parameter: {
           form: 'form',
           field_name: name,
-          was_error: !!error
-        }
+          was_error: !!_error,
+        },
       });
     }
   };
@@ -56,35 +59,30 @@ export default function TextField({
       <input
         id={id}
         type={type}
-        aria-describedby={describedBy.length > 0 ? describedBy.join(' ') : undefined}
-        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={
+          describedBy.length > 0 ? describedBy.join(' ') : undefined
+        }
+        aria-invalid={_error ? 'true' : undefined}
         required={required}
         autoComplete={autoComplete}
         placeholder={placeholder}
         className={`w-full rounded-xl border px-3 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-          error 
-            ? "border-red-300 bg-red-50" 
-            : "border-gray-300 bg-white hover:border-gray-400"
+          _error
+            ? 'border-red-300 bg-red-50'
+            : 'border-gray-300 bg-white hover:border-gray-400'
         }`}
         {...register(name, {
-          onBlur: handleFieldChange
+          onBlur: handleFieldChange,
         })}
       />
       {helper && (
-        <p 
-          id={helpId} 
-          className="text-sm text-gray-500"
-        >
+        <p id={helpId} className="text-sm text-gray-500">
           {helper}
         </p>
       )}
-      {error && (
-        <p 
-          id={errorId} 
-          className="text-sm text-red-600"
-          role="alert"
-        >
-          {error}
+      {_error && (
+        <p id={errorId} className="text-sm text-red-600" role="alert">
+          {_error}
         </p>
       )}
     </div>

@@ -13,30 +13,33 @@ interface UrlFieldProps {
 export default function UrlField({
   name,
   label,
-  placeholder = "https://example.com",
+  placeholder = 'https://example.com',
   helper,
   required = false,
-  className = ""
+  className = '',
 }: UrlFieldProps) {
-  const { register, formState: { errors } } = useFormContext();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
   const _error = (errors as any)[name]?.message as string | undefined;
   const id = `f-${name}`;
   const helpId = helper ? `${id}-help` : undefined;
-  const errorId = error ? `${id}-error` : undefined;
-  
+  const errorId = _error ? `${id}-error` : undefined;
+
   const describedBy = [];
   if (helper) describedBy.push(helpId);
-  if (error) describedBy.push(errorId);
+  if (_error) describedBy.push(errorId);
 
   // Format URL
   const formatUrl = (value: string) => {
     if (!value) return value;
-    
+
     // Add https:// if no protocol
     if (!value.match(/^https?:\/\//)) {
       return `https://${value}`;
     }
-    
+
     return value;
   };
 
@@ -49,8 +52,8 @@ export default function UrlField({
         custom_parameter: {
           form: 'form',
           field_name: name,
-          was_error: !!error
-        }
+          was_error: !!_error,
+        },
       });
     }
   };
@@ -64,40 +67,35 @@ export default function UrlField({
       <input
         id={id}
         type="url"
-        aria-describedby={describedBy.length > 0 ? describedBy.join(' ') : undefined}
-        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={
+          describedBy.length > 0 ? describedBy.join(' ') : undefined
+        }
+        aria-invalid={_error ? 'true' : undefined}
         required={required}
         autoComplete="url"
         placeholder={placeholder}
         className={`w-full rounded-xl border px-3 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-          error 
-            ? "border-red-300 bg-red-50" 
-            : "border-gray-300 bg-white hover:border-gray-400"
+          _error
+            ? 'border-red-300 bg-red-50'
+            : 'border-gray-300 bg-white hover:border-gray-400'
         }`}
         {...register(name, {
-          onBlur: (e) => {
+          onBlur: e => {
             // Format the URL
             const formatted = formatUrl(e.target.value);
             e.target.value = formatted;
             handleFieldChange(e);
-          }
+          },
         })}
       />
       {helper && (
-        <p 
-          id={helpId} 
-          className="text-sm text-gray-500"
-        >
+        <p id={helpId} className="text-sm text-gray-500">
           {helper}
         </p>
       )}
-      {error && (
-        <p 
-          id={errorId} 
-          className="text-sm text-red-600"
-          role="alert"
-        >
-          {error}
+      {_error && (
+        <p id={errorId} className="text-sm text-red-600" role="alert">
+          {_error}
         </p>
       )}
     </div>

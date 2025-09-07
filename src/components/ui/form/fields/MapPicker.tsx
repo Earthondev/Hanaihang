@@ -10,17 +10,21 @@ interface MapPickerProps {
   className?: string;
 }
 
-export default function MapPicker({ 
-  name, 
-  label, 
-  required = false, 
+export default function MapPicker({
+  name,
+  label,
+  required = false,
   helper,
-  className = "" 
+  className = '',
 }: MapPickerProps) {
-  const { register, setValue, watch, formState: { errors } } = useFormContext();
+  const {
+    register,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext();
   const [isMapVisible, setIsMapVisible] = useState(false);
-  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
-  
+
   const location = watch(name);
   const _error = errors[name]?.message as string;
 
@@ -28,14 +32,13 @@ export default function MapPicker({
   const getUserLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        position => {
           const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude });
           setValue(name, { lat: latitude, lng: longitude });
         },
-        (error) => {
+        error => {
           console.error('Error getting location:', error);
-        }
+        },
       );
     }
   };
@@ -59,7 +62,10 @@ export default function MapPicker({
           <div className="text-sm text-gray-600">
             {location ? (
               <div>
-                <p>พิกัดที่เลือก: {location.lat?.toFixed(6)}, {location.lng?.toFixed(6)}</p>
+                <p>
+                  พิกัดที่เลือก: {location.lat?.toFixed(6)},{' '}
+                  {location.lng?.toFixed(6)}
+                </p>
                 <button
                   type="button"
                   onClick={() => setValue(name, null)}
@@ -83,7 +89,7 @@ export default function MapPicker({
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
-      
+
       <div className="space-y-2">
         <div className="grid grid-cols-2 gap-2">
           <input
@@ -101,7 +107,7 @@ export default function MapPicker({
             className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
-        
+
         <button
           type="button"
           onClick={() => setIsMapVisible(!isMapVisible)}
@@ -109,19 +115,23 @@ export default function MapPicker({
         >
           {isMapVisible ? 'ซ่อนแผนที่' : 'แสดงแผนที่เลือกพิกัด'}
         </button>
-        
+
         {isMapVisible && <MapComponent />}
       </div>
-      
+
       {helper && (
         <p className="mt-1 text-sm text-gray-500" id={`${name}-helper`}>
           {helper}
         </p>
       )}
-      
-      {error && (
-        <p className="mt-1 text-sm text-red-600" role="alert" id={`${name}-error`}>
-          {error}
+
+      {_error && (
+        <p
+          className="mt-1 text-sm text-red-600"
+          role="alert"
+          id={`${name}-error`}
+        >
+          {_error}
         </p>
       )}
     </div>

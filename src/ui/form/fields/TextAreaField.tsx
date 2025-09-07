@@ -1,6 +1,8 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
+// Cache bust timestamp: 2025-01-07T05:30:00Z
+
 interface TextAreaFieldProps {
   name: string;
   label: string;
@@ -20,23 +22,27 @@ export default function TextAreaField({
   required = false,
   rows = 3,
   maxLength,
-  className = ""
+  className = '',
 }: TextAreaFieldProps) {
-  const { register, formState: { errors }, watch } = useFormContext();
+  const {
+    register,
+    formState: { errors },
+    watch,
+  } = useFormContext();
   const _error = (errors as any)[name]?.message as string | undefined;
   const value = watch(name);
   const id = `f-${name}`;
   const helpId = helper ? `${id}-help` : undefined;
-  const errorId = error ? `${id}-error` : undefined;
+  const errorId = _error ? `${id}-error` : undefined;
   const counterId = maxLength ? `${id}-counter` : undefined;
-  
+
   const describedBy = [];
   if (helper) describedBy.push(helpId);
-  if (error) describedBy.push(errorId);
+  if (_error) describedBy.push(errorId);
   if (maxLength) describedBy.push(counterId);
 
   // Analytics tracking for field changes
-  const handleFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleFieldChange = (_e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', 'form_field_change', {
         event_category: 'form_actions',
@@ -44,8 +50,8 @@ export default function TextAreaField({
         custom_parameter: {
           form: 'form',
           field_name: name,
-          was_error: !!error
-        }
+          was_error: !!_error,
+        },
       });
     }
   };
@@ -60,35 +66,30 @@ export default function TextAreaField({
         id={id}
         rows={rows}
         maxLength={maxLength}
-        aria-describedby={describedBy.length > 0 ? describedBy.join(' ') : undefined}
-        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={
+          describedBy.length > 0 ? describedBy.join(' ') : undefined
+        }
+        aria-invalid={_error ? 'true' : undefined}
         required={required}
         placeholder={placeholder}
         className={`w-full rounded-xl border px-3 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none ${
-          error 
-            ? "border-red-300 bg-red-50" 
-            : "border-gray-300 bg-white hover:border-gray-400"
+          _error
+            ? 'border-red-300 bg-red-50'
+            : 'border-gray-300 bg-white hover:border-gray-400'
         }`}
         {...register(name, {
-          onBlur: handleFieldChange
+          onBlur: handleFieldChange,
         })}
       />
       <div className="flex justify-between items-center">
         {helper && (
-          <p 
-            id={helpId} 
-            className="text-sm text-gray-500"
-          >
+          <p id={helpId} className="text-sm text-gray-500">
             {helper}
           </p>
         )}
-        {error && (
-          <p 
-            id={errorId} 
-            className="text-sm text-red-600"
-            role="alert"
-          >
-            {error}
+        {_error && (
+          <p id={errorId} className="text-sm text-red-600" role="alert">
+            {_error}
           </p>
         )}
         {maxLength && (
