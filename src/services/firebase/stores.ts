@@ -48,7 +48,7 @@ function convertTimestamps<T extends { createdAt?: any; updatedAt?: any }>(data:
  * Path: malls/{mallId}/stores
  */
 export async function listStores(
-  _mallId: string, 
+  mallId: string, 
   filters?: {
     floorId?: string;
     category?: string;
@@ -95,7 +95,7 @@ export async function listStores(
  * ดึงข้อมูลร้านตาม ID ในห้างเดียว
  * Path: malls/{mallId}/stores/{storeId}
  */
-export async function getStore(_mallId: string, storeId: string): Promise<Store | null> {
+export async function getStore(mallId: string, storeId: string): Promise<Store | null> {
   const docRef = storeDoc(mallId, storeId);
   const docSnap = await getDoc(docRef);
   
@@ -113,7 +113,7 @@ export async function getStore(_mallId: string, storeId: string): Promise<Store 
  * สร้างร้านใหม่ในห้าง
  * Path: malls/{mallId}/stores/{storeId}
  */
-export async function createStore(_mallId: string, data: StoreFormData): Promise<string> {
+export async function createStore(mallId: string, data: StoreFormData): Promise<string> {
   const now = serverTimestamp();
   
   const storeData = {
@@ -145,7 +145,7 @@ export async function createStore(_mallId: string, data: StoreFormData): Promise
  * Path: malls/{mallId}/stores/{storeId}
  */
 export async function updateStore(
-  _mallId: string, 
+  mallId: string, 
   storeId: string, 
   data: Partial<Store>
 ): Promise<void> {
@@ -175,7 +175,7 @@ export async function updateStore(
  * ลบร้าน
  * Path: malls/{mallId}/stores/{storeId}
  */
-export async function deleteStore(_mallId: string, storeId: string): Promise<void> {
+export async function deleteStore(mallId: string, storeId: string): Promise<void> {
   const docRef = storeDoc(mallId, storeId);
   await deleteDoc(docRef);
   
@@ -301,7 +301,7 @@ function extractMallIdFromPath(path: string): string | null {
 /**
  * Update mall store count
  */
-async function updateMallStoreCount(_mallId: string): Promise<void> {
+async function updateMallStoreCount(mallId: string): Promise<void> {
   try {
     const stores = await listStores(mallId);
     const mallRef = storeDoc(mallId, 'dummy').parent.parent; // Get mall ref
