@@ -1,0 +1,79 @@
+name: Verify Build Info
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify-build-info:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Generate build info
+        run: npm run prebuild
+        
+      - name: Verify build.json exists
+        run: |
+          if [ ! -f "public/build.json" ]; then
+            echo "❌ public/build.json not found!"
+            exit 1
+          fi
+          echo "✅ public/build.json exists"
+          
+      - name: Verify build.json is valid JSON
+        run: |
+          if ! node -e "JSON.parse(require('fs').readFileSync('public/build.json','utf8'))" 2>/dev/null; then
+            echo "❌ public/build.json is not valid JSON!"
+            exit 1
+          fi
+          echo "✅ public/build.json is valid JSON"
+          
+      - name: Verify required fields
+        run: |
+          node -e "
+            const buildInfo = JSON.parse(require('fs').readFileSync('public/build.json','utf8'));
+            const required = ['version', 'sha', 'branch', 'timestamp', 'buildId', 'context'];
+            const missing = required.filter(field => !buildInfo[field]);
+            if (missing.length > 0) {
+              console.error('❌ Missing required fields:', missing.join(', '));
+              process.exit(1);
+            }
+            console.log('✅ All required fields present');
+            console.log('Build Info:', JSON.stringify(buildInfo, null, 2));
+          "
+          
+      - name: Test build process
+        run: |
+          echo "Testing full build process..."
+          npm run build
+          echo "✅ Build completed successfully"
+          
+      - name: Verify build artifacts
+        run: |
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ dist/index.html not found!"
+            exit 1
+          fi
+          echo "✅ Build artifacts generated"
+          
+      - name: Check meta tags in built HTML
+        run: |
+          if ! grep -q "app-version\|git-sha\|build-time" dist/index.html; then
+            echo "❌ Build info meta tags not found in dist/index.html!"
+            exit 1
+          fi
+          echo "✅ Build info meta tags found in HTML"

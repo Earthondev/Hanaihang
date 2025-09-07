@@ -3,44 +3,62 @@
 /**
  * Generate Build Information
  * Creates build metadata for deployment tracking
+ * Supports both local development and Netlify deployment
  */
 
-import { writeFileSync } from 'fs';
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-try {
-  // Get git SHA (short)
-  const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
-  
-  // Get package version
-  const packageJson = JSON.parse(execSync('cat package.json', { encoding: 'utf8' }));
-  const version = packageJson.version;
-  
-  // Get current timestamp
-  const time = new Date().toISOString();
-  
-  // Create build info object
-  const buildInfo = {
-    version,
-    sha,
-    time,
-    timestamp: Date.now(),
-    buildId: `${version}-${sha}-${Date.now()}`
-  };
-  
-  // Write to public directory for static access
-  writeFileSync('public/build.json', JSON.stringify(buildInfo, null, 2));
-  
-  // Also write to dist for production
-  writeFileSync('dist/build.json', JSON.stringify(buildInfo, null, 2));
-  
-  console.log('✅ Build info generated:');
-  console.log(`   Version: ${version}`);
-  console.log(`   Git SHA: ${sha}`);
-  console.log(`   Build Time: ${time}`);
-  console.log(`   Build ID: ${buildInfo.buildId}`);
-  
-} catch (error) {
-  console.error('❌ Error generating build info:', error.message);
-  process.exit(1);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const out = `${process.cwd()}/public/build.json`;
+
+function safe(cmd, fallback = 'unknown') {
+  try { 
+    return execSync(cmd, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); 
+  } catch { 
+    return fallback; 
+  }
 }
+
+// Netlify environment variables: https://docs.netlify.com/configure-builds/environment-variables/
+const NETLIFY = process.env.NETLIFY === 'true';
+const commit = process.env.COMMIT_REF || safe('git rev-parse --short HEAD');
+const branch = process.env.BRANCH || safe('git rev-parse --abbrev-ref HEAD');
+const repoUrl = process.env.REPOSITORY_URL || 'https://github.com/Earthondev/Hanaihang';
+const buildId = process.env.DEPLOY_ID || `${Date.now()}`;
+const context = process.env.CONTEXT || (NETLIFY ? 'production' : 'local');
+const version = process.env.npm_package_version || '0.0.0';
+const timestamp = new Date().toISOString();
+
+const payload = {
+  version,
+  sha: commit,
+  branch,
+  timestamp,
+  buildId,
+  context,
+  repo: repoUrl,
+  // Runtime information for debugging
+  runtime: {
+    node: process.version,
+    netlify: NETLIFY,
+    platform: process.platform,
+    arch: process.arch
+  }
+};
+
+// Ensure directory exists
+mkdirSync(dirname(out), { recursive: true });
+
+// Write build info
+writeFileSync(out, JSON.stringify(payload, null, 2));
+
+console.log(`[build-info] Generated ${out}`);
+console.log(`[build-info] Version: ${version}`);
+console.log(`[build-info] SHA: ${commit}`);
+console.log(`[build-info] Branch: ${branch}`);
+console.log(`[build-info] Context: ${context}`);
+console.log(`[build-info] Build ID: ${buildId}`);
+console.log(`[build-info] Netlify: ${NETLIFY}`);

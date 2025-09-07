@@ -37,3 +37,8 @@
   Cache-Control: public, max-age=31536000, immutable
 /*.webp
   Cache-Control: public, max-age=31536000, immutable
+
+# Build info - ห้ามแคช!
+/build.json
+  Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0
+  Content-Type: application/json; charset=utf-8

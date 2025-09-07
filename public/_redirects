@@ -1,7 +1,12 @@
-/*  /index.html  200
+# Build info - ห้าม redirect!
+/build.json  /build.json  200
+/status.html  /status.html  200
 
 # Handle React Router routes
 /malls/*  /index.html  200
 /admin/*  /index.html  200
 /search  /index.html  200
 /login  /index.html  200
+
+# SPA fallback - ต้องอยู่ท้ายสุด!
+/*  /index.html  200
