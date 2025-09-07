@@ -54,6 +54,7 @@ const Home: React.FC = () => {
   const [storeResults] = useState<
     (StoreType & { mallName?: string; mallSlug?: string })[]
   >([]);
+  const [isDistanceReady, setIsDistanceReady] = useState(false);
 
   // Load malls from Firebase
   useEffect(() => {
@@ -135,6 +136,13 @@ const Home: React.FC = () => {
         return 0;
       });
   }, [results, userLoc]);
+
+  // Set distance ready after calculation
+  useEffect(() => {
+    if (withDistance.length > 0) {
+      setIsDistanceReady(true);
+    }
+  }, [withDistance]);
 
   // Helper function to check if mall is currently open
   const isMallOpen = (mall: any) => {
@@ -516,7 +524,7 @@ const Home: React.FC = () => {
               }}
             />
           ) : results.length > 0 ? (
-            <div>
+            <div data-testid="search-results">
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-2xl font-semibold text-text-primary font-kanit">
@@ -712,12 +720,17 @@ const Home: React.FC = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               <span className="text-lg">🚗</span>
-                              <span className="text-primary font-semibold text-sm font-prompt">
-                                {mall.distanceKm != null
+                              <span
+                                data-testid="distance"
+                                className="text-primary font-semibold text-sm font-prompt"
+                              >
+                                {isDistanceReady && mall.distanceKm != null
                                   ? mall.distanceKm < 1
                                     ? `${Math.round(mall.distanceKm * 1000)} ม.`
                                     : `${mall.distanceKm.toFixed(1)} กม.`
-                                  : 'ไม่ทราบระยะทาง'}
+                                  : isDistanceReady
+                                    ? 'ไม่ทราบระยะทาง'
+                                    : '...'}
                               </span>
                             </div>
 

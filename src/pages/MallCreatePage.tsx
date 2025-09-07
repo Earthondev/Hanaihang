@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, MapPin, Clock, Phone, Globe, Users } from 'lucide-react';
+import {
+  ArrowLeft,
+  Building2,
+  MapPin,
+  Clock,
+  Phone,
+  Users,
+} from 'lucide-react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -8,7 +15,7 @@ import { createMall } from '../services/firebase/firestore';
 import { mallSchema, MallInput } from '../legacy/validation/mall.schema';
 import { useSafeSubmit } from '../legacy/hooks/useSafeSubmit';
 import TextField from '../components/ui/form/fields/TextField';
-import SelectField from '../components/ui/form/fields/SelectField';
+// import SelectField from '../components/ui/form/fields/SelectField';
 import PhoneField from '../components/ui/form/fields/PhoneField';
 import UrlField from '../components/ui/form/fields/UrlField';
 import MapPicker from '../components/ui/form/fields/MapPicker';
@@ -24,8 +31,8 @@ const MallCreatePage: React.FC = () => {
 
   const { isLoading, run } = useSafeSubmit({
     formName: 'mall_create',
-    successMessage: "สร้างห้างสรรพสินค้าสำเร็จ 🎉",
-    errorMessage: "ไม่สามารถสร้างห้างสรรพสินค้าได้"
+    successMessage: 'สร้างห้างสรรพสินค้าสำเร็จ 🎉',
+    errorMessage: 'ไม่สามารถสร้างห้างสรรพสินค้าได้',
   });
 
   const form = useForm<MallInput>({
@@ -42,7 +49,7 @@ const MallCreatePage: React.FC = () => {
       lng: undefined,
       openTime: '10:00',
       closeTime: '22:00',
-    }
+    },
   });
 
   const handleSubmit = async (values: MallInput) => {
@@ -69,7 +76,11 @@ const MallCreatePage: React.FC = () => {
 
   const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value.trim();
-    if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
+    if (
+      value &&
+      !value.startsWith('http://') &&
+      !value.startsWith('https://')
+    ) {
       form.setValue('website', `https://${value}`);
     }
   };
@@ -98,8 +109,12 @@ const MallCreatePage: React.FC = () => {
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">สร้างห้างสรรพสินค้าใหม่</h1>
-                <p className="text-sm text-gray-600">เพิ่มห้างสรรพสินค้าใหม่เข้าสู่ระบบ</p>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  สร้างห้างสรรพสินค้าใหม่
+                </h1>
+                <p className="text-sm text-gray-600">
+                  เพิ่มห้างสรรพสินค้าใหม่เข้าสู่ระบบ
+                </p>
               </div>
             </div>
           </div>
@@ -109,15 +124,20 @@ const MallCreatePage: React.FC = () => {
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-            
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-8"
+            aria-busy={isLoading ? 'true' : 'false'}
+          >
             {/* Basic Information */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <Building2 className="w-6 h-6 text-green-600" />
-                <h2 className="text-lg font-semibold text-gray-900">ข้อมูลพื้นฐาน</h2>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  ข้อมูลพื้นฐาน
+                </h2>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <TextField
                   name="displayName"
@@ -140,9 +160,11 @@ const MallCreatePage: React.FC = () => {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <MapPin className="w-6 h-6 text-blue-600" />
-                <h2 className="text-lg font-semibold text-gray-900">ข้อมูลที่ตั้ง</h2>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  ข้อมูลที่ตั้ง
+                </h2>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <TextField
                   name="address"
@@ -174,9 +196,11 @@ const MallCreatePage: React.FC = () => {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <Phone className="w-6 h-6 text-purple-600" />
-                <h2 className="text-lg font-semibold text-gray-900">ข้อมูลการติดต่อ</h2>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  ข้อมูลการติดต่อ
+                </h2>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <PhoneField
                   name="phone"
@@ -208,9 +232,11 @@ const MallCreatePage: React.FC = () => {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <Clock className="w-6 h-6 text-orange-600" />
-                <h2 className="text-lg font-semibold text-gray-900">เวลาเปิด-ปิดทำการ</h2>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  เวลาเปิด-ปิดทำการ
+                </h2>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <Switch
@@ -249,9 +275,11 @@ const MallCreatePage: React.FC = () => {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <Users className="w-6 h-6 text-indigo-600" />
-                <h2 className="text-lg font-semibold text-gray-900">โลโก้ห้างสรรพสินค้า</h2>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  โลโก้ห้างสรรพสินค้า
+                </h2>
               </div>
-              
+
               <LogoUpload
                 mallId="new"
                 currentLogoUrl={logoUrl}
@@ -267,6 +295,7 @@ const MallCreatePage: React.FC = () => {
                   variant="outline"
                   onClick={() => navigate('/admin?tab=malls')}
                   disabled={isLoading}
+                  data-testid="cancel-button"
                 >
                   ยกเลิก
                 </BaseButton>
@@ -275,8 +304,9 @@ const MallCreatePage: React.FC = () => {
                   variant="primary"
                   loading={isLoading}
                   disabled={isLoading}
+                  data-testid="submit-mall-button"
                 >
-                  {isLoading ? "กำลังสร้าง..." : "สร้างห้างสรรพสินค้า"}
+                  {isLoading ? 'กำลังสร้าง...' : 'สร้างห้างสรรพสินค้า'}
                 </BaseButton>
               </div>
             </div>

@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:test": "vite --port 5174 --strictPort",
     "build": "tsc && vite build",
     "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\"",
     "fix": "npm run lint -- --fix && prettier -w .",
     "preview": "vite preview",
     "seed": "node scripts/seed-firestore.js",
+    "seed:test": "node scripts/seed-test-data.js",
     "deploy:rules": "node scripts/deploy-firestore-rules.js",
     "test": "vitest",
     "test:ui": "vitest --ui",
