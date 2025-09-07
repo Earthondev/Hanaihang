@@ -8,7 +8,7 @@
     "dev:test": "vite --port 5174 --strictPort",
     "prebuild": "node scripts/gen-build-info.mjs",
     "build": "vite build",
-    "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\"",
+    "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --max-warnings=0",
     "fix": "npm run lint -- --fix && prettier -w .",
     "preview": "vite preview",
     "seed": "node scripts/seed-firestore.js",
@@ -78,7 +78,7 @@
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
     "lighthouse": "^12.8.1",
-    "lint-staged": "^16.1.5",
+    "lint-staged": "^16.1.6",
     "netlify-cli": "^23.5.0",
     "pa11y-ci": "^4.0.1",
     "postcss": "^8.4.32",
@@ -91,8 +91,11 @@
     "vitest": "^3.2.4"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx,js,jsx,json,css,md}": [
-      "eslint --fix",
+    "src/**/*.{ts,tsx,js,jsx}": [
+      "eslint --fix --max-warnings=0",
+      "prettier -w"
+    ],
+    "src/**/*.{json,css,md}": [
       "prettier -w"
     ]
   }
