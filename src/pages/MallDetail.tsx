@@ -354,6 +354,107 @@ export default function MallDetail() {
 
           {/* Main Content Area */}
           <div className="flex-1">
+            {/* Mall Info Section */}
+            <div className="bg-white rounded-2xl shadow-sm border p-6 mb-6">
+              <div className="flex flex-col lg:flex-row gap-6">
+                {/* Mall Basic Info */}
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{mall.displayName || mall.name}</h1>
+                  {mall.address && (
+                    <p className="text-gray-600 mb-4 flex items-start">
+                      <span className="mr-2">📍</span>
+                      {mall.address}
+                    </p>
+                  )}
+                  
+                  {/* Mall Hours */}
+                  {mall.hours && (
+                    <div className="mb-4">
+                      <h3 className="font-semibold text-gray-900 mb-2">เวลาเปิด-ปิด</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                        {mall.hours.openTime && (
+                          <div className="flex items-center text-gray-600">
+                            <span className="mr-2">🕐</span>
+                            เปิด: {mall.hours.openTime}
+                          </div>
+                        )}
+                        {mall.hours.closeTime && (
+                          <div className="flex items-center text-gray-600">
+                            <span className="mr-2">🕐</span>
+                            ปิด: {mall.hours.closeTime}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Contact Info */}
+                  {(mall.phone || mall.contact?.phone) && (
+                    <div className="mb-4">
+                      <h3 className="font-semibold text-gray-900 mb-2">ข้อมูลติดต่อ</h3>
+                      <div className="flex items-center text-gray-600">
+                        <span className="mr-2">📞</span>
+                        {mall.phone || mall.contact?.phone}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex flex-col space-y-3 lg:w-80">
+                  {/* Google Maps Button */}
+                  {mall.coords && (
+                    <button
+                      onClick={() => {
+                        const { lat, lng } = mall.coords!;
+                        const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                        window.open(googleMapsUrl, '_blank');
+                      }}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl font-medium transition-colors flex items-center justify-center space-x-2"
+                    >
+                      <span>🗺️</span>
+                      <span>ดูตำแหน่งบน Google Maps</span>
+                    </button>
+                  )}
+                  
+                  {/* Directions Button */}
+                  {mall.coords && (
+                    <button
+                      onClick={() => {
+                        const { lat, lng } = mall.coords!;
+                        const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                        window.open(directionsUrl, '_blank');
+                      }}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-xl font-medium transition-colors flex items-center justify-center space-x-2"
+                    >
+                      <span>🧭</span>
+                      <span>เส้นทางไปยังห้าง</span>
+                    </button>
+                  )}
+                  
+                  {/* Share Button */}
+                  <button
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: mall.displayName || mall.name,
+                          text: `ห้าง ${mall.displayName || mall.name}`,
+                          url: window.location.href
+                        });
+                      } else {
+                        navigator.clipboard.writeText(window.location.href);
+                        // You can add a toast notification here
+                      }
+                    }}
+                    className="w-full border border-gray-300 text-gray-600 hover:bg-gray-50 py-3 px-4 rounded-xl font-medium transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <span>📤</span>
+                    <span>แชร์ห้างนี้</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* Results Header */}
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -566,7 +667,18 @@ function StoreCard({ store, floorLabel }: { store: Store; floorLabel: string }) 
            </button>
          </div>
          <div className="flex space-x-2">
-           <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-xl text-sm font-medium transition-colors">
+           <button 
+             onClick={() => {
+               // You can add store-specific location logic here
+               // For now, we'll use the mall's coordinates
+               if (store.coords) {
+                 const { lat, lng } = store.coords;
+                 const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                 window.open(googleMapsUrl, '_blank');
+               }
+             }}
+             className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-xl text-sm font-medium transition-colors"
+           >
              ดูตำแหน่งบนแผนที่
            </button>
            <button className="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
