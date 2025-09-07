@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, AlertCircle } from 'lucide-react';
+import { X, Save } from 'lucide-react';
+
 import { Store, StoreCategory, StoreStatus } from '@/types/mall-system';
-import { firebaseFirestore } from '@/services/firebaseFirestore';
 import { updateStore } from '@/services/firebase/firestore';
 import { getMall } from '@/lib/malls';
 import { listFloors } from '@/services/firebase/firestore';
@@ -18,7 +18,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
   isOpen,
   onClose,
   store,
-  onSuccess
+  onSuccess,
 }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -27,7 +27,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
     unit: '',
     phone: '',
     hours: '',
-    status: 'Active' as StoreStatus
+    status: 'Active' as StoreStatus,
   });
   const [loading, setLoading] = useState(false);
   const [floors, setFloors] = useState<any[]>([]);
@@ -43,7 +43,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
         unit: store.unit || '',
         phone: store.phone || '',
         hours: store.hours || '',
-        status: store.status || 'Active'
+        status: store.status || 'Active',
       });
 
       // Load mall and floors data
@@ -52,7 +52,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
           if (store.mallId) {
             const [mallData, floorsData] = await Promise.all([
               getMall(store.mallId),
-              listFloors(store.mallId)
+              listFloors(store.mallId),
             ]);
             setMall(mallData);
             setFloors(floorsData);
@@ -69,13 +69,13 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!store || !store.mallId) {
       toast.error('ไม่พบข้อมูลร้านค้า');
       return;
@@ -87,19 +87,20 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
       // Get mall data for denormalization
       const mallData = await getMall(store.mallId);
       const mallCoords = mallData?.location ?? mallData?.coords ?? null;
-      
+
       // Get floor data for denormalization
       const selectedFloor = floors.find(f => f.id === formData.floorId);
-      const floorLabel = selectedFloor?.name ?? selectedFloor?.label ?? formData.floorId;
-      
+      const floorLabel =
+        selectedFloor?.name ?? selectedFloor?.label ?? formData.floorId;
+
       // Prepare update data with denormalized fields
       const updateData = {
         ...formData,
         category: formData.category as StoreCategory,
         mallCoords,
         floorLabel,
-        updatedAt: new Date()
-      };
+        updatedAt: new Date(),
+      } as any;
 
       // Update store in Firebase
       await updateStore(store.mallId, store.id, updateData);
@@ -120,18 +121,20 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onClose}
       />
-      
+
       {/* Drawer */}
       <div className="absolute right-0 top-0 h-full w-full max-w-2xl bg-white shadow-xl transform transition-transform">
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">แก้ไขร้านค้า</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                แก้ไขร้านค้า
+              </h2>
               <p className="text-sm text-gray-600 mt-1">
                 {store.name} • {mall?.displayName || 'กำลังโหลด...'}
               </p>
@@ -155,7 +158,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  onChange={e => handleInputChange('name', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   required
                 />
@@ -168,7 +171,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
                 </label>
                 <select
                   value={formData.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
+                  onChange={e => handleInputChange('category', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   required
                 >
@@ -193,12 +196,12 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
                 </label>
                 <select
                   value={formData.floorId}
-                  onChange={(e) => handleInputChange('floorId', e.target.value)}
+                  onChange={e => handleInputChange('floorId', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   required
                 >
                   <option value="">เลือกชั้น</option>
-                  {floors.map((floor) => (
+                  {floors.map(floor => (
                     <option key={floor.id} value={floor.id}>
                       {floor.name || floor.label || floor.id}
                     </option>
@@ -214,7 +217,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
                 <input
                   type="text"
                   value={formData.unit}
-                  onChange={(e) => handleInputChange('unit', e.target.value)}
+                  onChange={e => handleInputChange('unit', e.target.value)}
                   placeholder="เช่น A101, B205"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
@@ -228,7 +231,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
                 <input
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  onChange={e => handleInputChange('phone', e.target.value)}
                   placeholder="เช่น 02-123-4567"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
@@ -242,7 +245,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
                 <input
                   type="text"
                   value={formData.hours}
-                  onChange={(e) => handleInputChange('hours', e.target.value)}
+                  onChange={e => handleInputChange('hours', e.target.value)}
                   placeholder="เช่น 10:00-22:00"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
@@ -255,7 +258,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
                 </label>
                 <select
                   value={formData.status}
-                  onChange={(e) => handleInputChange('status', e.target.value)}
+                  onChange={e => handleInputChange('status', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   required
                 >

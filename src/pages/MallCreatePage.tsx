@@ -45,14 +45,13 @@ const MallCreatePage: React.FC = () => {
       phone: '',
       website: '',
       social: '',
-      lat: undefined,
-      lng: undefined,
+      location: { lat: 0, lng: 0 },
       openTime: '10:00',
       closeTime: '22:00',
     },
   });
 
-  const handleSubmit = async (values: MallInput) => {
+  const handleSubmit = async (values: any) => {
     await run(async () => {
       const mallData = {
         displayName: values.displayName,
@@ -62,8 +61,7 @@ const MallCreatePage: React.FC = () => {
         phone: values.phone,
         website: values.website,
         social: values.social,
-        lat: values.lat,
-        lng: values.lng,
+        location: values.location,
         openTime: values.openTime,
         closeTime: values.closeTime,
         logoUrl: logoUrl,
@@ -72,17 +70,6 @@ const MallCreatePage: React.FC = () => {
       await createMall(mallData);
       navigate('/admin?tab=malls');
     });
-  };
-
-  const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const value = e.target.value.trim();
-    if (
-      value &&
-      !value.startsWith('http://') &&
-      !value.startsWith('https://')
-    ) {
-      form.setValue('website', `https://${value}`);
-    }
   };
 
   // Helper function to create slug
@@ -214,7 +201,6 @@ const MallCreatePage: React.FC = () => {
                   label="เว็บไซต์"
                   placeholder="https://www.central.co.th"
                   helper="เว็บไซต์ของห้าง"
-                  onBlur={handleWebsiteBlur}
                 />
               </div>
 
@@ -241,7 +227,7 @@ const MallCreatePage: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <Switch
                     checked={isEveryday}
-                    onChange={setIsEveryday}
+                    onCheckedChange={setIsEveryday}
                     label="เปิดทุกวัน"
                   />
                 </div>

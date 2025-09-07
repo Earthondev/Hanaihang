@@ -10,7 +10,7 @@ interface StoreCardProps {
   distance?: number;
   showMallName?: boolean;
   showDistance?: boolean;
-  userLocation?: {lat: number, lng: number};
+  userLocation?: { lat: number; lng: number };
   onClick?: () => void;
   className?: string;
 }
@@ -23,7 +23,7 @@ const StoreCard: React.FC<StoreCardProps> = ({
   showDistance = false,
   userLocation,
   onClick,
-  className = ""
+  className = '',
 }) => {
   const [resolvedData, setResolvedData] = useState<{
     mallName: string;
@@ -34,15 +34,15 @@ const StoreCard: React.FC<StoreCardProps> = ({
   // Resolve store data using the new system
   useEffect(() => {
     let alive = true;
-    
+
     const resolveData = async () => {
       try {
-        const resolved = await resolveStoreComputed(store, userLocation);
+        const resolved = await resolveStoreComputed(store as any, userLocation);
         if (alive) {
           setResolvedData({
             mallName: resolved.mallName,
             floorLabel: resolved.floorLabel,
-            distanceKm: resolved.distanceKm
+            distanceKm: resolved.distanceKm,
           });
         }
       } catch (error) {
@@ -51,8 +51,10 @@ const StoreCard: React.FC<StoreCardProps> = ({
     };
 
     resolveData();
-    
-    return () => { alive = false; };
+
+    return () => {
+      alive = false;
+    };
   }, [store.id, userLocation?.lat, userLocation?.lng]);
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -126,7 +128,7 @@ const StoreCard: React.FC<StoreCardProps> = ({
               {store.name}
             </h3>
           </div>
-          
+
           {showMallName && (
             <p className="text-sm text-gray-600 mb-1">
               {resolvedData?.mallName || mall?.displayName || store.mallSlug}
@@ -135,10 +137,12 @@ const StoreCard: React.FC<StoreCardProps> = ({
         </div>
 
         {/* Status Badge */}
-        <span className={`
+        <span
+          className={`
           inline-flex px-2 py-1 text-xs font-semibold rounded-full
           ${getStatusColor(store.status)}
-        `}>
+        `}
+        >
           {getStatusText(store.status)}
         </span>
       </div>
@@ -148,36 +152,69 @@ const StoreCard: React.FC<StoreCardProps> = ({
         <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
           {store.category}
         </span>
-        
+
         <div className="text-sm text-gray-600">
-          {resolvedData?.floorLabel ? `ชั้น ${resolvedData.floorLabel}` : `ชั้น ${store.floorId}`} {store.unit && `ยูนิต ${store.unit}`}
+          {resolvedData?.floorLabel
+            ? `ชั้น ${resolvedData.floorLabel}`
+            : `ชั้น ${store.floorId}`}{' '}
+          {store.unit && `ยูนิต ${store.unit}`}
         </div>
       </div>
 
       {/* Distance & Hours */}
       <div className="flex items-center justify-between text-sm text-gray-500">
         <div className="flex items-center space-x-4">
-          {(showDistance && resolvedData?.distanceKm !== null) && (
+          {showDistance && resolvedData?.distanceKm !== null && (
             <div className="flex items-center space-x-1">
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <svg
+                className="w-4 h-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
               </svg>
               <span>{formatDistance(resolvedData.distanceKm!)}</span>
             </div>
           )}
           {distance !== undefined && !showDistance && (
             <div className="flex items-center space-x-1">
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <svg
+                className="w-4 h-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
               </svg>
               <span>{formatDistance(distance)}</span>
             </div>
           )}
-          
+
           {store.hours && (
             <div className="flex items-center space-x-1">
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              <svg
+                className="w-4 h-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               <span>{store.hours}</span>
             </div>
@@ -186,8 +223,18 @@ const StoreCard: React.FC<StoreCardProps> = ({
 
         {store.phone && (
           <div className="flex items-center space-x-1">
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+            <svg
+              className="w-4 h-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+              />
             </svg>
             <span>{store.phone}</span>
           </div>
@@ -199,8 +246,18 @@ const StoreCard: React.FC<StoreCardProps> = ({
         <div className="mt-3 pt-3 border-t border-gray-100">
           <div className="flex items-center justify-center text-sm text-gray-400">
             <span>คลิกเพื่อดูรายละเอียด</span>
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+            <svg
+              className="w-4 h-4 ml-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 5l7 7-7 7"
+              />
             </svg>
           </div>
         </div>

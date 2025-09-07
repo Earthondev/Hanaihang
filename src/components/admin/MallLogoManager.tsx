@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { Loader2, Image as ImageIcon, Trash2 } from 'lucide-react';
+
 import Card from '../ui/Card';
 import LogoUpload from '../ui/LogoUpload';
+
 import { listMalls, updateMall } from '@/services/firebase/firestore';
 import { Mall } from '@/types/mall-system';
-import { Loader2, Image as ImageIcon, Trash2 } from 'lucide-react';
 
 interface MallLogoManagerProps {
   className?: string;
 }
 
-export default function MallLogoManager({ className = "" }: MallLogoManagerProps) {
+export default function MallLogoManager({
+  className = '',
+}: MallLogoManagerProps) {
   const [malls, setMalls] = useState<Mall[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,16 +39,16 @@ export default function MallLogoManager({ className = "" }: MallLogoManagerProps
 
   const handleLogoChange = async (mallId: string, logoUrl: string | null) => {
     try {
-      await updateMall(mallId, { logoUrl });
-      
+      await updateMall(mallId, { logoUrl } as any);
+
       // Update local state
-      setMalls(prev => prev.map(mall => 
-        mall.id === mallId ? { ...mall, logoUrl } : mall
-      ));
-      
+      setMalls(prev =>
+        prev.map(mall => (mall.id === mallId ? { ...mall, logoUrl } : mall)),
+      );
+
       // Update selected mall if it's the same one
       if (selectedMall?.id === mallId) {
-        setSelectedMall(prev => prev ? { ...prev, logoUrl } : null);
+        setSelectedMall(prev => (prev ? { ...prev, logoUrl } : null));
       }
     } catch (err) {
       console.error('Error updating mall logo:', err);
@@ -92,7 +96,7 @@ export default function MallLogoManager({ className = "" }: MallLogoManagerProps
 
           {/* Mall Selection */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            {malls.map((mall) => (
+            {malls.map(mall => (
               <button
                 key={mall.id}
                 onClick={() => setSelectedMall(mall)}
@@ -136,7 +140,9 @@ export default function MallLogoManager({ className = "" }: MallLogoManagerProps
               <LogoUpload
                 mallId={selectedMall.id!}
                 currentLogoUrl={selectedMall.logoUrl}
-                onLogoChange={(logoUrl) => handleLogoChange(selectedMall.id!, logoUrl)}
+                onLogoChange={logoUrl =>
+                  handleLogoChange(selectedMall.id!, logoUrl)
+                }
               />
             </div>
           )}
@@ -150,7 +156,7 @@ export default function MallLogoManager({ className = "" }: MallLogoManagerProps
             โลโก้ทั้งหมด
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {malls.map((mall) => (
+            {malls.map(mall => (
               <div key={mall.id} className="text-center">
                 {mall.logoUrl ? (
                   <div className="relative group">
