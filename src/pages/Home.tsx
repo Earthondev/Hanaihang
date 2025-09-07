@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Settings, Navigation } from 'lucide-react';
 
@@ -176,17 +176,6 @@ const Home: React.FC = () => {
   // Search navigation handlers
   const handleMallSelect = (mall: Mall) => {
     navigate(`/malls/${mall.name}`);
-  };
-
-  const handleStoreSelect = (
-    store: StoreType & { mallName?: string; mallSlug?: string },
-  ) => {
-    if (store.mallSlug) {
-      navigate(`/malls/${store.mallSlug}/stores/${store.id}`);
-    } else {
-      // Fallback to store detail page if no mall info
-      navigate(`/stores/${store.id}`);
-    }
   };
 
   // Map control handlers
