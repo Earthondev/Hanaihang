@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:test": "vite --port 5174 --strictPort",
+    "prebuild": "node scripts/gen-build-info.mjs",
     "build": "tsc && vite build",
     "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\"",
     "fix": "npm run lint -- --fix && prettier -w .",
