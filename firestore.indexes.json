@@ -1,47 +1,25 @@
 {
-  "indexes": [
+  "indexes": [],
+  "fieldOverrides": [
     {
       "collectionGroup": "stores",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [
+      "fieldPath": "name",
+      "indexes": [
         {
-          "fieldPath": "mallId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "nameLower",
-          "order": "ASCENDING"
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION_GROUP"
         }
       ]
     },
     {
       "collectionGroup": "stores",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [
+      "fieldPath": "nameLower",
+      "indexes": [
         {
-          "fieldPath": "category",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "nameLower",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "stores",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "nameLower",
-          "order": "ASCENDING"
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION_GROUP"
         }
       ]
     }
-  ],
-  "fieldOverrides": []
+  ]
 }
