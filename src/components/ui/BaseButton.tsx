@@ -42,6 +42,7 @@ export function BaseButton({
         className
       )}
       disabled={disabled || loading}
+      onClick={props.onClick}
       {...props}
     >
       {loading && (

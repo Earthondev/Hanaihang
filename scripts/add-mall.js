@@ -1,5 +1,5 @@
-const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, addDoc, serverTimestamp } = require('firebase/firestore');
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 // Firebase config จาก src/config/firebase.ts
 const firebaseConfig = {

@@ -89,7 +89,7 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
       const mallCoords = mallData?.location ?? mallData?.coords ?? null;
 
       // Get floor data for denormalization
-      const _selectedFloor = floors.find(f => f.id === formData.floorId);
+      const selectedFloor = floors.find(f => f.id === formData.floorId);
       const floorLabel =
         selectedFloor?.name ?? selectedFloor?.label ?? formData.floorId;
 

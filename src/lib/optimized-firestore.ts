@@ -1,5 +1,6 @@
 import {
   collection,
+  collectionGroup,
   doc,
   getDocs,
   getDoc,
@@ -58,6 +59,40 @@ export async function listMallsOptimized(): Promise<Mall[]> {
 
   // Cache for 10 minutes
   cache.set(CACHE_KEYS.MALLS, malls, 10 * 60 * 1000);
+  
+  return malls;
+}
+
+/**
+ * ดึงรายการห้างพร้อมสถิติ (ใช้ storeCount/floorCount แทนการ fetch stores)
+ */
+export async function listMallsWithStats(): Promise<Mall[]> {
+  // Check cache first
+  const cached = cache.get<Mall[]>(CACHE_KEYS.MALLS_STATS);
+  if (cached) {
+    console.log('📦 Using cached malls with stats data');
+    return cached;
+  }
+
+  console.log('🔄 Fetching malls with stats from Firebase...');
+  const start = Date.now();
+  
+  const q = query(collection(db, 'malls'), orderBy('displayName'));
+  const snapshot = await getDocs(q);
+  
+  const malls = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...convertTimestamps(doc.data() as Omit<Mall, 'id'>),
+    // Ensure storeCount and floorCount are available
+    storeCount: doc.data().storeCount || 0,
+    floorCount: doc.data().floorCount || 0
+  }));
+
+  const time = Date.now() - start;
+  console.log(`✅ Fetched ${malls.length} malls with stats in ${time}ms`);
+
+  // Cache for 10 minutes
+  cache.set(CACHE_KEYS.MALLS_STATS, malls, 10 * 60 * 1000);
   
   return malls;
 }
@@ -146,40 +181,33 @@ export async function listAllStoresBatchOptimized(): Promise<{ store: Store; _ma
     return cached;
   }
 
-  console.log('🔄 Fetching all stores with batch optimization...');
+  console.log('🔄 Fetching all stores from nested collections...');
   const start = Date.now();
   
-  const malls = await listMallsOptimized();
+  // Use collection group query to fetch from all malls/{mallId}/stores
+  const q = query(collectionGroup(db, 'stores'), orderBy('name'));
+  const snapshot = await getDocs(q);
+  
   const results: { store: Store; _mallId: string }[] = [];
-
-  // Process malls in batches of 5 to avoid overwhelming Firebase
-  const batchSize = 5;
-  for (let i = 0; i < malls.length; i += batchSize) {
-    const batch = malls.slice(i, i + batchSize);
+  
+  snapshot.forEach((doc) => {
+    const storeData = doc.data() as Store;
+    const storeWithId = { ...storeData, id: doc.id };
     
-    const batchPromises = batch.map(async (mall) => {
-      try {
-        const stores = await listStoresOptimized(mall.id!);
-        return stores.map(store => ({ store, _mallId: mall.id! }));
-      } catch (error) {
-        console.error(`Error loading stores for mall ${mall.id}:`, error);
-        return [];
-      }
-    });
-
-    const batchResults = await Promise.all(batchPromises);
-    batchResults.forEach(mallStores => {
-      results.push(...mallStores);
-    });
-
-    // Small delay between batches to be nice to Firebase
-    if (i + batchSize < malls.length) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+    // Extract mallId from the document path: malls/{mallId}/stores/{storeId}
+    const pathParts = doc.ref.path.split('/');
+    const mallId = pathParts[1]; // malls/{mallId}/stores/{storeId}
+    
+    if (mallId) {
+      results.push({ store: storeWithId, _mallId: mallId });
     }
-  }
+  });
+  
+  // Sort by name in JavaScript (backup solution)
+  results.sort((a, b) => a.store.name.localeCompare(b.store.name));
 
   const time = Date.now() - start;
-  console.log(`✅ Fetched ${results.length} stores from ${malls.length} malls in ${time}ms (batch optimized)`);
+  console.log(`✅ Fetched ${results.length} stores from nested collections in ${time}ms`);
 
   // Cache for 5 minutes
   cache.set(CACHE_KEYS.STORES_ALL, results, 5 * 60 * 1000);

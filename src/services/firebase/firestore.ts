@@ -53,24 +53,51 @@ export async function createMall(data: MallFormData): Promise<string> {
   const slug = data.name || toSlug(data.displayName);
   
   const mallData = {
+    // Basic info
     name: slug,
     displayName: data.displayName,
     address: data.address,
     district: data.district,
+    
+    // Contact info
     contact: {
-      phone: data.phone,
-      website: data.website
+      phone: data.phone || '',
+      website: data.website || ''
     },
+    
+    // Schema v2: top-level lat/lng
+    lat: typeof data.lat === 'string' ? parseFloat(data.lat) : (data.lat || 0),
+    lng: typeof data.lng === 'string' ? parseFloat(data.lng) : (data.lng || 0),
+    
+    // Legacy coords for compatibility
     coords: data.lat && data.lng ? {
       lat: typeof data.lat === 'string' ? parseFloat(data.lat) : data.lat,
       lng: typeof data.lng === 'string' ? parseFloat(data.lng) : data.lng
     } : undefined,
+    
+    // Hours handling
     hours: data.openTime && data.closeTime ? {
       open: data.openTime,
       close: data.closeTime
     } : undefined,
+    
+    // Support hours field for non-everyday schedules
+    ...(data.hours && { hours: data.hours }),
+    
+    // Social media
+    social: data.social || '',
+    
+    // Logo
+    logoUrl: data.logoUrl || '',
+    
+    // System fields
+    storeCount: 0,
+    floorCount: 0,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
+    published: true,
+    featured: false,
+    source: 'admin-create'
   };
 
   const docRef = await addDoc(collection(db, 'malls'), mallData);
@@ -138,35 +165,64 @@ export async function getMallByName(name: string): Promise<Mall | null> {
  * อัปเดตข้อมูลห้าง
  */
 export async function updateMall(id: string, data: Partial<MallInput>): Promise<void> {
-  const updateData: any = {
-    updatedAt: serverTimestamp(),
-  };
-
-  if (data.displayName !== undefined) updateData.displayName = data.displayName;
-  if (data.name !== undefined) updateData.name = data.name;
-  if (data.address !== undefined) updateData.address = data.address;
-  if (data.district !== undefined) updateData.district = data.district;
-  if (data.phone !== undefined) updateData.contact = { ...updateData.contact, phone: data.phone };
-  if (data.website !== undefined) updateData.contact = { ...updateData.contact, website: data.website };
-  if ((data as any).social !== undefined) updateData.contact = { ...updateData.contact, social: (data as any).social };
-
-  // Handle coordinates
-  if ((data as any).location !== undefined) {
-    updateData.coords = {
-      lat: (data as any).location.lat || 0,
-      lng: (data as any).location.lng || 0,
+  try {
+    // ดึงข้อมูลห้างเดิมก่อนเพื่อ merge contact field
+    const mallRef = doc(db, 'malls', id);
+    const mallSnap = await getDoc(mallRef);
+    
+    if (!mallSnap.exists()) {
+      throw new Error('ห้างไม่พบ');
+    }
+    
+    const existingMall = mallSnap.data();
+    const existingContact = existingMall.contact || {};
+    
+    const updateData: any = {
+      updatedAt: serverTimestamp(),
     };
-  }
 
-  // Handle hours
-  if ((data as any).openTime || (data as any).closeTime) {
-    updateData.hours = {
-      open: (data as any).openTime || '10:00',
-      close: (data as any).closeTime || '22:00',
-    };
-  }
+    // Basic fields
+    if (data.displayName !== undefined) updateData.displayName = data.displayName;
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.address !== undefined) updateData.address = data.address;
+    if (data.district !== undefined) updateData.district = data.district;
 
-  await updateDoc(doc(db, 'malls', id), updateData);
+    // Contact fields - merge with existing data
+    const contactUpdates: any = { ...existingContact };
+    if (data.phone !== undefined) contactUpdates.phone = data.phone;
+    if (data.website !== undefined) contactUpdates.website = data.website;
+    if ((data as any).social !== undefined) contactUpdates.social = (data as any).social;
+    
+    // Only update contact if there are changes
+    if (Object.keys(contactUpdates).length > 0) {
+      updateData.contact = contactUpdates;
+    }
+
+    // Handle coordinates
+    if ((data as any).location !== undefined && (data as any).location !== null) {
+      const location = (data as any).location;
+      updateData.coords = {
+        lat: location.lat || 0,
+        lng: location.lng || 0,
+      };
+    }
+
+    // Handle hours
+    if ((data as any).openTime || (data as any).closeTime) {
+      updateData.hours = {
+        open: (data as any).openTime || '10:00',
+        close: (data as any).closeTime || '22:00',
+      };
+    }
+
+    console.log('🔄 Updating mall with data:', updateData);
+    await updateDoc(mallRef, updateData);
+    console.log('✅ Mall updated successfully');
+    
+  } catch (error) {
+    console.error('❌ Error updating mall:', error);
+    throw error;
+  }
 }
 
 /**

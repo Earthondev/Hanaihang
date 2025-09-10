@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { deleteStore } from '../../lib/firestore';
-
-import StoreEditDrawer from './StoreEditDrawer';
 
 interface StoresTableProps {
   stores: any[];
@@ -11,45 +10,19 @@ interface StoresTableProps {
 }
 
 const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) => {
+  const navigate = useNavigate();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [mallFilter, setMallFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [editingStore, setEditingStore] = useState<any>(null);
-  const [showEditDrawer, setShowEditDrawer] = useState(false);
 
-  const getMallName = (_mallId: string) => {
+  const getMallName = (mallId: string) => {
     const mall = malls.find(m => m.id === mallId);
     return mall ? (mall.displayName || mall.name) : 'ไม่พบข้อมูล';
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Active':
-        return 'bg-green-100 text-green-800';
-      case 'Maintenance':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Closed':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'Active':
-        return 'เปิดใช้งาน';
-      case 'Maintenance':
-        return 'ปิดปรับปรุง';
-      case 'Closed':
-        return 'ปิด';
-      default:
-        return status;
-    }
-  };
-
-  const handleDelete = async (storeId: string, _mallId: string) => {
+  const handleDelete = async (storeId: string, mallId: string) => {
     if (!confirm('คุณแน่ใจหรือไม่ที่จะลบร้านค้านี้?')) {
       return;
     }
@@ -72,19 +45,7 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
   };
 
   const handleEdit = (store: any) => {
-    setEditingStore(store);
-    setShowEditDrawer(true);
-  };
-
-  const handleEditSuccess = () => {
-    onRefresh();
-    setShowEditDrawer(false);
-    setEditingStore(null);
-  };
-
-  const handleEditClose = () => {
-    setShowEditDrawer(false);
-    setEditingStore(null);
+    navigate(`/admin/stores/${store.mallId}/${store.id}/edit`);
   };
 
 
@@ -183,9 +144,6 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
                 ตำแหน่ง
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                สถานะ
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 จัดการ
               </th>
             </tr>
@@ -221,37 +179,34 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   ชั้น {store.floorId} ยูนิต {store.unit}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(store.status)}`}>
-                    {getStatusLabel(store.status)}
-                  </span>
-                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <button
                       onClick={() => handleEdit(store)}
-                      className="text-blue-600 hover:text-blue-900 transition-colors"
+                      className="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
                       title="แก้ไข"
                       aria-label={`แก้ไขร้านค้า ${store.name}`}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
+                      แก้ไข
                     </button>
                     <button
                       onClick={() => handleDelete(store.id, store.mallId)}
                       disabled={deletingId === store.id}
-                      className="text-red-600 hover:text-red-900 transition-colors disabled:opacity-50"
+                      className="inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
                       title="ลบ"
                       aria-label={`ลบร้านค้า ${store.name}`}
                     >
                       {deletingId === store.id ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-1"></div>
                       ) : (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       )}
+                      ลบ
                     </button>
                   </div>
                 </td>
@@ -261,13 +216,6 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
         </table>
       </div>
 
-      {/* Store Edit Drawer */}
-      <StoreEditDrawer
-        isOpen={showEditDrawer}
-        onClose={handleEditClose}
-        store={editingStore}
-        onSuccess={handleEditSuccess}
-      />
     </div>
   );
 };

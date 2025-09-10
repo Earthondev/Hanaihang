@@ -4,6 +4,9 @@ import { createRoot } from 'react-dom/client';
 import './styles/index.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { theme } from './config/theme';
 
 import Home from './pages/Home';
 // import MallPicker from './pages/MallPicker'
@@ -19,6 +22,7 @@ import MallEditPage from './pages/MallEditPage';
 import MallDetail from './pages/MallDetail';
 import MallCreatePage from './pages/MallCreatePage';
 import StoreCreatePage from './pages/StoreCreatePage';
+import StoreEditPage from './pages/StoreEditPage';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import ProtectedRoute from './legacy/components/ProtectedRoute';
@@ -103,10 +107,10 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: '/admin/stores/:storeId/edit',
+    path: '/admin/stores/:mallId/:storeId/edit',
     element: (
       <ProtectedRoute>
-        <StoreCreatePage />
+        <StoreEditPage />
       </ProtectedRoute>
     ),
   },
@@ -133,17 +137,20 @@ const root = createRoot(rootElement);
 
 root.render(
   <StrictMode>
-    <ErrorBoundary>
-      <AuthProvider>
-        <LocationProvider>
-          <QueryClientProvider client={queryClient}>
-            <ToastProvider>
-              <RouterProvider router={router} />
-            </ToastProvider>
-          </QueryClientProvider>
-        </LocationProvider>
-      </AuthProvider>
-    </ErrorBoundary>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <ErrorBoundary>
+        <AuthProvider>
+          <LocationProvider>
+            <QueryClientProvider client={queryClient}>
+              <ToastProvider>
+                <RouterProvider router={router} />
+              </ToastProvider>
+            </QueryClientProvider>
+          </LocationProvider>
+        </AuthProvider>
+      </ErrorBoundary>
+    </ThemeProvider>
   </StrictMode>,
 );
 

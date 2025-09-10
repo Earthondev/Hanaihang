@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Trash2 } from 'lucide-react';
 
 import { useToast } from '../ui/feedback/Toast';
+import { AnimatedSuccessModal } from '../components/ui/feedback/SuccessModal';
 import MallForm from '../legacy/forms/MallForm';
-import { getMall, listFloors, createFloor, deleteFloor, updateFloorOrder } from '../services/firebase/firestore';
-import { Mall } from '../types/mall-system';
+import FloorManager from '../components/admin/FloorManager';
+import { getMall, listFloors } from '../services/firebase/firestore';
+import { Mall, Floor } from '../types/mall-system';
 
 export default function MallEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -15,9 +16,8 @@ export default function MallEditPage() {
   const [floors, setFloors] = useState<Floor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [newFloorLabel, setNewFloorLabel] = useState('');
-  const [isAddingFloor, setIsAddingFloor] = useState(false);
-  const [insertAfterOrder, setInsertAfterOrder] = useState<number | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  // Removed floor management state - now handled by FloorManager component
 
   console.log('🔍 MallEditPage mounted with ID:', id);
 
@@ -54,69 +54,33 @@ export default function MallEditPage() {
     loadMallData();
   }, [id, toast]);
 
-  const handleSubmit = async () => {
-    toast('อัปเดตห้างสรรพสินค้าสำเร็จ ✅', 'success');
+  const handleSubmit = async (mallName?: string) => {
+    console.log('🎉 MallEditPage handleSubmit called!');
+    console.log('🔍 mallName received:', mallName);
+    
+    // Reload mall data to get updated information
+    try {
+      const updatedMall = await getMall(id!);
+      setMall(updatedMall);
+      console.log('✅ Mall data reloaded:', updatedMall);
+    } catch (error) {
+      console.error('Error reloading mall data:', error);
+    }
+    
+    console.log('🎉 Setting showSuccessModal to true');
+    setShowSuccessModal(true);
+  };
+
+  const handleSuccessConfirm = () => {
     navigate('/admin/malls');
   };
 
-  const handleAddFloor = async () => {
-    if (!newFloorLabel.trim() || !id || isAddingFloor) return;
+  const handleFloorsChange = async (newFloors: Floor[]) => {
+    setFloors(newFloors);
     
-    // ตรวจสอบว่าชั้นซ้ำหรือไม่
-    const existingFloor = floors.find(f => f.label.toLowerCase() === newFloorLabel.trim().toLowerCase());
-    if (existingFloor) {
-      toast('ชั้นนี้มีอยู่แล้ว', 'error');
-      return;
-    }
-    
-    setIsAddingFloor(true);
-    
-    try {
-      let newOrder: number;
-      
-      if (insertAfterOrder !== null) {
-        // แทรกชั้นหลังจาก order ที่เลือก
-        newOrder = insertAfterOrder + 0.5;
-        
-        // อัปเดต order ของชั้นที่อยู่หลัง
-        const floorsToUpdate = floors.filter(f => f.order > insertAfterOrder);
-        for (const floor of floorsToUpdate) {
-          await updateFloorOrder(id, floor.id!, floor.order + 1);
-        }
-      } else {
-        // เพิ่มชั้นใหม่ที่ท้ายสุด
-        newOrder = Math.max(...floors.map(f => f.order || 0), -1) + 1;
-      }
-      
-      await createFloor(id, { label: newFloorLabel.trim(), order: newOrder });
-      
-      // Reload floors
-      const updatedFloors = await listFloors(id);
-      setFloors(updatedFloors);
-      setNewFloorLabel('');
-      setInsertAfterOrder(null);
-      toast('เพิ่มชั้นสำเร็จ ✅', 'success');
-    } catch (error) {
-      console.error('Error adding floor:', error);
-      toast('ไม่สามารถเพิ่มชั้นได้', 'error');
-    } finally {
-      setIsAddingFloor(false);
-    }
-  };
-
-  const handleDeleteFloor = async (floorId: string) => {
-    if (!id || !confirm('คุณแน่ใจหรือไม่ที่จะลบชั้นนี้?')) return;
-    
-    try {
-      await deleteFloor(id, floorId);
-      
-      // Reload floors
-      const updatedFloors = await listFloors(id);
-      setFloors(updatedFloors);
-      toast('ลบชั้นสำเร็จ ✅', 'success');
-    } catch (error) {
-      console.error('Error deleting floor:', error);
-      toast('ไม่สามารถลบชั้นได้', 'error');
+    // Update mall's floor count
+    if (mall) {
+      setMall(prev => prev ? { ...prev, floorCount: newFloors.length } : null);
     }
   };
 
@@ -169,20 +133,65 @@ export default function MallEditPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto py-8 px-4">
-        <div className="mb-6">
+        <div className="mb-8">
           <button
             onClick={() => navigate('/admin/malls')}
-            className="text-green-600 hover:text-green-700 mb-4"
+            className="text-green-600 hover:text-green-700 mb-4 flex items-center space-x-2"
           >
-            ← กลับไปหน้าห้าง
+            <span>←</span>
+            <span>กลับไปหน้าห้าง</span>
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">
-            แก้ไขห้างสรรพสินค้า: {mall?.displayName}
-          </h1>
+          
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  แก้ไขห้างสรรพสินค้า
+                </h1>
+                <h2 className="text-xl text-green-600 font-semibold mb-4">
+                  {mall?.displayName}
+                </h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-gray-600">ที่อยู่</div>
+                    <div className="font-medium text-gray-900">{mall?.address}</div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-gray-600">จำนวนชั้น</div>
+                    <div className="font-medium text-gray-900">{mall?.floorCount || floors.length} ชั้น</div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-gray-600">จำนวนร้าน</div>
+                    <div className="font-medium text-gray-900">{mall?.storeCount || 0} ร้าน</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-right">
+                <div className="text-sm text-gray-500 mb-1">สร้างเมื่อ</div>
+                <div className="text-sm font-medium text-gray-900">
+                  {mall?.createdAt ? 
+                    (mall.createdAt.toDate ? 
+                      new Date(mall.createdAt.toDate()).toLocaleDateString('th-TH') : 
+                      new Date(mall.createdAt as any).toLocaleDateString('th-TH')
+                    ) : 'ไม่ระบุ'}
+                </div>
+                <div className="text-sm text-gray-500 mt-2 mb-1">อัปเดตล่าสุด</div>
+                <div className="text-sm font-medium text-gray-900">
+                  {mall?.updatedAt ? 
+                    (mall.updatedAt.toDate ? 
+                      new Date(mall.updatedAt.toDate()).toLocaleDateString('th-TH') : 
+                      new Date(mall.updatedAt as any).toLocaleDateString('th-TH')
+                    ) : 'ไม่ระบุ'}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Mall Form */}
+        <div className="space-y-6">
+          {/* Mall Form - Full Width */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               ข้อมูลห้างสรรพสินค้า
@@ -195,113 +204,30 @@ export default function MallEditPage() {
             />
           </div>
 
-          {/* Floors Management */}
+          {/* Floors Management - Full Width */}
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               จัดการชั้นของห้าง
             </h2>
             
-            {/* Add New Floor */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">เพิ่มชั้นใหม่</h3>
-              
-              {/* Floor Label Input */}
-              <div className="mb-3">
-                <label className="block text-xs text-gray-600 mb-1">ชื่อชั้น</label>
-                <input
-                  type="text"
-                  value={newFloorLabel}
-                  onChange={(e) => setNewFloorLabel(e.target.value)}
-                  placeholder="เช่น B1, 4, 5, 6, M"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-
-              {/* Insert Position */}
-              <div className="mb-3">
-                <label className="block text-xs text-gray-600 mb-1">แทรกหลังจากชั้น</label>
-                <select
-                  value={insertAfterOrder !== null ? insertAfterOrder.toString() : ''}
-                  onChange={(e) => setInsertAfterOrder(e.target.value ? parseInt(e.target.value) : null)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">เพิ่มที่ท้ายสุด</option>
-                  {floors
-                    .sort((a, b) => (a.order || 0) - (b.order || 0))
-                    .map((floor) => (
-                      <option key={floor.id} value={floor.order}>
-                        หลังจากชั้น {floor.label} (order: {floor.order})
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              {/* Add Button */}
-              <button
-                onClick={handleAddFloor}
-                disabled={!newFloorLabel.trim() || isAddingFloor}
-                className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isAddingFloor ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    กำลังเพิ่ม...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4" />
-                    เพิ่มชั้น
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Floors List */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">
-                ชั้นที่มีอยู่ ({floors.length} ชั้น)
-              </h3>
-              
-              {floors.length === 0 ? (
-                <p className="text-gray-500 text-sm">ยังไม่มีชั้นในห้างนี้</p>
-              ) : (
-                <div className="space-y-2">
-                  {floors
-                    .sort((a, b) => (a.order || 0) - (b.order || 0))
-                    .map((floor, index) => (
-                      <div
-                        key={floor.id}
-                        className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-green-300 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-sm font-medium">
-                            {floor.order || 0}
-                          </span>
-                          <div>
-                            <span className="font-medium text-gray-900">
-                              ชั้น {floor.label}
-                            </span>
-                            <div className="text-xs text-gray-500">
-                              ลำดับที่ {index + 1} • Order: {floor.order || 0}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <button
-                          onClick={() => handleDeleteFloor(floor.id!)}
-                          className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
-                          title="ลบชั้น"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                </div>
-              )}
-            </div>
+            <FloorManager
+              mallId={id!}
+              floors={floors}
+              onFloorsChange={handleFloorsChange}
+            />
           </div>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <AnimatedSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="บันทึกสำเร็จ! 🎉"
+        message={`ข้อมูลห้างสรรพสินค้า "${mall?.displayName}" ได้รับการอัปเดตเรียบร้อยแล้ว`}
+        onConfirm={handleSuccessConfirm}
+        confirmText="กลับไปหน้าห้าง"
+      />
     </div>
   );
 }

@@ -13,6 +13,10 @@ export interface Mall {
     website?: string;
     social?: string;
   };
+  // Schema v2: top-level lat/lng
+  lat?: number;
+  lng?: number;
+  // Legacy coords for compatibility
   coords?: {
     lat: number;
     lng: number;
@@ -150,6 +154,8 @@ export interface MallFormData {
   lng?: number;
   openTime?: string;
   closeTime?: string;
+  hours?: string;
+  logoUrl?: string;
 }
 
 export interface StoreFormData {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Building2, MapPin, Clock, Phone, Globe, Facebook, MessageCircle } from 'lucide-react';
@@ -19,11 +19,13 @@ import { Mall } from '../../types/mall-system';
 interface MallFormProps {
   mode: 'create' | 'edit';
   mall?: Mall;
-  onSuccess?: () => void;
+  onSuccess?: (mallName?: string) => void;
 }
 
 export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
   const [isEveryday, setIsEveryday] = useState(true);
+  const [logoUrl, setLogoUrl] = useState<string | null>(mall?.logoUrl || null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { isLoading, run } = useSafeSubmit({
     formName: `mall_${mode}`,
     successMessage: mode === 'create' ? "สร้างห้างสรรพสินค้าสำเร็จ 🎉" : "อัปเดตห้างสรรพสินค้าสำเร็จ ✅",
@@ -31,7 +33,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
   });
 
   const form = useForm<MallInput>({
-    resolver: zodResolver(mallSchema),
+    resolver: zodResolver(mallSchema) as any,
     defaultValues: {
       displayName: mall?.displayName || '',
       name: mall?.name || '',
@@ -40,39 +42,121 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
       phone: mall?.contact?.phone || '',
       website: mall?.contact?.website || '',
       social: mall?.contact?.social || '',
-      location: mall?.coords ? { lat: mall.coords.lat, lng: mall.coords.lng } : null,
+      lat: mall?.lat || mall?.coords?.lat || 0,
+      lng: mall?.lng || mall?.coords?.lng || 0,
       openTime: mall?.hours?.open || '10:00',
       closeTime: mall?.hours?.close || '22:00',
     }
   });
 
-  // Debug: Log mall data
-  console.log('🔍 MallForm received mall data:', mall);
+  // Debug: Log mall data (only when mall changes)
+  useEffect(() => {
+    if (mall) {
+      console.log('🔍 MallForm received mall data:', mall);
+    }
+  }, [mall?.id]);
 
   const handleSubmit = async (values: MallInput) => {
-    await run(async () => {
-      const mallData = {
-        displayName: values.displayName,
-        name: values.name || toSlug(values.displayName),
-        address: values.address,
-        district: values.district,
-        phone: values.phone,
-        website: values.website,
-        social: values.social,
-        lat: values.location?.lat,
-        lng: values.location?.lng,
-        openTime: values.openTime,
-        closeTime: values.closeTime,
+    console.log('🚀 MallForm handleSubmit called with values:', values);
+    
+    if (isSubmitting) {
+      console.log('⚠️ Already submitting, ignoring duplicate submission');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      console.log('🔄 Starting mall submission process...');
+      
+      // 1) Helper function to add protocol to website
+      const withProtocol = (url?: string) => {
+        if (!url) return '';
+        return /^(https?:\/\/)/i.test(url) ? url : `https://${url}`;
       };
 
+      // 2) Map location → lat/lng (Schema v2 format)
+      let lat = 0;
+      let lng = 0;
+      
+      if ((values as any)['location.lat'] !== undefined || (values as any)['location.lng'] !== undefined) {
+        const formLat = (values as any)['location.lat'];
+        const formLng = (values as any)['location.lng'];
+        
+        console.log('📍 Processing location fields:', { formLat, formLng });
+        
+        if (formLat !== undefined && formLng !== undefined && formLat !== '' && formLng !== '') {
+          lat = parseFloat(formLat) || 0;
+          lng = parseFloat(formLng) || 0;
+        }
+      } else if (values.lat !== undefined && values.lng !== undefined) {
+        lat = values.lat || 0;
+        lng = values.lng || 0;
+      }
+
+      // 3) Generate slug with fallback
+      const slug = (values.name || toSlug(values.displayName || '')).trim();
+      const finalSlug = slug || toSlug(values.displayName || '');
+
+      // 4) Handle hours based on isEveryday toggle - EXCLUSIVE logic
+      const hoursPayload = isEveryday
+        ? { 
+            // Everyday mode: only openTime/closeTime, NO hours
+            openTime: values.openTime, 
+            closeTime: values.closeTime,
+            hours: undefined // Explicitly remove hours
+          }
+        : {
+            // Non-everyday mode: only hours, NO openTime/closeTime
+            hours: (values as any).hours?.trim?.() || '',
+            openTime: undefined, // Explicitly remove openTime/closeTime
+            closeTime: undefined,
+          };
+
+      const mallData = {
+        displayName: values.displayName?.trim(),
+        name: finalSlug,
+        address: values.address?.trim(),
+        district: values.district?.trim(),
+        phone: values.phone?.trim() || '',
+        website: withProtocol(values.website?.trim()),
+        social: values.social?.trim() || '',
+        // Schema v2: top-level lat/lng
+        lat,
+        lng,
+        ...hoursPayload,
+        logoUrl: logoUrl || undefined,
+        updatedAt: new Date(), // Add updatedAt for edit mode
+      };
+
+      console.log('🔄 Submitting mall data:', mallData);
+
       if (mode === 'create') {
+        console.log('📝 Creating new mall...');
         await createMall(mallData);
+        console.log('✅ Mall created successfully');
       } else if (mall?.id) {
+        console.log('📝 Updating existing mall:', mall.id);
         await updateMall(mall.id, mallData);
+        console.log('✅ Mall updated successfully');
+      } else {
+        throw new Error('ไม่พบ ID ของห้างสำหรับการอัปเดต');
       }
       
-      onSuccess?.();
-    });
+      // Call onSuccess callback after successful save
+      console.log('🎉 Calling onSuccess callback...');
+      console.log('🔍 onSuccess function:', onSuccess);
+      console.log('🔍 mallData.displayName:', mallData.displayName);
+      onSuccess?.(mallData.displayName);
+      console.log('✅ onSuccess callback completed');
+      
+    } catch (error) {
+      console.error('❌ Mall submission failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
+      throw new Error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const _handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -84,8 +168,8 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
 
   return (
     <div className="space-y-6">
-      <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+    <FormProvider {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           
           {/* 🏢 ข้อมูลทั่วไป */}
           <Card>
@@ -263,11 +347,11 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                 </button>
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || isSubmitting}
                   className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors flex items-center space-x-2"
-                  aria-busy={isLoading}
+                  aria-busy={isLoading || isSubmitting}
                 >
-                  {isLoading ? (
+                  {(isLoading || isSubmitting) ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       <span>กำลังบันทึก...</span>

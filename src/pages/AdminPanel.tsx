@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/config/contexts/AuthContext';
-import {
-  listMallsOptimized,
-  listAllStoresBatchOptimized,
-  getCacheStats,
-} from '@/lib/optimized-firestore';
+import { useMallsWithStats, useAllStores, useInvalidateMalls } from '@/hooks/useMallsQuery';
 // import MallCreateDrawer from '@/legacy/admin/MallCreateDrawer';
 // import { StoreCreateDrawer } from '@/legacy/admin/StoreCreateDrawer';
 import MallsTableView from '@/components/admin/MallsTableView';
 import StoresTable from '@/legacy/admin/StoresTable';
 import MallLogoManager from '@/components/admin/MallLogoManager';
+import { AdminPanelSkeleton, MallListSkeleton, StoreTableSkeleton } from '@/components/ui/loading/SkeletonLoader';
+import { Pagination, PaginationInfo } from '@/components/ui/pagination/Pagination';
+import { usePagination } from '@/hooks/usePagination';
 
 const AdminPanel: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,29 +20,53 @@ const AdminPanel: React.FC = () => {
   );
   // const [showMallForm, setShowMallForm] = useState(false);
   // const [showStoreForm, setShowStoreForm] = useState(false);
-  const [malls, setMalls] = useState<any[]>([]);
-  const [stores, setStores] = useState<any[]>([]);
-  const [storesWithMallId, setStoresWithMallId] = useState<
-    { store: any; _mallId: string }[]
-  >([]);
-  const [lastUpdated, setLastUpdated] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
 
   const { user, logout } = useAuth();
+  
+  // React Query hooks
+  const mallsQuery = useMallsWithStats();
+  const storesQuery = useAllStores();
+  const { invalidateAll } = useInvalidateMalls();
+
+  // Pagination for malls
+  const mallPagination = usePagination({
+    data: mallsQuery.data || [],
+    itemsPerPage,
+    initialPage: 1
+  });
+
+  // Pagination for stores
+  const storePagination = usePagination({
+    data: storesQuery.data?.map(item => ({ ...item.store, _mallId: item._mallId })) || [],
+    itemsPerPage: 20,
+    initialPage: 1
+  });
+
+  // Derived data
+  const malls = mallsQuery.data || [];
+  const stores = storesQuery.data?.map(item => ({ ...item.store, _mallId: item._mallId })) || [];
+  const storesWithMallId = storesQuery.data || [];
+  const loading = mallsQuery.isLoading || storesQuery.isLoading;
+  const error = mallsQuery.error || storesQuery.error;
 
   // Valid tabs for parameter validation
   const validTabs = new Set(['stores', 'malls', 'logos']);
 
   // Check URL parameter for initial tab with validation
+  const initializedRef = useRef(false);
   useEffect(() => {
+    if (initializedRef.current) return;
+    
     const tabParam = searchParams.get('tab')?.toLowerCase();
     const currentPath = window.location.pathname;
 
     // Check if we're on /admin/malls route
     if (currentPath === '/admin/malls') {
       setActiveTab('malls');
-      setSearchParams({ tab: 'malls' });
+      if (tabParam !== 'malls') {
+        setSearchParams({ tab: 'malls' });
+      }
     } else if (validTabs.has(tabParam || '')) {
       setActiveTab(tabParam as 'malls' | 'stores' | 'logos');
     } else if (tabParam) {
@@ -51,25 +74,24 @@ const AdminPanel: React.FC = () => {
       setActiveTab('malls');
       setSearchParams({ tab: 'malls' });
     }
-  }, [searchParams, validTabs, setSearchParams]);
+    
+    initializedRef.current = true;
+  }, [validTabs, setSearchParams]);
 
   // Handle deep-link for drawers (redirect to new pages)
+  const drawerProcessedRef = useRef(false);
   useEffect(() => {
     const drawerParam = searchParams.get('drawer');
+    if (!drawerParam || drawerProcessedRef.current) return;
+    
     if (drawerParam === 'create-mall') {
       navigate('/admin/malls/create');
-      // Remove drawer param from URL
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete('drawer');
-      setSearchParams(newParams);
+      drawerProcessedRef.current = true;
     } else if (drawerParam === 'create-store') {
       navigate('/admin/stores/create');
-      // Remove drawer param from URL
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete('drawer');
-      setSearchParams(newParams);
+      drawerProcessedRef.current = true;
     }
-  }, [searchParams, setSearchParams, navigate]);
+  }, [searchParams.get('drawer'), navigate]);
 
   // Sync state with URL when tab changes
   const handleTabChange = (tab: 'malls' | 'stores' | 'logos') => {
@@ -99,54 +121,12 @@ const AdminPanel: React.FC = () => {
   }, [user, navigate]);
 
   // Load data
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      console.log('🔄 Loading data...');
-      const totalStart = Date.now();
-
-      // Load malls and stores in parallel for better performance
-      const [mallsData, storesData] = await Promise.all([
-        listMallsOptimized(),
-        listAllStoresBatchOptimized(),
-      ]);
-
-      const totalTime = Date.now() - totalStart;
-      console.log('📊 Malls loaded:', mallsData.length);
-      console.log('📊 Stores loaded:', storesData.length);
-      console.log(`⏱️ Total loading time: ${totalTime}ms`);
-
-      // แสดงเวลาการโหลดในหน้าเว็บ
-      setLastUpdated(
-        `${new Date().toLocaleString('th-TH')} (โหลดใน ${totalTime}ms)`,
-      );
-
-      setMalls(mallsData);
-      // เก็บข้อมูล stores ในรูปแบบเดิมสำหรับ StoresTable
-      setStores(
-        storesData.map(item => ({
-          ...item.store,
-          _mallId: item._mallId,
-        })),
-      );
-      // เก็บข้อมูล stores ในรูปแบบใหม่สำหรับ MallsTableView
-      setStoresWithMallId(storesData);
-
-      // Log cache stats
-      const cacheStats = getCacheStats();
-      console.log('📦 Cache stats:', cacheStats);
-    } catch (error) {
-      console.error('❌ Error loading data:', error);
-      setError('ไม่สามารถโหลดข้อมูลได้');
-    } finally {
-      setLoading(false);
-    }
+  const loadData = () => {
+    console.log('🔄 Refreshing data...');
+    invalidateAll();
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  // Data is automatically loaded by React Query hooks
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -178,9 +158,9 @@ const AdminPanel: React.FC = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-500">
-                อัปเดตล่าสุด: {lastUpdated}
-              </div>
+                <div className="text-sm text-gray-500">
+                  อัปเดตล่าสุด: {mallsQuery.dataUpdatedAt ? new Date(mallsQuery.dataUpdatedAt).toLocaleString('th-TH') : 'กำลังโหลด...'}
+                </div>
               <button
                 onClick={loadData}
                 className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
@@ -293,9 +273,13 @@ const AdminPanel: React.FC = () => {
             </div>
           )}
 
+          {loading && (
+            <AdminPanelSkeleton />
+          )}
+
           {error && (
             <div className="p-6 text-center">
-              <div className="text-red-600 mb-2">❌ {error}</div>
+              <div className="text-red-600 mb-2">❌ {error instanceof Error ? error.message : 'ไม่สามารถโหลดข้อมูลได้'}</div>
               <button
                 onClick={loadData}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
@@ -316,7 +300,25 @@ const AdminPanel: React.FC = () => {
                     เพิ่ม แก้ไข และลบข้อมูลห้างสรรพสินค้า
                   </p>
                 </div>
-                <div className="flex space-x-3">
+                <div className="flex items-center space-x-3">
+                  {/* Items per page selector */}
+                  <div className="flex items-center space-x-2">
+                    <label htmlFor="items-per-page" className="text-sm text-gray-600">
+                      แสดง:
+                    </label>
+                    <select
+                      id="items-per-page"
+                      value={itemsPerPage}
+                      onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    >
+                      <option value={6}>6 รายการ</option>
+                      <option value={12}>12 รายการ</option>
+                      <option value={24}>24 รายการ</option>
+                      <option value={48}>48 รายการ</option>
+                    </select>
+                  </div>
+                  
                   <button
                     onClick={() => {
                       navigate('/admin/malls/create');
@@ -341,6 +343,24 @@ const AdminPanel: React.FC = () => {
               </div>
 
               <MallsTableView stores={storesWithMallId} onRefresh={loadData} />
+              
+              {/* Pagination for malls */}
+              {malls.length > itemsPerPage && (
+                <div className="mt-8 flex flex-col items-center space-y-4">
+                  <PaginationInfo
+                    currentPage={mallPagination.currentPage}
+                    totalPages={mallPagination.totalPages}
+                    totalItems={mallPagination.totalItems}
+                    itemsPerPage={itemsPerPage}
+                  />
+                  <Pagination
+                    currentPage={mallPagination.currentPage}
+                    totalPages={mallPagination.totalPages}
+                    onPageChange={mallPagination.goToPage}
+                    maxVisiblePages={5}
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -366,6 +386,24 @@ const AdminPanel: React.FC = () => {
               </div>
 
               <StoresTable stores={stores} malls={malls} onRefresh={loadData} />
+              
+              {/* Pagination for stores */}
+              {stores.length > 20 && (
+                <div className="mt-8 flex flex-col items-center space-y-4">
+                  <PaginationInfo
+                    currentPage={storePagination.currentPage}
+                    totalPages={storePagination.totalPages}
+                    totalItems={storePagination.totalItems}
+                    itemsPerPage={20}
+                  />
+                  <Pagination
+                    currentPage={storePagination.currentPage}
+                    totalPages={storePagination.totalPages}
+                    onPageChange={storePagination.goToPage}
+                    maxVisiblePages={5}
+                  />
+                </div>
+              )}
             </div>
           )}
 

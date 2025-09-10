@@ -1,0 +1,61 @@
+{
+  "duplicateMappings": [
+    {
+      "from": "0oRW26lOfr6MuzRjvX3g",
+      "to": "centralworld",
+      "reason": "CentralWorld duplicate - keep slug version"
+    },
+    {
+      "from": "JrQ8t4kW7b7oR7ONtMGy", 
+      "to": "iconsiam",
+      "reason": "ICONSIAM duplicate - keep slug version"
+    },
+    {
+      "from": "POxagt0qE53gXyuwwSJ3",
+      "to": "the-mall-bangkapi", 
+      "reason": "The Mall Bangkapi duplicate - keep slug version"
+    }
+  ],
+  "slugMappings": [
+    {
+      "from": "KTWkxDAgJb3VjefKgRhG",
+      "to": "central-ladprao",
+      "reason": "Central Ladprao - convert autoId to slug"
+    },
+    {
+      "from": "atoN37TqEVkjmmyUF798",
+      "to": "central-pinklao", 
+      "reason": "Central Pinklao - convert autoId to slug"
+    },
+    {
+      "from": "CinSGuqg8MkOts1mVfDU",
+      "to": "the-mall-thapra",
+      "reason": "The Mall Thapra - convert autoId to slug"
+    }
+  ],
+  "canonicalSlugs": [
+    "central-festival-eastville",
+    "central-ladprao", 
+    "central-pinklao",
+    "central-plaza-grand-rama-9",
+    "central-plaza-ladprao",
+    "central-plaza-pinklao", 
+    "central-plaza-rama-2",
+    "central-plaza-rama-3",
+    "central-ramintra",
+    "central-westgate",
+    "centralworld",
+    "emquartier",
+    "future-park-rangsit", 
+    "iconsiam",
+    "mbk-center",
+    "mega-bangna",
+    "seacon-square-srinakarin",
+    "siam-paragon",
+    "terminal-21-asok",
+    "the-emporium",
+    "the-mall-bangkapi",
+    "the-mall-ngamwongwan",
+    "the-mall-thapra"
+  ]
+}

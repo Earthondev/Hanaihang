@@ -157,6 +157,7 @@ const StoreCreatePage: React.FC = () => {
       if (isEditMode && existingStore) {
         // Update existing store
         const result = await findStoreById(storeId!);
+        
         if (result) {
           const updateData = {
             name: values.name,
@@ -172,6 +173,8 @@ const StoreCreatePage: React.FC = () => {
           
           await updateStore(result._mallId, storeId!, updateData);
           navigate(`/stores/${storeId}`);
+        } else {
+          throw new Error('ไม่พบร้านค้าที่ต้องการแก้ไข');
         }
       } else {
         // Get mall data for denormalization

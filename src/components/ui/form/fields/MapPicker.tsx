@@ -26,6 +26,8 @@ export default function MapPicker({
   const [isMapVisible, setIsMapVisible] = useState(false);
 
   const location = watch(name);
+  const latValue = watch(`${name}.lat`);
+  const lngValue = watch(`${name}.lng`);
   const _error = errors[name]?.message as string;
 
   // Get user location
@@ -34,7 +36,8 @@ export default function MapPicker({
       navigator.geolocation.getCurrentPosition(
         position => {
           const { latitude, longitude } = position.coords;
-          setValue(name, { lat: latitude, lng: longitude });
+          setValue(`${name}.lat`, latitude);
+          setValue(`${name}.lng`, longitude);
         },
         error => {
           console.error('Error getting location:', error);

@@ -5,6 +5,7 @@
  */
 
 import {
+  doc,
   getDocs,
   getDoc,
   addDoc,
@@ -20,6 +21,7 @@ import {
 
 import { StoreFormData } from '../../types/mall-system';
 
+import { db } from './firebase';
 import { 
   mallStoresCol, 
   storeDoc, 
@@ -93,20 +95,45 @@ export async function listStores(
 
 /**
  * ดึงข้อมูลร้านตาม ID ในห้างเดียว
- * Path: malls/{mallId}/stores/{storeId}
+ * รองรับทั้ง root collection และ nested collection
  */
 export async function getStore(mallId: string, storeId: string): Promise<Store | null> {
-  const docRef = storeDoc(mallId, storeId);
-  const docSnap = await getDoc(docRef);
+  // 1) ลอง root collection ก่อน: stores/{storeId}
+  const rootRef = doc(db, 'stores', storeId);
+  const rootSnap = await getDoc(rootRef);
   
-  if (!docSnap.exists()) {
-    return null;
+  if (rootSnap.exists()) {
+    const storeData = rootSnap.data() as Store;
+    const storeWithId = { 
+      ...storeData, 
+      id: rootSnap.id, 
+      mallId: storeData.mallId || mallId // ใส่ mallId ให้ด้วย
+    };
+    
+    console.log('✅ Store found in root collection:', { storeId, mallId, name: storeData.name });
+    return convertTimestamps(storeWithId);
   }
   
-  return {
-    id: docSnap.id,
-    ...convertTimestamps(docSnap.data() as Omit<Store, 'id'>)
-  };
+  // 2) ลอง nested collection: malls/{mallId}/stores/{storeId}
+  const nestedRef = storeDoc(mallId, storeId);
+  const nestedSnap = await getDoc(nestedRef);
+  
+  if (nestedSnap.exists()) {
+    const storeData = nestedSnap.data() as Store;
+    const storeWithId = { ...storeData, id: nestedSnap.id, mallId };
+    
+    console.log('✅ Store found in nested collection:', { storeId, mallId, name: storeData.name });
+    return convertTimestamps(storeWithId);
+  }
+  
+  console.warn('❌ Store not found in both paths:', { 
+    mallId, 
+    storeId, 
+    rootPath: `stores/${storeId}`,
+    nestedPath: `malls/${mallId}/stores/${storeId}`
+  });
+  
+  return null;
 }
 
 /**
