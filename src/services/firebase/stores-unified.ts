@@ -75,13 +75,34 @@ export async function searchStoresGlobal(term: string) {
   const lower = term.toLowerCase();
   // ถ้าต้องการ startsWith ให้ index prefix หรือใช้ client filter
   const cg = collectionGroup(db, 'stores');
-  const snaps = await getDocs(query(cg, where('nameLower', '>=', lower), where('nameLower', '<=', lower + '\uf8ff'), limit(50)));
-  return snaps.docs.map(d => ({ id: d.id, ...(d.data() as Store) }));
+  
+  try {
+    const snaps = await getDocs(query(cg, where('nameLower', '>=', lower), where('nameLower', '<=', lower + '\uf8ff'), limit(50)));
+    return snaps.docs.map(d => ({ id: d.id, ...(d.data() as Store) }));
+  } catch (error) {
+    console.warn('Index not ready, using fallback search:', error);
+    // Fallback: Get all stores and filter client-side
+    const snaps = await getDocs(cg);
+    return snaps.docs
+      .map(d => ({ id: d.id, ...(d.data() as Store) }))
+      .filter(store => store.nameLower?.includes(lower))
+      .slice(0, 50);
+  }
 }
 
 // List all stores across all malls (for admin)
 export async function listAllStores() {
   const cg = collectionGroup(db, 'stores');
-  const snaps = await getDocs(query(cg, orderBy('nameLower'), limit(1000)));
-  return snaps.docs.map(d => ({ id: d.id, ...(d.data() as Store) }));
+  
+  try {
+    const snaps = await getDocs(query(cg, orderBy('nameLower'), limit(1000)));
+    return snaps.docs.map(d => ({ id: d.id, ...(d.data() as Store) }));
+  } catch (error) {
+    console.warn('Index not ready, using fallback query:', error);
+    // Fallback: Get all stores without orderBy
+    const snaps = await getDocs(cg);
+    const stores = snaps.docs.map(d => ({ id: d.id, ...(d.data() as Store) }));
+    // Sort client-side
+    return stores.sort((a, b) => (a.nameLower || '').localeCompare(b.nameLower || ''));
+  }
 }

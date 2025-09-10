@@ -90,14 +90,30 @@ export function useSearchAll() {
       // 2) Search stores by name/brand (prefix search)
       if (includeStores) {
         try {
-          const storesQ = query(
-            collection(db, 'stores'),
-            orderBy('nameLower'),
-            startAt(key),
-            endAt(key + '\uf8ff'),
-            limit(limitCount)
-          );
-          const storesSnap = await getDocs(storesQ);
+          // Try collection group query first, fallback to individual mall queries
+          let storesSnap;
+          try {
+            const storesQ = query(
+              collectionGroup(db, 'stores'),
+              orderBy('nameLower'),
+              startAt(key),
+              endAt(key + '\uf8ff'),
+              limit(limitCount)
+            );
+            storesSnap = await getDocs(storesQ);
+          } catch (error) {
+            console.warn('Collection group index not ready, using fallback:', error);
+            // Fallback: Get all stores and filter client-side
+            const fallbackQ = collectionGroup(db, 'stores');
+            const allStoresSnap = await getDocs(fallbackQ);
+            const filteredStores = allStoresSnap.docs
+              .filter(doc => {
+                const nameLower = doc.data().nameLower || '';
+                return nameLower >= key && nameLower <= key + '\uf8ff';
+              })
+              .slice(0, limitCount);
+            storesSnap = { docs: filteredStores };
+          }
           let stores = storesSnap.docs.map(doc => ({
             id: doc.id,
             ...doc.data()

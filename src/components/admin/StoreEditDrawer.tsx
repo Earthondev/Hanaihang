@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save } from 'lucide-react';
 
-import { StoreCategoryStatus } from '@/types/mall-system';
+// import { StoreCategoryStatus } from '@/types/mall-system';
 import { updateStore } from '@/services/firebase/firestore';
 import { getMall } from '@/lib/malls';
 import { listFloors } from '@/services/firebase/firestore';

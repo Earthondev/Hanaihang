@@ -26,8 +26,8 @@ export default function MapPicker({
   const [isMapVisible, setIsMapVisible] = useState(false);
 
   const location = watch(name);
-  const latValue = watch(`${name}.lat`);
-  const lngValue = watch(`${name}.lng`);
+  // const latValue = watch(`${name}.lat`);
+  // const lngValue = watch(`${name}.lng`);
   const _error = errors[name]?.message as string;
 
   // Get user location

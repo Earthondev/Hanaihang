@@ -185,8 +185,17 @@ export async function listAllStoresBatchOptimized(): Promise<{ store: Store; _ma
   const start = Date.now();
   
   // Use collection group query to fetch from all malls/{mallId}/stores
-  const q = query(collectionGroup(db, 'stores'), orderBy('name'));
-  const snapshot = await getDocs(q);
+  // Fallback: Use collectionGroup without orderBy if index is not ready
+  let snapshot;
+  try {
+    const q = query(collectionGroup(db, 'stores'), orderBy('name'));
+    snapshot = await getDocs(q);
+  } catch (error) {
+    console.warn('Index not ready, using fallback query:', error);
+    // Fallback: Get all stores without orderBy
+    const fallbackQ = collectionGroup(db, 'stores');
+    snapshot = await getDocs(fallbackQ);
+  }
   
   const results: { store: Store; _mallId: string }[] = [];
   

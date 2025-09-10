@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle, X } from 'lucide-react';
-import { cn } from '../../../utils/cn';
+// import { cn } from '../../../utils/cn';
 
 interface SuccessModalProps {
   isOpen: boolean;

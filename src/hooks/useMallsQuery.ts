@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { listMallsWithStats, listAllStoresBatchOptimized } from '@/lib/optimized-firestore';
-import { Mall, Store } from '@/types/mall-system';
+import { Mall } from '@/types/mall-system';
 
 // Query keys
 export const queryKeys = {
