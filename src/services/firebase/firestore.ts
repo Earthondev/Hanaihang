@@ -4,6 +4,7 @@ import {
   getDocs,
   getDoc,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   query,
@@ -11,11 +12,13 @@ import {
   orderBy,
   limit,
   writeBatch,
-  serverTimestamp
+  serverTimestamp,
+  deleteField
 } from 'firebase/firestore';
 
 import { MallFormData, Mall, Floor, Store, StoreFormData } from '../../types/mall-system';
 import { MallInput } from '../../legacy/validation/mall.schema';
+import { isFiniteNumber, pruneUndefined, safeParseLatLng, createCoords, sanitizeForFirestore } from '../../utils/firestore-helpers';
 
 import { db } from './firebase';
 
@@ -46,66 +49,75 @@ function convertTimestamps<T extends { createdAt?: any; updatedAt?: any }>(data:
 // ======================
 
 /**
- * สร้างห้างใหม่
+ * สร้างห้างใหม่ (Schema v2)
  */
 export async function createMall(data: MallFormData): Promise<string> {
   const now = serverTimestamp();
   const slug = data.name || toSlug(data.displayName);
   
-  const mallData = {
-    // Basic info
+  // แปลง lat/lng อย่างปลอดภัย
+  const lat = typeof data.lat === 'string' ? Number(data.lat) : data.lat;
+  const lng = typeof data.lng === 'string' ? Number(data.lng) : data.lng;
+
+  const mallDataRaw = {
+    // v2 core
     name: slug,
     displayName: data.displayName,
     address: data.address,
     district: data.district,
-    
-    // Contact info
+
+    // contact
     contact: {
       phone: data.phone || '',
-      website: data.website || ''
+      website: data.website || '',
+      social: data.social || '',
+      facebook: data.facebook || '',
+      line: data.line || '',
     },
-    
-    // Schema v2: top-level lat/lng
-    lat: typeof data.lat === 'string' ? parseFloat(data.lat) : (data.lat || 0),
-    lng: typeof data.lng === 'string' ? parseFloat(data.lng) : (data.lng || 0),
-    
-    // Legacy coords for compatibility
-    coords: data.lat && data.lng ? {
-      lat: typeof data.lat === 'string' ? parseFloat(data.lat) : data.lat,
-      lng: typeof data.lng === 'string' ? parseFloat(data.lng) : data.lng
-    } : undefined,
-    
-    // Hours handling
-    hours: data.openTime && data.closeTime ? {
-      open: data.openTime,
-      close: data.closeTime
-    } : undefined,
-    
-    // Support hours field for non-everyday schedules
-    ...(data.hours && { hours: data.hours }),
-    
-    // Social media
-    social: data.social || '',
-    
-    // Logo
-    logoUrl: data.logoUrl || '',
-    
-    // System fields
+
+    // top-level lat/lng: อัปเดตเฉพาะเมื่อเป็น number finite
+    ...(isFiniteNumber(lat) ? { lat } : {}),
+    ...(isFiniteNumber(lng) ? { lng } : {}),
+
+    // legacy mirror เฉพาะเมื่อมีค่าครบ
+    ...(isFiniteNumber(lat) && isFiniteNumber(lng)
+      ? { coords: { lat, lng } }
+      : {}),
+
+    // v2 hours: เก็บแยกเป็น openTime/closeTime
+    openTime: data.openTime || '',
+    closeTime: data.closeTime || '',
+
+    // system
     storeCount: 0,
     floorCount: 0,
     createdAt: now,
     updatedAt: now,
     published: true,
     featured: false,
-    source: 'admin-create'
+    source: 'admin-create',
   };
 
-  const docRef = await addDoc(collection(db, 'malls'), mallData);
+  // Sanitize object สำหรับ Firestore
+  const mallData = sanitizeForFirestore(mallDataRaw);
+
+  // แนะนำให้ "กำหนด doc id = slug" เพื่อป้องกันชื่อซ้ำ
+  const mallsCol = collection(db, 'malls');
+  const mallDoc = doc(mallsCol, slug);
+  await setDoc(mallDoc, mallData);  // <-- ใช้ setDoc แทน addDoc
+  await createDefaultFloors(mallDoc.id);
+
+  // Clear cache after creating mall
+  try {
+    const { cache, CACHE_KEYS } = await import('../../lib/cache');
+    cache.delete(CACHE_KEYS.MALLS);
+    cache.delete(CACHE_KEYS.MALLS_STATS);
+    console.log('🧹 ล้าง cache หลังจากสร้างห้างใหม่');
+  } catch (error) {
+    console.log('⚠️ ไม่สามารถล้าง cache ได้:', error);
+  }
   
-  // สร้าง floors เริ่มต้น
-  await createDefaultFloors(docRef.id);
-  
-  return docRef.id;
+  return mallDoc.id;
 }
 
 /**
@@ -164,7 +176,7 @@ export async function getMallByName(name: string): Promise<Mall | null> {
 /**
  * อัปเดตข้อมูลห้าง
  */
-export async function updateMall(id: string, data: Partial<MallInput>): Promise<void> {
+export async function updateMall(id: string, data: Partial<MallFormData>): Promise<void> {
   try {
     // ดึงข้อมูลห้างเดิมก่อนเพื่อ merge contact field
     const mallRef = doc(db, 'malls', id);
@@ -175,7 +187,6 @@ export async function updateMall(id: string, data: Partial<MallInput>): Promise<
     }
     
     const existingMall = mallSnap.data();
-    const existingContact = existingMall.contact || {};
     
     const updateData: any = {
       updatedAt: serverTimestamp(),
@@ -188,35 +199,67 @@ export async function updateMall(id: string, data: Partial<MallInput>): Promise<
     if (data.district !== undefined) updateData.district = data.district;
 
     // Contact fields - merge with existing data
+    const existingContact = { ...(existingMall.contact || {}) };
     const contactUpdates: any = { ...existingContact };
+    
     if (data.phone !== undefined) contactUpdates.phone = data.phone;
     if (data.website !== undefined) contactUpdates.website = data.website;
-    if ((data as any).social !== undefined) contactUpdates.social = (data as any).social;
     
-    // Only update contact if there are changes
+    // รองรับหลายช่องทางโซเชียล
+    if (data.facebook !== undefined) contactUpdates.facebook = data.facebook;
+    if (data.line !== undefined) contactUpdates.line = data.line;
+    if (data.social !== undefined) contactUpdates.social = data.social;
+    
+    // อัปเดต contact เฉพาะเมื่อมีการเปลี่ยนแปลงจริง ๆ
     if (Object.keys(contactUpdates).length > 0) {
       updateData.contact = contactUpdates;
     }
 
-    // Handle coordinates
-    if ((data as any).location !== undefined && (data as any).location !== null) {
-      const location = (data as any).location;
-      updateData.coords = {
-        lat: location.lat || 0,
-        lng: location.lng || 0,
-      };
+    // Handle coordinates - support both location object and direct lat/lng
+    // lat/lng: อัปเดตเฉพาะเมื่อเป็นตัวเลขที่ finite
+    const loc = (data as any).location;
+    if (loc && isFiniteNumber(loc.lat)) updateData.lat = loc.lat;
+    if (loc && isFiniteNumber(loc.lng)) updateData.lng = loc.lng;
+    if (loc && isFiniteNumber(loc.lat) && isFiniteNumber(loc.lng)) {
+      updateData.coords = { lat: loc.lat, lng: loc.lng };
+    }
+    if (!loc) {
+      if (isFiniteNumber(data.lat)) updateData.lat = data.lat!;
+      if (isFiniteNumber(data.lng)) updateData.lng = data.lng!;
+      if (isFiniteNumber(data.lat) && isFiniteNumber(data.lng)) {
+        updateData.coords = { lat: data.lat!, lng: data.lng! };
+      }
     }
 
-    // Handle hours
-    if ((data as any).openTime || (data as any).closeTime) {
-      updateData.hours = {
-        open: (data as any).openTime || '10:00',
-        close: (data as any).closeTime || '22:00',
-      };
+    // Handle hours - v2 schema: openTime/closeTime
+    const willUpdateTime = (data as any).openTime !== undefined || (data as any).closeTime !== undefined;
+    
+    if (willUpdateTime) {
+      if ((data as any).openTime !== undefined) updateData.openTime = (data as any).openTime;
+      if ((data as any).closeTime !== undefined) updateData.closeTime = (data as any).closeTime;
+      // ลบ legacy hours เฉพาะตอนอัปเดตเวลา
+      updateData.hours = deleteField();
     }
 
-    console.log('🔄 Updating mall with data:', updateData);
-    await updateDoc(mallRef, updateData);
+    // Sanitize object สำหรับ Firestore
+    const finalUpdateData = sanitizeForFirestore(updateData);
+
+    console.log('🔄 Updating mall with data:', finalUpdateData);
+    console.log('📍 Location data:', (data as any).location);
+    console.log('📍 Lat/Lng data:', { lat: data.lat, lng: data.lng });
+    
+    await updateDoc(mallRef, finalUpdateData);
+    
+    // Clear cache after updating mall
+    try {
+      const { cache, CACHE_KEYS } = await import('../../lib/cache');
+      cache.delete(CACHE_KEYS.MALLS);
+      cache.delete(CACHE_KEYS.MALLS_STATS);
+      console.log('🧹 ล้าง cache หลังจากอัปเดตห้าง');
+    } catch (error) {
+      console.log('⚠️ ไม่สามารถล้าง cache ได้:', error);
+    }
+    
     console.log('✅ Mall updated successfully');
     
   } catch (error) {
@@ -257,25 +300,18 @@ export async function deleteMall(_mallId: string): Promise<void> {
  * สร้าง floors เริ่มต้นสำหรับห้างใหม่
  */
 async function createDefaultFloors(_mallId: string): Promise<void> {
-  const defaultFloors = [
-    { label: 'G', order: 0 },
-    { label: '1', order: 1 },
-    { label: '2', order: 2 },
-    { label: '3', order: 3 }
-  ];
-
-  const promises = defaultFloors.map(floor => createFloor(_mallId, floor));
-  await Promise.all(promises);
-  
-  // อัปเดต floorCount ในห้าง
-  await updateMallFloorCount(_mallId, defaultFloors.length);
+  const defaults = ['G', '1', '2', '3'].map((label, i) => ({ label, order: i }));
+  await Promise.all(defaults.map(f => createFloor(_mallId, f)));
+  // updateMallFloorCount ถูกเรียกใน createFloor แต่ถ้าจะทำครั้งเดียว:
+  // await updateMallFloorCount(_mallId, defaults.length);
 }
 
 /**
- * สร้าง floor ใหม่
+ * สร้าง floor ใหม่ (ใช้ id = label เพื่อป้องกันการซ้ำ)
  */
 export async function createFloor(_mallId: string, data: { label: string; order: number }): Promise<string> {
   const now = serverTimestamp();
+  const id = data.label.toLowerCase();
   
   const floorData = {
     label: data.label,
@@ -284,12 +320,13 @@ export async function createFloor(_mallId: string, data: { label: string; order:
     updatedAt: now
   };
 
-  const docRef = await addDoc(collection(db, 'malls', _mallId, 'floors'), floorData);
+  const ref = doc(collection(db, 'malls', _mallId, 'floors'), id);
+  await setDoc(ref, floorData);
   
   // อัปเดต floorCount ในห้าง
   await updateMallFloorCount(_mallId);
   
-  return docRef.id;
+  return ref.id;
 }
 
 /**

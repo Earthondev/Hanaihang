@@ -6,12 +6,14 @@ import { AnimatedSuccessModal } from '../components/ui/feedback/SuccessModal';
 import MallForm from '../legacy/forms/MallForm';
 import FloorManager from '../components/admin/FloorManager';
 import { getMall, listFloors } from '../services/firebase/firestore';
+import { useInvalidateMalls } from '../hooks/useMallsQuery';
 import { Mall, Floor } from '../types/mall-system';
 
 export default function MallEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { push: toast } = useToast();
+  const invalidateAll = useInvalidateMalls();
   const [mall, setMall] = useState<Mall | null>(null);
   const [floors, setFloors] = useState<Floor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,6 +59,14 @@ export default function MallEditPage() {
   const handleSubmit = async (mallName?: string) => {
     console.log('🎉 MallEditPage handleSubmit called!');
     console.log('🔍 mallName received:', mallName);
+    
+    // Invalidate React Query cache to refresh data
+    try {
+      invalidateAll.invalidateAll();
+      console.log('✅ Cache invalidated successfully');
+    } catch (error) {
+      console.error('Error invalidating cache:', error);
+    }
     
     // Reload mall data to get updated information
     try {

@@ -122,7 +122,7 @@ export default function EnhancedSearchBox({
           <div className="space-y-2 text-sm text-gray-500 font-prompt">
             <div className="flex items-center space-x-2">
               <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-              <span>พิมพ์ชื่อห้าง เช่น "Central Rama 3"</span>
+              <span>พิมพ์ชื่อห้าง เช่น "Central Embassy" หรือ "MBK Center"</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="w-2 h-2 bg-green-500 rounded-full"></span>

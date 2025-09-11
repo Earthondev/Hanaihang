@@ -38,6 +38,11 @@ export function DeleteButton({
     await run(async () => {
       await onDelete(id);
       onSuccess?.();
+      
+      // โหลดหน้าใหม่เพื่อให้แน่ใจว่าข้อมูลอัปเดต
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     });
   };
 

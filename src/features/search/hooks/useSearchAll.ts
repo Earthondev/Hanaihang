@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef } from 'react';
-import { collection, getDocs, query, where, orderBy, limit, startAt, endAt } from 'firebase/firestore';
+import { collection, collectionGroup, getDocs, query, where, orderBy, limit, startAt, endAt } from 'firebase/firestore';
 
 import { db } from '@/services/firebase/firebase';
-import { SearchResult, SearchOptions } from '@/types/mall-system';
+import { SearchResult, SearchOptions, Mall, Store } from '@/types/mall-system';
 
 // Helper function to convert search keyword to lowercase
 const toKey = (s: string): string => (s || "").trim().toLowerCase();
@@ -61,7 +61,7 @@ export function useSearchAll() {
           );
           const mallsSnap = await getDocs(mallsQ);
           results.malls = mallsSnap.docs.map(doc => ({
-            id: doc.id,
+            id: doc.id as string,
             ...doc.data()
           } as Mall));
         } catch (err) {
@@ -70,7 +70,7 @@ export function useSearchAll() {
           const allMallsQ = query(collection(db, 'malls'), limit(100));
           const allMallsSnap = await getDocs(allMallsQ);
           const allMalls = allMallsSnap.docs.map(doc => ({
-            id: doc.id,
+            id: doc.id as string,
             ...doc.data()
           } as Mall));
           
@@ -115,13 +115,13 @@ export function useSearchAll() {
             storesSnap = { docs: filteredStores };
           }
           let stores = storesSnap.docs.map(doc => ({
-            id: doc.id,
+            id: doc.id as string,
             ...doc.data()
           } as Store));
 
           // 3) Enrich store data with mall information
-          const mallIds = [...new Set(stores.map(s => s.mallId).filter(Boolean))];
-          const mallMap = new Map<string>();
+          const mallIds = [...new Set(stores.map(s => s.mallId).filter(Boolean))] as string[];
+          const mallMap = new Map<string, Mall>();
           
           if (mallIds.length > 0) {
             const mallPromises = mallIds.map(async (mallId) => {
@@ -129,7 +129,7 @@ export function useSearchAll() {
                 const mallQ = query(collection(db, 'malls'), where('__name__', '==', mallId));
                 const mallSnap = await getDocs(mallQ);
                 if (!mallSnap.empty) {
-                  const mall = { id: mallSnap.docs[0].id, ...mallSnap.docs[0].data() } as Mall;
+                  const mall = { id: mallSnap.docs[0].id as string, ...mallSnap.docs[0].data() } as Mall;
                   mallMap.set(mallId, mall);
                 }
               } catch (err) {
@@ -187,7 +187,7 @@ export function useSearchAll() {
           const allStoresQ = query(collection(db, 'stores'), limit(200));
           const allStoresSnap = await getDocs(allStoresQ);
           const allStores = allStoresSnap.docs.map(doc => ({
-            id: doc.id,
+            id: doc.id as string,
             ...doc.data()
           } as Store));
           

@@ -1,59 +1,88 @@
 import React from 'react';
-import { Store, Building, Search } from 'lucide-react';
-
-import { BaseButton } from './BaseButton';
+import { Search, AlertCircle, Store, MapPin } from 'lucide-react';
 
 interface EmptyStateProps {
-  type: 'malls' | 'stores' | 'search';
-  title: string;
-  description: string;
-  actionLabel?: string;
-  actionHref?: string;
-  onAction?: () => void;
+  type: 'no-results' | 'no-stores' | 'no-malls' | 'error' | 'bookmarks';
+  title?: string;
+  description?: string;
+  action?: {
+    label: string;
+    onClick: () => void;
+    variant?: 'primary' | 'secondary';
+  };
+  icon?: React.ReactNode;
 }
+
+const defaultConfig = {
+  'no-results': {
+    title: 'ไม่พบผลการค้นหา',
+    description: 'ลองใช้คำค้นหาอื่น หรือตรวจสอบการสะกดคำ',
+    icon: <Search className="w-16 h-16 text-gray-400" />
+  },
+  'no-stores': {
+    title: 'ยังไม่มีร้านค้า',
+    description: 'ห้างนี้ยังไม่มีร้านค้าในระบบ',
+    icon: <Store className="w-16 h-16 text-gray-400" />
+  },
+  'no-malls': {
+    title: 'ไม่พบห้างสรรพสินค้า',
+    description: 'ยังไม่มีห้างสรรพสินค้าในระบบ',
+    icon: <MapPin className="w-16 h-16 text-gray-400" />
+  },
+  'error': {
+    title: 'เกิดข้อผิดพลาด',
+    description: 'ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+    icon: <AlertCircle className="w-16 h-16 text-red-400" />
+  },
+  'bookmarks': {
+    title: 'ยังไม่มีห้างโปรด',
+    description: 'กดปุ่ม ❤️ เพื่อบันทึกห้างที่คุณชอบ',
+    icon: <Search className="w-16 h-16 text-gray-400" />
+  }
+};
 
 export function EmptyState({ 
   type, 
   title, 
   description, 
-  actionLabel, 
-  actionHref, 
-  onAction 
+  action, 
+  icon 
 }: EmptyStateProps) {
-  const icons = {
-    malls: Building,
-    stores: Store,
-    search: Search
-  };
-
-  const Icon = icons[type];
+  const config = defaultConfig[type] || defaultConfig['error'];
+  const displayTitle = title || config.title;
+  const displayDescription = description || config.description;
+  const displayIcon = icon || config.icon;
 
   return (
-    <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center">
-      <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-gray-100 grid place-items-center">
-        <Icon className="h-6 w-6 text-gray-500" />
+    <div className="text-center py-16">
+      <div className="w-20 h-20 bg-gray-100 rounded-2xl mx-auto mb-6 flex items-center justify-center">
+        {displayIcon}
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 mb-6">{description}</p>
-      {actionLabel && (
-        <div className="flex justify-center">
-          {actionHref ? (
-            <a 
-              href={actionHref}
-              className="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-xl font-medium transition-all duration-200 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98]"
-            >
-              {actionLabel}
-            </a>
-          ) : (
-            <BaseButton 
-              variant="primary" 
-              onClick={onAction}
-            >
-              {actionLabel}
-            </BaseButton>
-          )}
-        </div>
+      
+      <h3 className="text-xl font-semibold text-gray-900 mb-3">
+        {displayTitle}
+      </h3>
+      
+      <p className="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
+        {displayDescription}
+      </p>
+      
+      {action && (
+        <button
+          onClick={action.onClick}
+          className={`
+            inline-flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200
+            ${action.variant === 'primary' 
+              ? 'bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2' 
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2'
+            }
+          `}
+        >
+          {action.label}
+        </button>
       )}
     </div>
   );
 }
+
+export default EmptyState;

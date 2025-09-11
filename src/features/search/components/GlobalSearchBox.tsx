@@ -294,7 +294,7 @@ export function GlobalSearchBox({
               </div>
               <div className="px-4 py-2">
                 <div className="flex flex-wrap gap-2">
-                  {['Central Rama 3', 'Zara', 'Starbucks', 'Siam Paragon', 'Terminal 21', 'Uniqlo'].map((suggestion) => (
+                  {['Central Embassy', 'MBK Center', 'Terminal 21', 'Siam Paragon', 'Zara', 'Starbucks'].map((suggestion) => (
                     <button
                       key={suggestion}
                       onClick={() => {

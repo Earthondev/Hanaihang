@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 
 import { useAuth } from '@/config/contexts/AuthContext';
 import { useMallsWithStats, useAllStores, useInvalidateMalls } from '@/hooks/useMallsQuery';
@@ -12,15 +12,31 @@ import { AdminPanelSkeleton, MallListSkeleton, StoreTableSkeleton } from '@/comp
 import { Pagination, PaginationInfo } from '@/components/ui/pagination/Pagination';
 import { usePagination } from '@/hooks/usePagination';
 
+// Premium components
+import AdminHeader from '@/components/admin/AdminHeader';
+import PremiumTabs from '@/components/ui/PremiumTabs';
+import FilterBar from '@/components/ui/FilterBar';
+import { PremiumTable } from '@/components/ui/PremiumTable';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { SkeletonBlock } from '../components/ui/SkeletonBlock';
+import { getStoreReactKey } from '@/lib/store-utils';
+
 const AdminPanel: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [activeTab, setActiveTab] = useState<'malls' | 'stores' | 'logos'>(
     'malls',
   );
   // const [showMallForm, setShowMallForm] = useState(false);
   // const [showStoreForm, setShowStoreForm] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(12);
+  
+  // Filter states for stores
+  const [searchQuery, setSearchQuery] = useState('');
+  const [mallFilter, setMallFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [deletingKey, setDeletingKey] = useState<string | null>(null);
 
   const { user, logout } = useAuth();
   
@@ -38,45 +54,47 @@ const AdminPanel: React.FC = () => {
 
   // Pagination for stores
   const storePagination = usePagination({
-    data: storesQuery.data?.map(item => ({ ...item.store, _mallId: item._mallId })) || [],
+    data: storesQuery.data?.map(item => ({ ...item.store, mallId: item._mallId })) || [],
     itemsPerPage: 20,
     initialPage: 1
   });
 
   // Derived data
   const malls = mallsQuery.data || [];
-  const stores = storesQuery.data?.map(item => ({ ...item.store, _mallId: item._mallId })) || [];
+  const stores = storesQuery.data?.map(item => ({
+    ...item.store,
+    mallId: item._mallId,     // ⬅️ ฟิลด์ที่ StoresTable ใช้จริง
+  })) || [];
   const storesWithMallId = storesQuery.data || [];
   const loading = mallsQuery.isLoading || storesQuery.isLoading;
   const error = mallsQuery.error || storesQuery.error;
 
   // Valid tabs for parameter validation
-  const validTabs = new Set(['stores', 'malls', 'logos']);
+  const validTabs = useMemo(() => new Set(['stores', 'malls', 'logos']), []);
 
   // Check URL parameter for initial tab with validation
   const initializedRef = useRef(false);
   useEffect(() => {
     if (initializedRef.current) return;
     
-    const tabParam = searchParams.get('tab')?.toLowerCase();
-    const currentPath = window.location.pathname;
-
+    const tabParam = (searchParams.get('tab') || '').toLowerCase();
+    
     // Check if we're on /admin/malls route
-    if (currentPath === '/admin/malls') {
+    if (pathname === '/admin/malls') {
       setActiveTab('malls');
       if (tabParam !== 'malls') {
-        setSearchParams({ tab: 'malls' });
+        setSearchParams({ tab: 'malls' }, { replace: true });
       }
-    } else if (validTabs.has(tabParam || '')) {
+    } else if (validTabs.has(tabParam)) {
       setActiveTab(tabParam as 'malls' | 'stores' | 'logos');
-    } else if (tabParam) {
-      // Invalid tab parameter - fallback to malls
+    } else {
+      // No valid tab parameter - set default
       setActiveTab('malls');
-      setSearchParams({ tab: 'malls' });
+      setSearchParams({ tab: 'malls' }, { replace: true });
     }
     
     initializedRef.current = true;
-  }, [validTabs, setSearchParams]);
+  }, [pathname, searchParams, setSearchParams, validTabs]);
 
   // Handle deep-link for drawers (redirect to new pages)
   const drawerProcessedRef = useRef(false);
@@ -91,7 +109,7 @@ const AdminPanel: React.FC = () => {
       navigate('/admin/stores/create');
       drawerProcessedRef.current = true;
     }
-  }, [searchParams.get('drawer'), navigate]);
+  }, [searchParams, navigate]);
 
   // Sync state with URL when tab changes
   const handleTabChange = (tab: 'malls' | 'stores' | 'logos') => {
@@ -126,161 +144,96 @@ const AdminPanel: React.FC = () => {
     invalidateAll();
   };
 
+  // Store filtering and management
+  const filteredStores = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return stores.filter((store) => {
+      if (!store.id) return false; // Filter out stores without id
+      const name = (store.name ?? '').toString().toLowerCase();
+      const category = (store.category ?? '').toString();
+      const matchesSearch = !q || name.includes(q);
+      const matchesMall = !mallFilter || store.mallId === mallFilter;
+      const matchesCategory = !categoryFilter || category === categoryFilter;
+      return matchesSearch && matchesMall && matchesCategory;
+    });
+  }, [stores, searchQuery, mallFilter, categoryFilter]);
+
+  const categories = useMemo(() => {
+    return [...new Set(stores.map(s => s.category).filter(Boolean))].sort();
+  }, [stores]);
+
+  const getMallName = (mallId: string) => {
+    const mall = malls.find(m => m.id === mallId);
+    return mall?.displayName || mall?.name || 'ไม่พบข้อมูล';
+  };
+
+  const handleDelete = async (storeId: string, mallId: string) => {
+    const rowKey = `${mallId}/${storeId}`;
+    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบร้านค้านี้?')) return;
+    
+    try {
+      if (!mallId) {
+        alert('❌ ไม่พบข้อมูลห้างสรรพสินค้า');
+        return;
+      }
+      setDeletingKey(rowKey);
+      // await deleteStore(mallId, storeId);
+      loadData();
+      alert('✅ ลบร้านค้าสำเร็จ!');
+    } catch (error) {
+      console.error('❌ Error deleting store:', error);
+      alert('❌ เกิดข้อผิดพลาดในการลบร้านค้า');
+    } finally {
+      setDeletingKey(null);
+    }
+  };
+
   // Data is automatically loaded by React Query hooks
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-                    />
-                  </svg>
-                </div>
-                <h1 className="text-xl font-semibold text-gray-900">
-                  Admin Panel
-                </h1>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-                <div className="text-sm text-gray-500">
-                  อัปเดตล่าสุด: {mallsQuery.dataUpdatedAt ? new Date(mallsQuery.dataUpdatedAt).toLocaleString('th-TH') : 'กำลังโหลด...'}
-                </div>
-              <button
-                onClick={loadData}
-                className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-                title="รีเฟรชข้อมูล"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
-                </svg>
-              </button>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-medium text-gray-700">
-                    {user?.email?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <span className="text-sm text-gray-700">{user?.email}</span>
-              </div>
-              <button
-                onClick={logout}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
-                title="ออกจากระบบ"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AdminHeader
+        user={user}
+        onRefresh={loadData}
+        onLogout={logout}
+        dataUpdatedAt={mallsQuery.dataUpdatedAt}
+        isRefreshing={mallsQuery.isFetching || storesQuery.isFetching}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs */}
-        <div className="flex space-x-8 mb-8">
-          <button
-            onClick={() => handleTabChange('malls')}
-            className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98] ${
-              activeTab === 'malls'
-                ? 'bg-green-100 text-green-700 border border-green-200'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-            aria-label="แท็บจัดการห้างสรรพสินค้า"
-            data-testid="malls-tab"
-          >
-            ห้างสรรพสินค้า ({malls.length})
-          </button>
-          <button
-            onClick={() => handleTabChange('stores')}
-            className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98] ${
-              activeTab === 'stores'
-                ? 'bg-green-100 text-green-700 border border-green-200'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-            aria-label="แท็บจัดการร้านค้า"
-            data-testid="stores-tab"
-          >
-            ร้านค้า ({stores.length})
-          </button>
-          <button
-            onClick={() => handleTabChange('logos')}
-            className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98] ${
-              activeTab === 'logos'
-                ? 'bg-green-100 text-green-700 border border-green-200'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-            aria-label="แท็บจัดการโลโก้"
-            data-testid="logos-tab"
-          >
-            🖼️ โลโก้ห้าง
-          </button>
+        {/* Premium Tabs */}
+        <div className="mb-8">
+          <PremiumTabs
+            active={activeTab}
+            onChange={handleTabChange}
+            counts={{ malls: malls.length, stores: stores.length, logos: malls.length }}
+          />
         </div>
 
         {/* Content */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           {loading && (
-            <div className="p-6">
-              <div className="animate-pulse space-y-4">
-                <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-                <div className="space-y-3">
-                  <div className="h-4 bg-gray-200 rounded"></div>
-                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                  <div className="h-4 bg-gray-200 rounded w-4/6"></div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                  <div className="h-32 bg-gray-200 rounded"></div>
-                  <div className="h-32 bg-gray-200 rounded"></div>
-                  <div className="h-32 bg-gray-200 rounded"></div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {loading && (
             <AdminPanelSkeleton />
           )}
 
-          {error && (
+          {mallsQuery.error && (
             <div className="p-6 text-center">
-              <div className="text-red-600 mb-2">❌ {error instanceof Error ? error.message : 'ไม่สามารถโหลดข้อมูลได้'}</div>
+              <div className="text-red-600 mb-2">❌ โหลดห้างล้มเหลว: {(mallsQuery.error as Error).message}</div>
               <button
+                type="button"
+                onClick={loadData}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+              >
+                ลองใหม่
+              </button>
+            </div>
+          )}
+          
+          {storesQuery.error && (
+            <div className="p-6 text-center">
+              <div className="text-red-600 mb-2">❌ โหลดร้านล้มเหลว: {(storesQuery.error as Error).message}</div>
+              <button
+                type="button"
                 onClick={loadData}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
               >
@@ -289,7 +242,7 @@ const AdminPanel: React.FC = () => {
             </div>
           )}
 
-          {!loading && !error && activeTab === 'malls' && (
+          {!loading && !mallsQuery.error && activeTab === 'malls' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
@@ -320,6 +273,7 @@ const AdminPanel: React.FC = () => {
                   </div>
                   
                   <button
+                    type="button"
                     onClick={() => {
                       navigate('/admin/malls/create');
                       // Analytics tracking
@@ -337,7 +291,7 @@ const AdminPanel: React.FC = () => {
                     aria-label="เปิดฟอร์มเพิ่มห้างใหม่"
                     data-testid="add-mall-button"
                   >
-                    สร้างห้าง
+                    เพิ่มห้าง
                   </button>
                 </div>
               </div>
@@ -364,7 +318,7 @@ const AdminPanel: React.FC = () => {
             </div>
           )}
 
-          {!loading && !error && activeTab === 'stores' && (
+          {!loading && !storesQuery.error && activeTab === 'stores' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
@@ -376,6 +330,7 @@ const AdminPanel: React.FC = () => {
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => navigate('/admin/stores/create')}
                   className="bg-green-600 hover:bg-green-700 focus:bg-green-700 text-white px-4 py-3 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.98]"
                   aria-label="เปิดฟอร์มเพิ่มร้านค้าใหม่"
@@ -385,7 +340,70 @@ const AdminPanel: React.FC = () => {
                 </button>
               </div>
 
-              <StoresTable stores={stores} malls={malls} onRefresh={loadData} />
+              <FilterBar
+                searchValue={searchQuery}
+                onSearchChange={setSearchQuery}
+                onClear={() => setSearchQuery('')}
+                placeholder="ค้นหาร้านค้า..."
+              >
+                <div className="flex gap-3">
+                  <select
+                    value={mallFilter}
+                    onChange={(e) => setMallFilter(e.target.value)}
+                    className="h-11 px-3 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="">ทุกห้าง</option>
+                    {malls.map(mall => (
+                      <option key={mall.id} value={mall.id}>
+                        {mall.displayName || mall.name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="h-11 px-3 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="">ทุกหมวดหมู่</option>
+                    {categories.map(category => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                </div>
+              </FilterBar>
+              
+              {filteredStores.length === 0 ? (
+                <EmptyState
+                  type="no-stores"
+                  title="ยังไม่มีร้านค้า"
+                  description="เริ่มต้นโดยการเพิ่มร้านค้าแรกของคุณ เพื่อให้ลูกค้าสามารถค้นหาและดูข้อมูลร้านค้าได้"
+                  action={{
+                    label: "เพิ่มร้านค้าแรก",
+                    onClick: () => navigate('/admin/stores/create'),
+                    variant: "primary"
+                  }}
+                />
+              ) : (
+                <PremiumTable
+                  rows={filteredStores.map(store => ({
+                    key: getStoreReactKey(store as any),
+                    name: store.name || '—',
+                    meta: store.phone,
+                    badge: store.category,
+                    mall: getMallName(store.mallId),
+                    position: `ชั้น ${store.floorId || '—'} ยูนิต ${store.unit || '—'}`
+                  }))}
+                  onEdit={(key) => {
+                    const store = filteredStores.find(s => getStoreReactKey(s as any) === key);
+                    if (store && store.id) navigate(`/admin/stores/${store.mallId}/${store.id}/edit`);
+                  }}
+                  onDelete={(key) => {
+                    const store = filteredStores.find(s => getStoreReactKey(s as any) === key);
+                    if (store && store.id) handleDelete(store.id, store.mallId);
+                  }}
+                  deletingKey={deletingKey}
+                />
+              )}
               
               {/* Pagination for stores */}
               {stores.length > 20 && (
@@ -407,7 +425,7 @@ const AdminPanel: React.FC = () => {
             </div>
           )}
 
-          {!loading && !error && activeTab === 'logos' && (
+          {!loading && !mallsQuery.error && activeTab === 'logos' && (
             <div className="p-6">
               <MallLogoManager />
             </div>

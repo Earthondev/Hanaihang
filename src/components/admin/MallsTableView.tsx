@@ -205,14 +205,20 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
   const handleDelete = async (_mallId: string) => {
     try {
       await deleteMall(_mallId);
+      
       // Clear cache and refresh the data
       clearMallsCache();
       clearStoresCache();
       const updatedMalls = await listMallsOptimized();
       setMalls(updatedMalls);
       
-      // ไม่ต้องดึงข้อมูล stores ซ้ำ - ให้ AdminPanel จัดการ
+      // อัปเดตข้อมูลทันที
       onRefresh?.();
+      
+      // โหลดหน้าใหม่เพื่อให้แน่ใจว่าข้อมูลอัปเดต
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (err) {
       console.error('Error deleting mall:', err);
     }

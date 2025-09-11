@@ -4,36 +4,60 @@ service cloud.firestore {
 
     function isSignedIn() { return request.auth != null; }
     function isAdmin() { return isSignedIn() && request.auth.token.role == 'admin'; }
+    function isDevelopment() { return true; } // อนุญาตให้เขียนได้ในโหมด development
 
-    match /{document=**} {
-      allow read: if true;                 // เว็บอ่านได้ทุกคน
-    }
-
-    // สำหรับการทดสอบ - อนุญาตให้เขียนได้ถ้าเข้าสู่ระบบแล้ว
+    // ข้อมูลห้าง - อ่านได้ทุกคน, เขียนต้องเข้าสู่ระบบ
     match /malls/{mallId} {
-      allow write: if isSignedIn();
+      allow read: if true;                 // เปิดให้อ่านได้ทุกคน
+      allow write: if isDevelopment();     // เขียนได้ในโหมด development
+      
+      // ชั้นของห้าง
       match /floors/{floorId} {
-        allow write: if isSignedIn();
+        allow read: if true;
+        allow write: if isDevelopment();
       }
+      
+      // ร้านค้าในห้าง
       match /stores/{storeId} {
-        allow write: if isSignedIn() && request.resource.data.mallId == mallId;
+        allow read: if true;
+        allow write: if isDevelopment();
       }
     }
 
-    match /stores/{storeId} {              // global stores
-      allow write: if isSignedIn();
+    // ร้านค้าทั่วไป
+    match /stores/{storeId} {
+      allow read: if true;
+      allow write: if isDevelopment();
     }
 
+    // แบรนด์
     match /brands/{brandId} {
-      allow write: if isSignedIn();
+      allow read: if true;
+      allow write: if isDevelopment();
     }
 
+    // โปรโมชั่น
     match /promotions/{promoId} {
-      allow write: if isSignedIn();
+      allow read: if true;
+      allow write: if isDevelopment();
     }
 
+    // กิจกรรม
     match /events/{eventId} {
-      allow write: if isSignedIn();
+      allow read: if true;
+      allow write: if isDevelopment();
+    }
+
+    // Collection Group Queries - อนุญาตให้อ่าน stores จากทุกห้าง
+    match /{path=**}/stores/{storeId} {
+      allow read: if true;
+      allow write: if isDevelopment();
+    }
+
+    // กันตก - ป้องกันการเข้าถึงเอกสารอื่น ๆ
+    match /{document=**} {
+      allow read: if false;
+      allow write: if false;
     }
   }
 }

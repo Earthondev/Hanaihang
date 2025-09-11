@@ -99,7 +99,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
             <TextField
               name="displayName"
               label="ชื่อห้างสรรพสินค้า"
-              placeholder="เช่น Central Rama 3, Siam Paragon"
+              placeholder="เช่น Central Embassy, MBK Center, Terminal 21, Siam Paragon"
               helper="ชื่อที่แสดงในแอปพลิเคชัน"
               required
             />

@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Search, Clock, Building, MapPin, ArrowRight, Heart } from 'lucide-react';
+import { Search, Clock, Building, MapPin, ArrowRight, Heart, Store } from 'lucide-react';
 
 import { getStores, getFloors, getActivePromotions } from '@/legacy/services/api';
-import { malls } from '@/data/malls';
+import { getMallByName, listFloors, listStores } from '@/services/firebase/firestore';
+import { useRealtimeMall } from '@/hooks/useRealtimeMalls';
+import { useRealtimeStores } from '@/hooks/useRealtimeStores';
+import { Mall, Floor, Store as StoreType } from '@/types/mall-system';
 import { isStoreOpen } from '@/legacy/utils';
 import Card from '@/ui/Card';
 import Input from '@/ui/Input';
@@ -11,21 +14,62 @@ import Button from '@/ui/Button';
 import MallHeroCampaign from '@/legacy/components/MallHeroCampaign';
 
 const MallHome: React.FC = () => {
-  const { mallId } = useParams<{ _mallId: string }>();
+  const { mallId } = useParams<{ mallId: string }>();
   const [selectedFloor, setSelectedFloor] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [floors, setFloors] = useState<Floor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const mall = malls.find(m => m.id === mallId) || null;
-  const floors = getFloors(mallId || '');
-  const stores = getStores(mallId || '');
+  // ใช้ real-time data สำหรับห้าง
+  const { mall, loading: mallLoading, error: mallError } = useRealtimeMall(mallId || '');
+  
+  // ใช้ real-time data สำหรับร้าน
+  const { stores, loading: storesLoading, error: storesError } = useRealtimeStores(mall?.id || '');
+
+  // Load floors data (ยังใช้ one-time fetch เพราะไม่มี real-time listener สำหรับ floors)
+  useEffect(() => {
+    const loadFloors = async () => {
+      if (!mall?.id) return;
+      
+      try {
+        console.log('🔍 Loading floors for mall:', mall.id);
+        const floorsData = await listFloors(mall.id);
+        console.log('✅ Floors loaded:', floorsData);
+        setFloors(floorsData);
+      } catch (err) {
+        console.error('❌ Error loading floors:', err);
+      }
+    };
+    
+    loadFloors();
+  }, [mall?.id]);
+
+  // Update loading and error states
+  useEffect(() => {
+    setLoading(mallLoading || storesLoading);
+    setError(mallError || storesError);
+  }, [mallLoading, storesLoading, mallError, storesError]);
+
   const promotions = getActivePromotions(mallId || '');
   const activeCampaign = promotions[0];
 
-  if (!mall) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">ไม่พบข้อมูลห้าง</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">กำลังโหลดข้อมูลห้าง...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !mall) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error || 'ไม่พบข้อมูลห้าง'}</p>
           <Button onClick={() => window.history.back()}>
             กลับไปหน้าแรก
           </Button>
@@ -36,10 +80,10 @@ const MallHome: React.FC = () => {
 
   // Filter stores by floor and search
   const filteredStores = stores.filter(store => {
-    const matchesFloor = selectedFloor === 'all' || store.floor === selectedFloor;
+    const matchesFloor = selectedFloor === 'all' || store.floorId === selectedFloor;
     const matchesSearch = !searchQuery || 
       store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      store.category.toLowerCase().includes(searchQuery.toLowerCase());
+      (store.category && store.category.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesFloor && matchesSearch;
   });
 
@@ -97,23 +141,23 @@ const MallHome: React.FC = () => {
                   ทั้งหมด
                 </button>
                                  {floors.map((floor) => {
-                   const floorDisplay = floor.id === 'G' ? 'ชั้น G' : 
-                     floor.id === '1' ? '1st Floor' :
-                     floor.id === '2' ? '2nd Floor' :
-                     floor.id === '3' ? '3rd Floor' :
-                     floor.id === '4' ? '4th Floor' :
-                     floor.id === '5' ? '5th Floor' :
-                     floor.id === '6' ? '6th Floor' : `ชั้น ${floor.name}`;
+                   const floorDisplay = floor.label === 'G' ? 'ชั้น G' : 
+                     floor.label === '1' ? '1st Floor' :
+                     floor.label === '2' ? '2nd Floor' :
+                     floor.label === '3' ? '3rd Floor' :
+                     floor.label === '4' ? '4th Floor' :
+                     floor.label === '5' ? '5th Floor' :
+                     floor.label === '6' ? '6th Floor' : `ชั้น ${floor.label}`;
                    
                    return (
                      <button
                        key={floor.id}
                        className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                         selectedFloor === floor.id 
+                         selectedFloor === floor.label 
                            ? 'bg-green-600 text-white' 
                            : 'text-gray-600 hover:bg-white hover:text-green-600'
                        }`}
-                       onClick={() => setSelectedFloor(floor.id)}
+                       onClick={() => setSelectedFloor(floor.label)}
                      >
                        {floorDisplay}
                      </button>
@@ -177,23 +221,23 @@ const MallHome: React.FC = () => {
               ทั้งหมด
             </button>
                          {floors.slice(0, 4).map((floor) => {
-               const floorDisplay = floor.id === 'G' ? 'G' : 
-                 floor.id === '1' ? '1st' :
-                 floor.id === '2' ? '2nd' :
-                 floor.id === '3' ? '3rd' :
-                 floor.id === '4' ? '4th' :
-                 floor.id === '5' ? '5th' :
-                 floor.id === '6' ? '6th' : floor.name;
+               const floorDisplay = floor.label === 'G' ? 'G' : 
+                 floor.label === '1' ? '1st' :
+                 floor.label === '2' ? '2nd' :
+                 floor.label === '3' ? '3rd' :
+                 floor.label === '4' ? '4th' :
+                 floor.label === '5' ? '5th' :
+                 floor.label === '6' ? '6th' : floor.label;
                
                return (
                  <button
                    key={floor.id}
                    className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-all ${
-                     selectedFloor === floor.id 
+                     selectedFloor === floor.label 
                        ? 'bg-green-600 text-white' 
                        : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
                    }`}
-                   onClick={() => setSelectedFloor(floor.id)}
+                   onClick={() => setSelectedFloor(floor.label)}
                  >
                    {floorDisplay}
                  </button>
@@ -212,8 +256,8 @@ const MallHome: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 py-8 pb-24 md:pb-8">
         {/* Mall Info */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">{mall.name}</h1>
-          <p className="text-gray-600">เปิด {mall.hours.open}-{mall.hours.close} • {mall.floors} ชั้น • {stores.length} ร้าน</p>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">{mall.displayName}</h1>
+          <p className="text-gray-600">เปิด {mall.openTime || mall.hours?.open || '10:00'}-{mall.closeTime || mall.hours?.close || '22:00'} • {floors.length} ชั้น • {stores.length} ร้าน</p>
         </div>
 
         {/* Campaign Banner */}
@@ -223,9 +267,9 @@ const MallHome: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
           {/* About */}
           <div className="lg:col-span-2 bg-white border rounded-xl p-4">
-            <h2 className="text-lg font-semibold mb-2">เกี่ยวกับ {mall.name}</h2>
+            <h2 className="text-lg font-semibold mb-2">เกี่ยวกับ {mall.displayName}</h2>
             <p className="text-sm text-gray-700 leading-6">
-              {mall.about || '-'}
+              {mall.address || '-'}
             </p>
           </div>
 
@@ -233,49 +277,37 @@ const MallHome: React.FC = () => {
           <div className="bg-white border rounded-xl p-4">
             <h3 className="text-sm font-medium text-gray-900 mb-3">สรุปตัวเลข</h3>
             <ul className="text-sm text-gray-700 space-y-2">
-              <li className="flex justify-between"><span>ชั้นอาคาร</span><span>{mall.floors} ชั้น (+ ใต้ดิน {mall.basements || 0})</span></li>
-              {mall.grossAreaSqm && <li className="flex justify-between"><span>Gross Area</span><span>{mall.grossAreaSqm.toLocaleString()} ตร.ม.</span></li>}
-              {mall.leasableAreaSqm && <li className="flex justify-between"><span>Leasable Area</span><span>{mall.leasableAreaSqm.toLocaleString()} ตร.ม.</span></li>}
-              {mall.parkingSpaces && <li className="flex justify-between"><span>ที่จอดรถ</span><span>{mall.parkingSpaces.toLocaleString()} คัน</span></li>}
-              {mall.totalShops && <li className="flex justify-between"><span>จำนวนร้าน</span><span>{mall.totalShops.toLocaleString()} ร้าน</span></li>}
-              {mall.investmentTHB && <li className="flex justify-between"><span>เงินลงทุน</span><span>{mall.investmentTHB.toLocaleString()} ล้านบาท</span></li>}
-              <li className="flex justify-between"><span>ช่วงราคา</span><span>{mall.priceRange || '-'}</span></li>
-              <li className="flex justify-between"><span>โทร</span><span>{mall.phone || '-'}</span></li>
-              <li className="flex justify-between"><span>เวลาเปิด</span><span>{mall.hours.open} - {mall.hours.close}</span></li>
+              <li className="flex justify-between"><span>ชั้นอาคาร</span><span>{floors.length} ชั้น</span></li>
+              <li className="flex justify-between"><span>จำนวนร้าน</span><span>{stores.length} ร้าน</span></li>
+              <li className="flex justify-between"><span>เขต</span><span>{mall.district || '-'}</span></li>
+              <li className="flex justify-between"><span>เวลาเปิด</span><span>{mall.hours?.open || '10:00'} - {mall.hours?.close || '22:00'}</span></li>
             </ul>
 
             {/* Links */}
             <div className="mt-3 flex flex-wrap gap-2">
-              {mall.website && (
-                <a href={mall.website} target="_blank" className="text-xs px-2 py-1 border rounded-lg hover:bg-gray-50">เว็บไซต์</a>
+              {mall.contact?.website && (
+                <a href={mall.contact.website} target="_blank" className="text-xs px-2 py-1 border rounded-lg hover:bg-gray-50">เว็บไซต์</a>
               )}
-              {mall.socials?.tiktok && (
-                <a href={mall.socials.tiktok} target="_blank" className="text-xs px-2 py-1 border rounded-lg hover:bg-gray-50">TikTok</a>
-              )}
-              {mall.socials?.x && (
-                <a href={mall.socials.x} target="_blank" className="text-xs px-2 py-1 border rounded-lg hover:bg-gray-50">X (Twitter)</a>
+              {mall.contact?.social && (
+                <a href={mall.contact.social} target="_blank" className="text-xs px-2 py-1 border rounded-lg hover:bg-gray-50">Social Media</a>
               )}
             </div>
           </div>
         </div>
 
-        {/* Anchors */}
-        {mall.anchors?.length ? (
+        {/* Store Categories */}
+        {stores.length > 0 && (
           <div className="bg-white border rounded-xl p-4 mb-6">
-            <h3 className="text-lg font-semibold mb-3">Anchor Tenants</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-              {mall.anchors.map((a, idx) => (
-                <div key={idx} className="border rounded-lg p-3">
-                  <div className="font-medium">{a.name}</div>
-                  <div className="text-xs text-gray-600 mt-1">
-                    {a.areaSqm ? `${a.areaSqm.toLocaleString()} ตร.ม.` : '-'}
-                    {a.notes ? ` • ${a.notes}` : ''}
-                  </div>
-                </div>
+            <h3 className="text-lg font-semibold mb-3">หมวดหมู่ร้านค้า</h3>
+            <div className="flex flex-wrap gap-2">
+              {Array.from(new Set(stores.map(s => s.category).filter(Boolean))).map((category, idx) => (
+                <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                  {category}
+                </span>
               ))}
             </div>
           </div>
-        ) : null}
+        )}
 
         {/* Current Floor Display */}
         <div className="mb-6">
@@ -297,20 +329,20 @@ const MallHome: React.FC = () => {
           {filteredStores.map((store) => {
             const _status = getStoreStatus(store);
             return (
-              <div key={store.id} className="store-card bg-white p-4 rounded-xl shadow-sm border hover:shadow-md transition-shadow" data-floor={store.floor} data-category={store.category}>
+              <div key={store.id} className="store-card bg-white p-4 rounded-xl shadow-sm border hover:shadow-md transition-shadow" data-floor={store.floorId} data-category={store.category}>
                 <div className="flex items-start justify-between mb-3">
-                                     <div>
-                     <h3 className="font-medium text-gray-900">{store.name}</h3>
-                     <p className="text-gray-600 text-sm">
-                       {store.floor === 'G' ? 'ชั้น G' : 
-                         store.floor === '1' ? '1st Floor' :
-                         store.floor === '2' ? '2nd Floor' :
-                         store.floor === '3' ? '3rd Floor' :
-                         store.floor === '4' ? '4th Floor' :
-                         store.floor === '5' ? '5th Floor' :
-                         store.floor === '6' ? '6th Floor' : `ชั้น ${store.floor}`} • {store.category}
-                     </p>
-                   </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900">{store.name}</h3>
+                    <p className="text-gray-600 text-sm">
+                      {store.floorId === 'G' ? 'ชั้น G' : 
+                        store.floorId === '1' ? '1st Floor' :
+                        store.floorId === '2' ? '2nd Floor' :
+                        store.floorId === '3' ? '3rd Floor' :
+                        store.floorId === '4' ? '4th Floor' :
+                        store.floorId === '5' ? '5th Floor' :
+                        store.floorId === '6' ? '6th Floor' : `ชั้น ${store.floorId}`} • {store.category || 'ทั่วไป'}
+                    </p>
+                  </div>
                   <button className="p-2 hover:bg-green-50 rounded-lg transition-colors" aria-label={`เพิ่ม ${store.name} ลงในรายการโปรด`}>
                     <Heart className="w-4 h-4 text-gray-500" />
                   </button>

@@ -9,10 +9,9 @@ import UrlField from '../ui/form/fields/UrlField';
 import MapPicker from '../ui/form/fields/MapPicker';
 import TimeField from '../ui/form/fields/TimeField';
 import Switch from '../ui/Switch';
-import { mallSchema, MallInput } from '../../validation/mall.schema';
+import { mallSchema, MallRawInput } from '../../validation/mall.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createMall } from '../../lib/firestore';
-import { toSlug } from '../../lib/firestore';
 
 interface MallCreateDrawerProps {
   open: boolean;
@@ -27,7 +26,7 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
     errorMessage: "ไม่สามารถสร้างห้างสรรพสินค้าได้"
   });
 
-  const form = useForm<MallInput>({
+  const form = useForm<MallRawInput>({
     resolver: zodResolver(mallSchema),
     defaultValues: {
       displayName: '',
@@ -42,23 +41,12 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
     }
   });
 
-  const handleSubmit = async (values: MallInput) => {
+  const handleSubmit = async (values: MallRawInput) => {
     await run(async () => {
-      const mallData = {
-        displayName: values.displayName,
-        name: values.name || toSlug(values.displayName),
-        address: values.address,
-        district: values.district,
-        phone: values.phone,
-        website: values.website,
-        social: values.social,
-        lat: values.lat,
-        lng: values.lng,
-        openTime: values.openTime,
-        closeTime: values.closeTime,
-      };
-
-      const _newMall = await createMall(mallData);
+      // Transform the raw input using the schema
+      const transformedData = mallSchema.parse(values);
+      
+      await createMall(transformedData);
       
       // Note: Logo upload will be handled in the edit form after mall creation
       // This is because we need the mall ID to upload the logo
@@ -68,12 +56,6 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
     });
   };
 
-  const _handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const value = e.target.value.trim();
-    if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
-      form.setValue('website', `https://${value}`);
-    }
-  };
 
   return (
     <SlideOver
@@ -88,7 +70,7 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
           <TextField
             name="displayName"
             label="ชื่อห้างสรรพสินค้า"
-            placeholder="เช่น Central Rama 3, Siam Paragon"
+            placeholder="เช่น Central Embassy, MBK Center, Terminal 21, Siam Paragon"
             helper="ชื่อที่แสดงในแอปพลิเคชัน"
             required
             data-testid="mall-name"

@@ -1,8 +1,13 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Settings, Navigation } from 'lucide-react';
+import MallStatusBadge from '../components/ui/MallStatusBadge';
+import MallCategoryBadge from '../components/ui/MallCategoryBadge';
+import BookmarkButton from '../components/ui/BookmarkButton';
+import MallSortFilter, { SortOption, FilterOption } from '../components/ui/MallSortFilter';
 
 import { listMalls } from '../services/firebase/firestore';
+import { useRealtimeMalls } from '../hooks/useRealtimeMalls';
 
 import { distanceKm } from '@/services/geoutils/geo-utils';
 import {
@@ -39,62 +44,58 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [userLoc, setUserLoc] = useState<Loc>(null);
-  const [malls, setMalls] = useState<Mall[]>([]);
   const [results, setResults] = useState<Mall[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSmartAlert, setShowSmartAlert] = useState(false);
-  const [loadingMalls, setLoadingMalls] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'all' | 'open'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [mapFilteredMalls, setMapFilteredMalls] = useState<Mall[]>([]);
   const [showMapFilters, setShowMapFilters] = useState(false);
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('distance');
+  const [filterBy, setFilterBy] = useState<FilterOption>('all');
   const [storeResults] = useState<
     (StoreType & { mallName?: string; mallSlug?: string })[]
   >([]);
   const [isDistanceReady, setIsDistanceReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load malls from Firebase
+  // ใช้ real-time data สำหรับห้าง
+  const { malls, loading: loadingMalls, error: realtimeError } = useRealtimeMalls();
+
+  // อัปเดต results และ mapFilteredMalls เมื่อ malls เปลี่ยนแปลง
   useEffect(() => {
-    const loadMalls = async () => {
-      try {
-        setLoadingMalls(true);
-        console.log('🔄 กำลังโหลดข้อมูลห้างสรรพสินค้า...');
-        const firestoreMalls = await listMalls();
-        console.log('📊 ข้อมูลห้างที่ได้จาก Firebase:', firestoreMalls);
-        setMalls(firestoreMalls);
-        setResults(firestoreMalls);
-        setMapFilteredMalls(firestoreMalls);
-        console.log('✅ โหลดข้อมูลห้างสำเร็จ:', firestoreMalls.length, 'ห้าง');
+    console.log('📊 ข้อมูลห้างเปลี่ยนแปลง:', malls.length, 'ห้าง');
+    if (malls.length > 0) {
+      console.log('📊 อัปเดตข้อมูลห้างแบบ real-time:', malls.length, 'ห้าง');
+      console.log('📋 รายการห้าง:', malls.map(m => m.displayName).join(', '));
+      console.log('🔍 ข้อมูลห้างตัวอย่าง:', malls[0]);
+      setResults(malls);
+      setMapFilteredMalls(malls);
+    } else {
+      console.log('⚠️ ไม่มีข้อมูลห้าง');
+      setResults([]);
+      setMapFilteredMalls([]);
+    }
+  }, [malls]);
 
-        // ขอตำแหน่งผู้ใช้อัตโนมัติ
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            pos => {
-              const newLoc = {
-                lat: pos.coords.latitude,
-                lng: pos.coords.longitude,
-              };
-              setUserLoc(newLoc);
-              console.log('📍 ได้ตำแหน่งผู้ใช้:', newLoc);
-            },
-            () => {
-              console.log('⚠️ ไม่สามารถดึงตำแหน่งได้ แต่จะแสดงห้างทั้งหมด');
-            },
-          );
-        }
-      } catch (error) {
-        console.error('❌ Error loading malls:', error);
-        setError('ไม่สามารถโหลดข้อมูลห้างสรรพสินค้าได้');
-        setMalls([]);
-        setResults([]);
-      } finally {
-        setLoadingMalls(false);
-      }
-    };
-
-    loadMalls();
+  // ขอตำแหน่งผู้ใช้อัตโนมัติ
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const newLoc = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+          setUserLoc(newLoc);
+          console.log('📍 ได้ตำแหน่งผู้ใช้:', newLoc);
+        },
+        () => {
+          console.log('⚠️ ไม่สามารถดึงตำแหน่งได้ แต่จะแสดงห้างทั้งหมด');
+        },
+      );
+    }
   }, []);
 
   // Search result handler
@@ -145,7 +146,11 @@ const Home: React.FC = () => {
 
   // Helper function to check if mall is currently open
   const isMallOpen = (mall: any) => {
-    if (!mall.hours || !mall.hours.open || !mall.hours.close) {
+    // รองรับทั้ง schema v2 (openTime/closeTime) และ legacy (hours.open/hours.close)
+    const openTime = mall.openTime || mall.hours?.open;
+    const closeTime = mall.closeTime || mall.hours?.close;
+    
+    if (!openTime || !closeTime) {
       return false; // ถ้าไม่มีข้อมูลเวลา ให้ถือว่าปิด
     }
 
@@ -153,25 +158,55 @@ const Home: React.FC = () => {
     const currentTime = now.getHours() * 60 + now.getMinutes(); // แปลงเป็นนาที
 
     // แปลงเวลาเปิด-ปิดเป็นนาที
-    const [openHour, openMin] = mall.hours.open.split(':').map(Number);
-    const [closeHour, closeMin] = mall.hours.close.split(':').map(Number);
+    const [openHour, openMin] = openTime.split(':').map(Number);
+    const [closeHour, closeMin] = closeTime.split(':').map(Number);
 
-    const openTime = openHour * 60 + openMin;
-    const closeTime = closeHour * 60 + closeMin;
+    const openTimeMinutes = openHour * 60 + openMin;
+    const closeTimeMinutes = closeHour * 60 + closeMin;
 
     // ตรวจสอบว่าตอนนี้อยู่ในช่วงเวลาเปิดหรือไม่
-    return currentTime >= openTime && currentTime <= closeTime;
+    return currentTime >= openTimeMinutes && currentTime <= closeTimeMinutes;
   };
 
-  // Filter malls based on active filter
+  // Sort and filter malls
   const gridFilteredMalls = useMemo(() => {
-    switch (activeFilter) {
-      case 'open':
-        return withDistance.filter(mall => isMallOpen(mall));
-      default:
-        return withDistance;
+    let filtered = withDistance;
+
+    // Apply category filter
+    if (filterBy !== 'all') {
+      if (filterBy === 'open-now') {
+        filtered = filtered.filter(mall => isMallOpen(mall));
+      } else {
+        filtered = filtered.filter(mall => mall.category === filterBy);
+      }
     }
-  }, [withDistance, activeFilter]);
+
+    // Apply sorting
+    switch (sortBy) {
+      case 'distance':
+        return filtered.sort((a, b) => (a.distanceKm || 0) - (b.distanceKm || 0));
+      case 'name':
+        return filtered.sort((a, b) => a.displayName.localeCompare(b.displayName, 'th'));
+      case 'open-now':
+        return filtered.sort((a, b) => {
+          const aOpen = isMallOpen(a);
+          const bOpen = isMallOpen(b);
+          if (aOpen && !bOpen) return -1;
+          if (!aOpen && bOpen) return 1;
+          return (a.distanceKm || 0) - (b.distanceKm || 0);
+        });
+      case 'store-count':
+        return filtered.sort((a, b) => (b.storeCount || 0) - (a.storeCount || 0));
+      case 'newest':
+        return filtered.sort((a, b) => {
+          const aTime = a.createdAt?.toDate?.()?.getTime() || 0;
+          const bTime = b.createdAt?.toDate?.()?.getTime() || 0;
+          return bTime - aTime;
+        });
+      default:
+        return filtered;
+    }
+  }, [withDistance, activeFilter, filterBy, sortBy]);
 
   // Search navigation handlers
   const handleMallSelect = (mall: Mall) => {
@@ -381,7 +416,7 @@ const Home: React.FC = () => {
           <div className="max-w-2xl mx-auto mb-6">
             <EnhancedSearchBox
               onResultClick={handleSearchResultClick}
-              placeholder="ค้นหาห้างหรือแบรนด์ เช่น Central Rama 3, Zara, Starbucks…"
+              placeholder="ค้นหาห้างหรือแบรนด์ เช่น Central Embassy, MBK Center, Terminal 21, Zara, Starbucks…"
               userLocation={userLoc}
             />
           </div>
@@ -481,22 +516,18 @@ const Home: React.FC = () => {
                 ))}
               </div>
             </div>
-          ) : error ? (
+          ) : (error || realtimeError) ? (
             <ErrorState
-              message={error}
+              message={error || realtimeError || 'เกิดข้อผิดพลาด'}
               onRetry={() => {
                 setError(null);
-                setLoadingMalls(true);
                 // Reload malls
                 const loadMalls = async () => {
                   try {
                     const firestoreMalls = await listMalls();
-                    setMalls(firestoreMalls);
                     setResults(firestoreMalls);
-                  } catch (error) {
+                  } catch (err) {
                     setError('ไม่สามารถโหลดข้อมูลห้างสรรพสินค้าได้');
-                  } finally {
-                    setLoadingMalls(false);
                   }
                 };
                 loadMalls();
@@ -599,6 +630,15 @@ const Home: React.FC = () => {
                 </div>
               </div>
 
+              {/* Sort and Filter */}
+              <MallSortFilter
+                sortBy={sortBy}
+                onSortChange={setSortBy}
+                filterBy={filterBy}
+                onFilterChange={setFilterBy}
+                className="mb-6"
+              />
+
               {/* Results Count */}
               <div className="mb-4">
                 <p className="text-sm text-gray-600 font-prompt">
@@ -675,25 +715,15 @@ const Home: React.FC = () => {
 
                         {/* Bottom Section - Details */}
                         <div className="space-y-3">
-                          {/* Hours */}
-                          <div className="flex items-center space-x-2 text-sm text-gray-500">
-                            <Clock className="w-4 h-4" />
-                            <span
-                              className={
-                                isMallOpen(mall)
-                                  ? 'text-green-600 font-medium'
-                                  : ''
-                              }
-                            >
-                              {mall.hours?.open || '10:00'} -{' '}
-                              {mall.hours?.close || '22:00'}
-                              {!isMallOpen(mall) && mall.hours && (
-                                <span className="ml-1 text-red-500 text-xs">
-                                  (ปิดแล้ว)
-                                </span>
-                              )}
-                            </span>
-                          </div>
+                          {/* Status and Hours */}
+                          <MallStatusBadge mall={mall} size="sm" />
+                          
+                          {/* Category */}
+                          <MallCategoryBadge 
+                            category={mall.category} 
+                            categoryLabel={mall.categoryLabel} 
+                            size="sm" 
+                          />
 
                           {/* Distance with Icon */}
                           <div className="flex items-center justify-between">

@@ -7,7 +7,7 @@ import { useFloors } from '@/legacy/hooks/useApi';
 import Button from '@/ui/Button';
 
 const MallLayout: React.FC = () => {
-  const { mallId } = useParams<{ _mallId: string }>();
+  const { mallId } = useParams<{ mallId: string }>();
   const location = useLocation();
   const [selectedFloor, setSelectedFloor] = useState<string>('all');
   const { data: floors } = useFloors(mallId || '');

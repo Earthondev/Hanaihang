@@ -13,7 +13,6 @@ import Switch from '../../ui/Switch';
 import { mallSchema, MallInput } from '../validation/mall.schema';
 import { useSafeSubmit } from '../hooks/useSafeSubmit';
 import { createMall, updateMall } from '../../services/firebase/firestore';
-import { toSlug } from '../../services/firebase/firestore';
 import { Mall } from '../../types/mall-system';
 
 interface MallFormProps {
@@ -32,20 +31,38 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
     errorMessage: mode === 'create' ? "ไม่สามารถสร้างห้างสรรพสินค้าได้" : "ไม่สามารถอัปเดตห้างสรรพสินค้าได้"
   });
 
-  const form = useForm<MallInput>({
+  const form = useForm({
     resolver: zodResolver(mallSchema) as any,
     defaultValues: {
       displayName: mall?.displayName || '',
       name: mall?.name || '',
       address: mall?.address || '',
       district: mall?.district || '',
+      // v2 schema: อ่านจาก top-level fields
       phone: mall?.contact?.phone || '',
       website: mall?.contact?.website || '',
       social: mall?.contact?.social || '',
-      lat: mall?.lat || mall?.coords?.lat || 0,
-      lng: mall?.lng || mall?.coords?.lng || 0,
-      openTime: mall?.hours?.open || '10:00',
-      closeTime: mall?.hours?.close || '22:00',
+      facebook: (mall?.contact as any)?.facebook || '',
+      line: (mall?.contact as any)?.line || '',
+      // ไม่ default เป็น 0 - ปล่อย undefined ถ้าไม่มีค่าจริง
+      lat: (() => {
+        const lat0 = mall?.lat ?? mall?.coords?.lat;
+        return typeof lat0 === 'number' ? lat0 : undefined;
+      })(),
+      lng: (() => {
+        const lng0 = mall?.lng ?? mall?.coords?.lng;
+        return typeof lng0 === 'number' ? lng0 : undefined;
+      })(),
+      location: (() => {
+        const lat0 = mall?.lat ?? mall?.coords?.lat;
+        const lng0 = mall?.lng ?? mall?.coords?.lng;
+        return (typeof lat0 === 'number' && typeof lng0 === 'number')
+          ? { lat: lat0, lng: lng0 }
+          : undefined;
+      })(),
+      // v2 schema: อ่านจาก openTime/closeTime
+      openTime: (mall as any)?.openTime || mall?.hours?.open || '10:00',
+      closeTime: (mall as any)?.closeTime || mall?.hours?.close || '22:00',
     }
   });
 
@@ -56,8 +73,11 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
     }
   }, [mall?.id]);
 
-  const handleSubmit = async (values: MallInput) => {
+  const handleSubmit = async (values: any) => {
     console.log('🚀 MallForm handleSubmit called with values:', values);
+    console.log('🔍 Form errors:', form.formState.errors);
+    console.log('🔍 Form is valid:', form.formState.isValid);
+    console.log('🔍 Form is dirty:', form.formState.isDirty);
     
     if (isSubmitting) {
       console.log('⚠️ Already submitting, ignoring duplicate submission');
@@ -69,91 +89,57 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
     try {
       console.log('🔄 Starting mall submission process...');
       
-      // 1) Helper function to add protocol to website
-      const withProtocol = (url?: string) => {
-        if (!url) return '';
-        return /^(https?:\/\/)/i.test(url) ? url : `https://${url}`;
-      };
+      // Map payload ตาม schema v2 (ไม่ส่ง hours legacy)
+      const loc = values.location ?? 
+        ((typeof values.lat === 'number' && typeof values.lng === 'number')
+          ? { lat: values.lat, lng: values.lng }
+          : undefined);
 
-      // 2) Map location → lat/lng (Schema v2 format)
-      let lat = 0;
-      let lng = 0;
-      
-      if ((values as any)['location.lat'] !== undefined || (values as any)['location.lng'] !== undefined) {
-        const formLat = (values as any)['location.lat'];
-        const formLng = (values as any)['location.lng'];
-        
-        console.log('📍 Processing location fields:', { formLat, formLng });
-        
-        if (formLat !== undefined && formLng !== undefined && formLat !== '' && formLng !== '') {
-          lat = parseFloat(formLat) || 0;
-          lng = parseFloat(formLng) || 0;
-        }
-      } else if (values.lat !== undefined && values.lng !== undefined) {
-        lat = values.lat || 0;
-        lng = values.lng || 0;
-      }
+      const payload: MallInput = {
+        displayName: values.displayName,
+        name: values.name || undefined,
+        address: values.address,
+        district: values.district,
+        phone: values.phone || undefined,
+        website: values.website || undefined,
+        social: values.social || undefined,
+        // ช่องทางโซเชียล (มีคีย์เพิ่ม แต่โอเคเพราะ updateMall รองรับ)
+        facebook: values.facebook || undefined,
+        line: values.line || undefined,
+        openTime: values.openTime || undefined,
+        closeTime: values.closeTime || undefined,
+        // พิกัด - ส่งเฉพาะเมื่อครบและเป็นตัวเลข
+        location: (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number')
+          ? loc
+          : undefined,
+      } as any;
 
-      // 3) Generate slug with fallback
-      const slug = (values.name || toSlug(values.displayName || '')).trim();
-      const finalSlug = slug || toSlug(values.displayName || '');
-
-      // 4) Handle hours based on isEveryday toggle - EXCLUSIVE logic
-      const hoursPayload = isEveryday
-        ? { 
-            // Everyday mode: only openTime/closeTime, NO hours
-            openTime: values.openTime, 
-            closeTime: values.closeTime,
-            hours: undefined // Explicitly remove hours
-          }
-        : {
-            // Non-everyday mode: only hours, NO openTime/closeTime
-            hours: (values as any).hours?.trim?.() || '',
-            openTime: undefined, // Explicitly remove openTime/closeTime
-            closeTime: undefined,
-          };
-
-      const mallData = {
-        displayName: values.displayName?.trim(),
-        name: finalSlug,
-        address: values.address?.trim(),
-        district: values.district?.trim(),
-        phone: values.phone?.trim() || '',
-        website: withProtocol(values.website?.trim()),
-        social: values.social?.trim() || '',
-        // Schema v2: top-level lat/lng
-        lat,
-        lng,
-        ...hoursPayload,
-        logoUrl: logoUrl || undefined,
-        updatedAt: new Date(), // Add updatedAt for edit mode
-      };
-
-      console.log('🔄 Submitting mall data:', mallData);
+      console.log('🔄 Submitting mall data (v2 schema):', payload);
 
       if (mode === 'create') {
         console.log('📝 Creating new mall...');
-        await createMall(mallData);
+        await createMall(payload); // รอเขียนสำเร็จจริง
         console.log('✅ Mall created successfully');
       } else if (mall?.id) {
         console.log('📝 Updating existing mall:', mall.id);
-        await updateMall(mall.id, mallData);
+        await updateMall(mall.id, payload);
         console.log('✅ Mall updated successfully');
       } else {
         throw new Error('ไม่พบ ID ของห้างสำหรับการอัปเดต');
       }
       
-      // Call onSuccess callback after successful save
+      // Call onSuccess callback หลัง await createMall สำเร็จเท่านั้น
       console.log('🎉 Calling onSuccess callback...');
       console.log('🔍 onSuccess function:', onSuccess);
-      console.log('🔍 mallData.displayName:', mallData.displayName);
-      onSuccess?.(mallData.displayName);
+      console.log('🔍 payload.displayName:', payload.displayName);
+      onSuccess?.(payload.displayName);
       console.log('✅ onSuccess callback completed');
       
     } catch (error) {
       console.error('❌ Mall submission failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
-      throw new Error(errorMessage);
+      // แสดง error ในฟอร์ม
+      form.setError('displayName', { message: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
@@ -162,14 +148,16 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
   const _handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value.trim();
     if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
-      form.setValue('website', `https://${value}`);
+      form.setValue('website' as any, `https://${value}`, { shouldDirty: true, shouldValidate: true });
     }
   };
 
   return (
     <div className="space-y-6">
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(handleSubmit, (errors) => {
+          console.log('❌ Form validation errors:', errors);
+        })} className="space-y-6">
           
           {/* 🏢 ข้อมูลทั่วไป */}
           <Card>
@@ -183,7 +171,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                 <TextField
                   name="displayName"
                   label="ชื่อห้างสรรพสินค้า"
-                  placeholder="เช่น Central Rama 3, Siam Paragon"
+                  placeholder="เช่น Central Embassy, MBK Center, Terminal 21, Siam Paragon"
                   helper="ชื่อที่แสดงในแอปพลิเคชัน"
                   required
                 />
@@ -245,6 +233,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                   helper="Line Official Account"
                 />
               </div>
+
             </div>
           </Card>
 
@@ -341,7 +330,8 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                 <button
                   type="button"
                   onClick={() => window.history.back()}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors"
+                  disabled={isLoading || isSubmitting}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   ยกเลิก
                 </button>

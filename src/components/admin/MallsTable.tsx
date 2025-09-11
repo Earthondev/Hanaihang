@@ -14,9 +14,16 @@ interface MallsTableProps {
 const MallsTable: React.FC<MallsTableProps> = ({ malls, stores, onRefresh }) => {
   const navigate = useNavigate();
 
-  const handleDelete = async (_mallId: string) => {
+  const handleDelete = async (mallId: string) => {
     await deleteMall(mallId);
+    
+    // อัปเดตข้อมูลทันที
     onRefresh();
+    
+    // โหลดหน้าใหม่เพื่อให้แน่ใจว่าข้อมูลอัปเดต
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
   };
 
   const handleEdit = (_mallId: string) => {

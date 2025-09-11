@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Building2, Search, Filter, X, Heart } from 'lucide-react';
 
 import { getMallByName, listStores, listFloors } from '../services/firebase/firestore';
-import { Mall } from '../types/mall-system';
+import { Mall, Store, Floor } from '../types/mall-system';
 import { useToast } from '../ui/feedback/Toast';
 
 interface FilterState {
@@ -14,7 +14,7 @@ interface FilterState {
 }
 
 export default function MallDetail() {
-  const { mallId } = useParams<{ _mallId: string }>();
+  const { mallId } = useParams<{ mallId: string }>();
   const navigate = useNavigate();
   // const { push } = useToast();
   
@@ -368,20 +368,20 @@ export default function MallDetail() {
                   )}
                   
                   {/* Mall Hours */}
-                  {mall.hours && (
+                  {(mall.openTime || mall.hours) && (
                     <div className="mb-4">
                       <h3 className="font-semibold text-gray-900 mb-2">เวลาเปิด-ปิด</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                        {mall.hours.openTime && (
+                        {(mall.openTime || mall.hours?.open) && (
                           <div className="flex items-center text-gray-600">
                             <span className="mr-2">🕐</span>
-                            เปิด: {mall.hours.openTime}
+                            เปิด: {mall.openTime || mall.hours?.open}
                           </div>
                         )}
-                        {mall.hours.closeTime && (
+                        {(mall.closeTime || mall.hours?.close) && (
                           <div className="flex items-center text-gray-600">
                             <span className="mr-2">🕐</span>
-                            ปิด: {mall.hours.closeTime}
+                            ปิด: {mall.closeTime || mall.hours?.close}
                           </div>
                         )}
                       </div>
@@ -389,12 +389,12 @@ export default function MallDetail() {
                   )}
                   
                   {/* Contact Info */}
-                  {(mall.phone || mall.contact?.phone) && (
+                  {mall.contact?.phone && (
                     <div className="mb-4">
                       <h3 className="font-semibold text-gray-900 mb-2">ข้อมูลติดต่อ</h3>
                       <div className="flex items-center text-gray-600">
                         <span className="mr-2">📞</span>
-                        {mall.phone || mall.contact?.phone}
+                        {mall.contact.phone}
                       </div>
                     </div>
                   )}
@@ -671,8 +671,8 @@ function StoreCard({ store, floorLabel }: { store: Store; floorLabel: string }) 
              onClick={() => {
                // You can add store-specific location logic here
                // For now, we'll use the mall's coordinates
-               if (store.coords) {
-                 const { lat, lng } = store.coords;
+               if (store.location) {
+                 const { lat, lng } = store.location;
                  const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
                  window.open(googleMapsUrl, '_blank');
                }
