@@ -149,8 +149,8 @@ const StoresTable: React.FC<StoresTableProps> = ({ stores, malls, onRefresh }) =
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredStores.map((store) => (
-              <tr key={store.id} className="hover:bg-gray-50">
+            {filteredStores.map((store, index) => (
+              <tr key={`${store.id}-${store.mallId}-${index}`} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">

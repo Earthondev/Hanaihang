@@ -212,16 +212,24 @@ export async function listAllStoresBatchOptimized(): Promise<{ store: Store; _ma
     }
   });
   
+  // Remove duplicates based on store.id and _mallId combination
+  const uniqueResults = results.filter((item, index, self) => 
+    index === self.findIndex(t => t.store.id === item.store.id && t._mallId === item._mallId)
+  );
+
   // Sort by name in JavaScript (backup solution)
-  results.sort((a, b) => a.store.name.localeCompare(b.store.name));
+  uniqueResults.sort((a, b) => a.store.name.localeCompare(b.store.name));
 
   const time = Date.now() - start;
-  console.log(`✅ Fetched ${results.length} stores from nested collections in ${time}ms`);
+  console.log(`✅ Fetched ${uniqueResults.length} unique stores from nested collections in ${time}ms`);
+  if (results.length !== uniqueResults.length) {
+    console.warn(`⚠️  Removed ${results.length - uniqueResults.length} duplicate stores`);
+  }
 
   // Cache for 5 minutes
-  cache.set(CACHE_KEYS.STORES_ALL, results, 5 * 60 * 1000);
+  cache.set(CACHE_KEYS.STORES_ALL, uniqueResults, 5 * 60 * 1000);
   
-  return results;
+  return uniqueResults;
 }
 
 /**
