@@ -44,7 +44,7 @@ const rawLatSchema = z.union([z.number(), z.string()]).optional();
 const rawLngSchema = z.union([z.number(), z.string()]).optional();
 
 // อินพุตดิบจากฟอร์ม (ก่อน normalize)
-const rawMallSchema = z.object({
+export const rawMallSchema = z.object({
   displayName: z.string().trim().min(2, 'กรุณากรอกชื่อห้าง'),
   name: z.string().trim().optional(), // slug (optional; auto-gen if missing)
   address: z.string().trim().min(6, 'กรอกที่อยู่ให้ครบถ้วน'),

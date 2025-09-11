@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Card from '../ui/Card';
@@ -10,7 +10,11 @@ import MapPicker from '../ui/form/fields/MapPicker';
 import TimeField from '../ui/form/fields/TimeField';
 import Switch from '../ui/Switch';
 import LogoUpload from '../ui/LogoUpload';
-import { mallSchema, MallRawInput } from '../../validation/mall.schema';
+import {
+  rawMallSchema,
+  mallSchema,
+  MallRawInput,
+} from '../../validation/mall.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createMall, updateMall } from '../../lib/firestore';
 import { toSlug } from '../../lib/firestore';
@@ -23,6 +27,7 @@ interface MallFormProps {
 }
 
 export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
+  // Initialize isEveryday - assume everyday mode for now since Mall type doesn't have individual day hours
   const [isEveryday, setIsEveryday] = useState(true);
   const [logoUrl, setLogoUrl] = useState<string | null>(mall?.logoUrl || null);
   const { isLoading, run } = useSafeSubmit({
@@ -37,8 +42,8 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
         : 'ไม่สามารถอัปเดตห้างสรรพสินค้าได้',
   });
 
-  const form = useForm<MallRawInput>({
-    resolver: zodResolver(mallSchema),
+  const form = useForm({
+    resolver: zodResolver(rawMallSchema),
     defaultValues: {
       displayName: mall?.displayName || '',
       name: mall?.name || '',
@@ -47,11 +52,13 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
       phone: mall?.contact?.phone || '',
       website: mall?.contact?.website || '',
       social: mall?.contact?.social || '',
-      lat: mall?.coords?.lat,
-      lng: mall?.coords?.lng,
-      openTime: mall?.hours?.open || '10:00',
-      closeTime: mall?.hours?.close || '22:00',
-      // Individual day hours
+      facebook: (mall as any)?.facebook || '',
+      line: (mall as any)?.line || '',
+      lat: mall?.coords?.lat || mall?.lat,
+      lng: mall?.coords?.lng || mall?.lng,
+      openTime: mall?.hours?.open || mall?.openTime || '10:00',
+      closeTime: mall?.hours?.close || mall?.closeTime || '22:00',
+      // Individual day hours - empty for now since Mall type doesn't have them
       'hours.mon': '',
       'hours.tue': '',
       'hours.wed': '',
@@ -62,41 +69,61 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
     },
   });
 
+  // Handle toggle between everyday and individual hours
+  const handleToggleEveryday = (next: boolean) => {
+    setIsEveryday(next);
+    if (next) {
+      // Use everyday hours - clear individual day hours
+      ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].forEach(d =>
+        form.setValue(`hours.${d}` as any, '', { shouldDirty: true }),
+      );
+    } else {
+      // Use individual hours - clear everyday hours
+      form.setValue('openTime', '', { shouldDirty: true });
+      form.setValue('closeTime', '', { shouldDirty: true });
+    }
+  };
+
+  // Normalize website URL to add https if missing
+  const normalizeWebsite = (url?: string) => {
+    if (!url) return '';
+    const v = url.trim();
+    if (!v) return '';
+    if (v.startsWith('http://') || v.startsWith('https://')) return v;
+    return `https://${v}`;
+  };
+
   const handleSubmit = async (values: MallRawInput) => {
     await run(async () => {
-      // Convert coordinates to numbers if they exist
-      const lat = values.lat
-        ? typeof values.lat === 'string'
-          ? parseFloat(values.lat)
-          : values.lat
-        : undefined;
-      const lng = values.lng
-        ? typeof values.lng === 'string'
-          ? parseFloat(values.lng)
-          : values.lng
-        : undefined;
+      // Generate slug if name is empty
+      const name = values.name?.trim() || toSlug(values.displayName || '');
+
+      // Auto-https for website
+      const website = normalizeWebsite(values.website);
+
+      // Prevent conflicting values between everyday and individual modes:
+      // - If everyday: use open/close, clear individual days
+      // - If individual: use individual days, clear open/close
+      const nextValues: MallRawInput = {
+        ...values,
+        name,
+        website,
+      };
+      if (isEveryday) {
+        ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].forEach(d => {
+          (nextValues as any)[`hours.${d}`] = '';
+        });
+      } else {
+        nextValues.openTime = '';
+        nextValues.closeTime = '';
+      }
+
+      // Transform the raw form data using the schema
+      const transformedData = mallSchema.parse(nextValues);
 
       const mallData = {
-        displayName: values.displayName,
-        name: values.name || toSlug(values.displayName),
-        address: values.address,
-        district: values.district,
-        phone: values.phone,
-        website: values.website,
-        social: values.social,
-        lat: lat,
-        lng: lng,
-        openTime: values.openTime,
-        closeTime: values.closeTime,
-        logoUrl: logoUrl,
-        // Individual day hours
-        'hours.mon': values['hours.mon'],
-        'hours.tue': values['hours.tue'],
-        'hours.wed': values['hours.wed'],
-        'hours.thu': values['hours.thu'],
-        'hours.fri': values['hours.fri'],
-        'hours.sat': values['hours.sat'],
-        'hours.sun': values['hours.sun'],
+        ...transformedData,
+        logoUrl: logoUrl || undefined,
       };
 
       if (mode === 'create') {
@@ -108,13 +135,6 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
       onSuccess?.();
     });
   };
-
-  // const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-  //   const value = e.target.value.trim();
-  //   if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
-  //     form.setValue('website', `https://${value}`);
-  //   }
-  // };
 
   return (
     <Card>
@@ -164,6 +184,16 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
             />
           </div>
 
+          {/* Hidden fields for lat/lng */}
+          <Controller
+            name="lat"
+            render={({ field }) => <input type="hidden" {...field} />}
+          />
+          <Controller
+            name="lng"
+            render={({ field }) => <input type="hidden" {...field} />}
+          />
+
           <MapPicker
             name="location"
             label="ตำแหน่ง"
@@ -173,7 +203,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
           <div className="space-y-3">
             <Switch
               checked={isEveryday}
-              onCheckedChange={setIsEveryday}
+              onCheckedChange={handleToggleEveryday}
               label="ใช้เวลาเดียวกันทุกวัน"
             />
 
@@ -243,6 +273,13 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
               helper="Line Official Account"
             />
           </div>
+
+          <TextField
+            name="social"
+            label="Social (อื่น ๆ)"
+            placeholder="@xyz / tiktok.com/@..."
+            helper="Social media อื่น ๆ"
+          />
 
           {/* Submit Button */}
           <div className="flex justify-end space-x-3 pt-6 border-t">

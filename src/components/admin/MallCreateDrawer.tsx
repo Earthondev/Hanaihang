@@ -9,7 +9,11 @@ import UrlField from '../ui/form/fields/UrlField';
 import MapPicker from '../ui/form/fields/MapPicker';
 import TimeField from '../ui/form/fields/TimeField';
 import Switch from '../ui/Switch';
-import { mallSchema, MallRawInput } from '../../validation/mall.schema';
+import {
+  mallSchema,
+  MallRawInput,
+  rawMallSchema,
+} from '../../validation/mall.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createMall } from '../../lib/firestore';
 
@@ -18,16 +22,19 @@ interface MallCreateDrawerProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawerProps) {
+export default function MallCreateDrawer({
+  open,
+  onOpenChange,
+}: MallCreateDrawerProps) {
   const [isEveryday, setIsEveryday] = useState(true);
   const { isLoading, run } = useSafeSubmit({
     formName: 'mall_create',
-    successMessage: "สร้างห้างสรรพสินค้าสำเร็จ 🎉",
-    errorMessage: "ไม่สามารถสร้างห้างสรรพสินค้าได้"
+    successMessage: 'สร้างห้างสรรพสินค้าสำเร็จ 🎉',
+    errorMessage: 'ไม่สามารถสร้างห้างสรรพสินค้าได้',
   });
 
-  const form = useForm<MallRawInput>({
-    resolver: zodResolver(mallSchema),
+  const form = useForm({
+    resolver: zodResolver(rawMallSchema),
     defaultValues: {
       displayName: '',
       name: '',
@@ -36,26 +43,27 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
       phone: '',
       website: '',
       social: '',
+      facebook: '',
+      line: '',
       openTime: '10:00',
       closeTime: '22:00',
-    }
+    },
   });
 
   const handleSubmit = async (values: MallRawInput) => {
     await run(async () => {
       // Transform the raw input using the schema
       const transformedData = mallSchema.parse(values);
-      
+
       await createMall(transformedData);
-      
+
       // Note: Logo upload will be handled in the edit form after mall creation
       // This is because we need the mall ID to upload the logo
-      
+
       onOpenChange(false);
       form.reset();
     });
   };
-
 
   return (
     <SlideOver
@@ -66,7 +74,11 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
       className="w-full sm:max-w-lg"
     >
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4" data-testid="mall-form">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="space-y-4"
+          data-testid="mall-form"
+        >
           <TextField
             name="displayName"
             label="ชื่อห้างสรรพสินค้า"
@@ -114,7 +126,7 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
               onCheckedChange={setIsEveryday}
               label="ใช้เวลาเดียวกันทุกวัน"
             />
-            
+
             {isEveryday ? (
               <div className="grid grid-cols-2 gap-3">
                 <TimeField
@@ -142,35 +154,35 @@ export default function MallCreateDrawer({ open, onOpenChange }: MallCreateDrawe
               </div>
             )}
           </div>
-          
+
           <TextField
             name="holidayNotice"
             label="วันหยุดนักขัตฤกษ์/ปิดปรับปรุง"
             placeholder="ปิดทุกวันอาทิตย์ หรือ ปิดปรับปรุง 1-15 มกราคม"
             helper="ข้อมูลวันหยุดพิเศษ (ถ้ามี)"
           />
-          
+
           <PhoneField
             name="phone"
             label="เบอร์โทร"
             placeholder="02-xxx-xxxx หรือ +66 xx xxx xxxx"
             helper="เบอร์โทรติดต่อห้าง"
           />
-          
+
           <UrlField
             name="website"
             label="เว็บไซต์"
             placeholder="central.co.th"
             helper="เว็บไซต์อย่างเป็นทางการ (auto-https)"
           />
-          
+
           <TextField
             name="facebook"
             label="Facebook"
             placeholder="facebook.com/centralplaza"
             helper="Facebook page ของห้าง"
           />
-          
+
           <TextField
             name="line"
             label="Line"

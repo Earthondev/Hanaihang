@@ -313,7 +313,9 @@ const Home: React.FC = () => {
     }, 3000);
   }
 
-  function getMallColor(_mallId: string) {
+  function getMallColor(_mallId: string | undefined) {
+    if (!_mallId) return 'bg-gray-500';
+
     const colors = {
       'central-rama-3': 'bg-red-500',
       'siam-paragon': 'bg-blue-500',
@@ -429,7 +431,7 @@ const Home: React.FC = () => {
             <EnhancedSearchBox
               onResultClick={handleSearchResultClick}
               placeholder="ค้นหาห้างหรือแบรนด์ เช่น Central Embassy, MBK Center, Terminal 21, Zara, Starbucks…"
-              userLocation={userLoc}
+              userLocation={userLoc || undefined}
             />
           </div>
 

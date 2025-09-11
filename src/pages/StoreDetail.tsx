@@ -1,92 +1,106 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  MapPin, 
-  Phone, 
-  Clock, 
-  Globe, 
-  Share2, 
-  Heart, 
-  ChevronLeft, 
+import {
+  MapPin,
+  Phone,
+  Clock,
+  Globe,
+  Share2,
+  Heart,
+  ChevronLeft,
   ChevronRight,
   Building,
   ShoppingBag,
   Tag,
-  Truck
+  Truck,
 } from 'lucide-react';
 
-import { getMall, listStores, findStoreById } from '@/services/firebase/firestore';
-import { Store } from '@/types/mall-system';
+import { useRealtimeMall } from '@/hooks/useRealtimeMalls';
+import { useRealtimeStores } from '@/hooks/useRealtimeStores';
+// Types are used in JSX, keeping import for type checking
 
 const StoreDetail: React.FC = () => {
   const { mallId, storeId } = useParams<{ mallId?: string; storeId: string }>();
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [store, setStore] = useState<Store | null>(null);
-  const [mall, setMall] = useState<Mall | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (storeId) {
-      loadStoreData();
-    }
-  }, [storeId, mallId]);
+  // ใช้ real-time data สำหรับห้างและร้าน
+  const {
+    mall,
+    loading: mallLoading,
+    error: mallError,
+  } = useRealtimeMall(mallId || '');
+  const {
+    stores,
+    loading: storesLoading,
+    error: storesError,
+  } = useRealtimeStores(mall?.id || '');
 
-  const loadStoreData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Find the specific store from the stores list
+  const store = stores.find(s => s.id === storeId) || null;
 
-      let storeData: Store | null = null;
-      let mallData: Mall | null = null;
-
-      // If mallId is provided in URL, search in that mall's stores
-      if (mallId) {
-        mallData = await getMall(mallId);
-        if (mallData) {
-          const stores = await listStores(mallId);
-          storeData = stores.find(store => store.id === storeId) || null;
-        }
-      } else {
-        // If no mallId, search across all malls
-        const result = await findStoreById(storeId);
-        if (result) {
-          storeData = result.store;
-          mallData = await getMall(result.mallId);
-        }
-      }
-
-      if (!storeData) {
-        throw new Error('Store not found');
-      }
-
-      setStore(storeData);
-      if (mallData) {
-        setMall(mallData);
-      }
-    } catch (err) {
-      console.error('Error loading store data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load store data');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Update loading and error states
+  const loading = mallLoading || storesLoading;
+  const error = mallError || storesError;
 
   // Carousel images (placeholder data)
   const carouselImages = [
-    { id: 1, title: 'หน้าร้าน', subtitle: `${store?.name} ชั้น ${store?.floorId}`, color: 'from-gray-100 to-gray-200', iconColor: 'bg-gray-300', icon: Building },
-    { id: 2, title: 'บรรยากาศภายในร้าน', subtitle: 'คอลเลกชั่นใหม่', color: 'from-blue-100 to-blue-200', iconColor: 'bg-blue-300', icon: ShoppingBag },
-    { id: 3, title: 'โปรโมชั่นพิเศษ', subtitle: 'ลดสูงสุด 50%', color: 'from-purple-100 to-purple-200', iconColor: 'bg-purple-300', icon: Tag }
+    {
+      id: 1,
+      title: 'หน้าร้าน',
+      subtitle: `${store?.name} ชั้น ${store?.floorId}`,
+      color: 'from-gray-100 to-gray-200',
+      iconColor: 'bg-gray-300',
+      icon: Building,
+    },
+    {
+      id: 2,
+      title: 'บรรยากาศภายในร้าน',
+      subtitle: 'คอลเลกชั่นใหม่',
+      color: 'from-blue-100 to-blue-200',
+      iconColor: 'bg-blue-300',
+      icon: ShoppingBag,
+    },
+    {
+      id: 3,
+      title: 'โปรโมชั่นพิเศษ',
+      subtitle: 'ลดสูงสุด 50%',
+      color: 'from-purple-100 to-purple-200',
+      iconColor: 'bg-purple-300',
+      icon: Tag,
+    },
   ];
 
   // Nearby stores (placeholder data)
   const nearbyStores = [
-    { id: 'hm', name: 'H&M', unit: 'ยูนิต 2-15', distance: '50 ม.', status: 'open', color: 'bg-red-100', textColor: 'text-red-600' },
-    { id: 'uniqlo', name: 'Uniqlo', unit: 'ยูนิต 2-30', distance: '75 ม.', status: 'open', color: 'bg-red-100', textColor: 'text-red-600' },
-    { id: 'mango', name: 'Mango', unit: 'ยูนิต 2-18', distance: '90 ม.', status: 'open', color: 'bg-yellow-100', textColor: 'text-yellow-600' }
+    {
+      id: 'hm',
+      name: 'H&M',
+      unit: 'ยูนิต 2-15',
+      distance: '50 ม.',
+      status: 'open',
+      color: 'bg-red-100',
+      textColor: 'text-red-600',
+    },
+    {
+      id: 'uniqlo',
+      name: 'Uniqlo',
+      unit: 'ยูนิต 2-30',
+      distance: '75 ม.',
+      status: 'open',
+      color: 'bg-red-100',
+      textColor: 'text-red-600',
+    },
+    {
+      id: 'mango',
+      name: 'Mango',
+      unit: 'ยูนิต 2-18',
+      distance: '90 ม.',
+      status: 'open',
+      color: 'bg-yellow-100',
+      textColor: 'text-yellow-600',
+    },
   ];
 
   // Promotions (placeholder data)
@@ -101,7 +115,7 @@ const StoreDetail: React.FC = () => {
       bgColor: 'from-purple-50 to-pink-50',
       borderColor: 'border-purple-200',
       iconColor: 'bg-purple-100',
-      icon: Tag
+      icon: Tag,
     },
     {
       id: 2,
@@ -113,7 +127,7 @@ const StoreDetail: React.FC = () => {
       bgColor: 'from-blue-50 to-cyan-50',
       borderColor: 'border-blue-200',
       iconColor: 'bg-blue-100',
-      icon: Tag
+      icon: Tag,
     },
     {
       id: 3,
@@ -125,14 +139,14 @@ const StoreDetail: React.FC = () => {
       bgColor: 'from-green-50 to-emerald-50',
       borderColor: 'border-green-200',
       iconColor: 'bg-green-100',
-      icon: Truck
-    }
+      icon: Truck,
+    },
   ];
 
   useEffect(() => {
     // Auto-play carousel
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+      setCurrentSlide(prev => (prev + 1) % carouselImages.length);
     }, 5000);
 
     return () => clearInterval(interval);
@@ -154,7 +168,7 @@ const StoreDetail: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error || 'ไม่พบข้อมูลร้าน'}</p>
-          <button 
+          <button
             onClick={() => navigate(-1)}
             className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
           >
@@ -166,28 +180,42 @@ const StoreDetail: React.FC = () => {
   }
 
   // Parse store hours
-  const storeHours = typeof store.hours === 'string' ? 
-    { open: store.hours.split('-')[0] || '10:00', close: store.hours.split('-')[1] || '22:00' } : 
-    { open: '10:00', close: '22:00' };
+  const storeHours =
+    typeof store.hours === 'string'
+      ? {
+          open: store.hours.split('-')[0] || '10:00',
+          close: store.hours.split('-')[1] || '22:00',
+        }
+      : { open: '10:00', close: '22:00' };
 
   // Simple store status check based on current time
   const isOpen = store.status === 'Active';
 
   const getFloorDisplay = (floor: string) => {
-    return floor === 'G' ? 'ชั้น G' : 
-      floor === '1' ? '1st Floor' :
-      floor === '2' ? '2nd Floor' :
-      floor === '3' ? '3rd Floor' :
-      floor === '4' ? '4th Floor' :
-      floor === '5' ? '5th Floor' :
-      floor === '6' ? '6th Floor' : 
-      floor === 'M' ? 'ชั้น M' : `ชั้น ${floor}`;
+    return floor === 'G'
+      ? 'ชั้น G'
+      : floor === '1'
+        ? '1st Floor'
+        : floor === '2'
+          ? '2nd Floor'
+          : floor === '3'
+            ? '3rd Floor'
+            : floor === '4'
+              ? '4th Floor'
+              : floor === '5'
+                ? '5th Floor'
+                : floor === '6'
+                  ? '6th Floor'
+                  : floor === 'M'
+                    ? 'ชั้น M'
+                    : `ชั้น ${floor}`;
   };
 
   const showToast = (message: string) => {
     // Simple toast implementation
     const toast = document.createElement('div');
-    toast.className = 'fixed top-20 right-4 bg-green-100 border border-green-300 p-4 rounded-xl flex items-center space-x-3 z-50 transform translate-x-full transition-transform duration-300';
+    toast.className =
+      'fixed top-20 right-4 bg-green-100 border border-green-300 p-4 rounded-xl flex items-center space-x-3 z-50 transform translate-x-full transition-transform duration-300';
     toast.innerHTML = `
       <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,13 +224,13 @@ const StoreDetail: React.FC = () => {
       </div>
       <p class="text-green-700 font-medium">${message}</p>
     `;
-    
+
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
       toast.classList.remove('translate-x-full');
     }, 100);
-    
+
     setTimeout(() => {
       toast.classList.add('translate-x-full');
       setTimeout(() => {
@@ -221,7 +249,7 @@ const StoreDetail: React.FC = () => {
           <div className="flex items-center justify-between">
             {/* Back Button & Title */}
             <div className="flex items-center space-x-4">
-              <button 
+              <button
                 onClick={() => navigate(-1)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 aria-label="กลับไปหน้าก่อนหน้า"
@@ -233,34 +261,39 @@ const StoreDetail: React.FC = () => {
                   <Building className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="text-lg font-semibold">
-                  <span className="text-gray-900">HaaNai</span><span className="text-green-600">Hang</span>
+                  <span className="text-gray-900">HaaNai</span>
+                  <span className="text-green-600">Hang</span>
                 </div>
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="flex items-center space-x-3">
-              <button 
+              <button
                 onClick={() => navigate(`/admin/stores/${storeId}/edit`)}
                 className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
                 แก้ไข
               </button>
-              <button 
+              <button
                 onClick={() => showToast('คัดลอกลิงก์แล้ว!')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <Share2 className="w-5 h-5 text-gray-600" />
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setIsFavorite(!isFavorite);
-                  showToast(isFavorite ? 'ลบออกจากรายการโปรดแล้ว' : 'เพิ่มในรายการโปรดแล้ว');
+                  showToast(
+                    isFavorite
+                      ? 'ลบออกจากรายการโปรดแล้ว'
+                      : 'เพิ่มในรายการโปรดแล้ว',
+                  );
                 }}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <Heart 
-                  className={`w-5 h-5 ${isFavorite ? 'text-red-500 fill-current' : 'text-gray-600'}`} 
+                <Heart
+                  className={`w-5 h-5 ${isFavorite ? 'text-red-500 fill-current' : 'text-gray-600'}`}
                 />
               </button>
             </div>
@@ -276,7 +309,9 @@ const StoreDetail: React.FC = () => {
               {/* Store Logo */}
               <div className="flex-shrink-0">
                 <div className="w-24 h-24 bg-gradient-to-br from-gray-900 to-gray-700 rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-white text-3xl font-bold">{store.name.slice(0, 4).toUpperCase()}</span>
+                  <span className="text-white text-3xl font-bold">
+                    {store.name.slice(0, 4).toUpperCase()}
+                  </span>
                 </div>
               </div>
 
@@ -284,37 +319,59 @@ const StoreDetail: React.FC = () => {
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
                   <div>
-                    <h1 className="text-3xl font-semibold text-gray-900 mb-2">{store.name}</h1>
-                    <p className="text-lg text-gray-600 mb-3">{store.category} • {mall?.displayName || 'ห้างสรรพสินค้า'}</p>
-                    
+                    <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+                      {store.name}
+                    </h1>
+                    <p className="text-lg text-gray-600 mb-3">
+                      {store.category} • {mall?.displayName || 'ห้างสรรพสินค้า'}
+                    </p>
+
                     {/* Status Badge */}
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 ${isOpen ? 'bg-green-500' : 'bg-red-500'} rounded-full animate-pulse`}></div>
-                        <span className={`px-3 py-1 text-sm rounded-lg font-medium ${
-                          isOpen ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                        }`}>
+                        <div
+                          className={`w-3 h-3 ${isOpen ? 'bg-green-500' : 'bg-red-500'} rounded-full animate-pulse`}
+                        ></div>
+                        <span
+                          className={`px-3 py-1 text-sm rounded-lg font-medium ${
+                            isOpen
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-red-100 text-red-700'
+                          }`}
+                        >
                           {isOpen ? 'เปิดอยู่' : 'ปิดแล้ว'}
                         </span>
                       </div>
-                                             <span className="text-sm text-gray-600">
-                         {isOpen ? `ปิด ${storeHours.close} น.` : `เปิด ${storeHours.open} น.`}
-                       </span>
-                     </div>
+                      <span className="text-sm text-gray-600">
+                        {isOpen
+                          ? `ปิด ${storeHours.close} น.`
+                          : `เปิด ${storeHours.open} น.`}
+                      </span>
+                    </div>
 
-                     {/* Tags */}
-                     <div className="flex flex-wrap gap-2">
-                       {(store as any).tags?.map((tag: string, index: number) => (
-                         <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg font-medium">
-                           {tag}
-                         </span>
-                       ))}
-                       {(store as any).features?.map((feature: string, index: number) => (
-                         <span key={index} className="px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-lg font-medium">
-                           {feature}
-                         </span>
-                       ))}
-                     </div>
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-2">
+                      {(store as any).tags?.map(
+                        (tag: string, index: number) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg font-medium"
+                          >
+                            {tag}
+                          </span>
+                        ),
+                      )}
+                      {(store as any).features?.map(
+                        (feature: string, index: number) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-lg font-medium"
+                          >
+                            {feature}
+                          </span>
+                        ),
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -324,8 +381,10 @@ const StoreDetail: React.FC = () => {
 
         {/* Store Metadata */}
         <div className="bg-white rounded-2xl shadow-sm border p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">ข้อมูลร้าน</h2>
-          
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            ข้อมูลร้าน
+          </h2>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Location Info */}
             <div className="space-y-4">
@@ -335,7 +394,10 @@ const StoreDetail: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">ตำแหน่ง</p>
-                  <p className="font-medium text-gray-900">{getFloorDisplay(store.floorId)} • {store.unit || 'ไม่มีข้อมูลยูนิต'}</p>
+                  <p className="font-medium text-gray-900">
+                    {getFloorDisplay(store.floorId)} •{' '}
+                    {store.unit || 'ไม่มีข้อมูลยูนิต'}
+                  </p>
                 </div>
               </div>
 
@@ -360,7 +422,9 @@ const StoreDetail: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">เวลาทำการ</p>
-                  <p className="font-medium text-gray-900">{storeHours.open} - {storeHours.close} น.</p>
+                  <p className="font-medium text-gray-900">
+                    {storeHours.open} - {storeHours.close} น.
+                  </p>
                   <p className="text-sm text-gray-600">ทุกวัน</p>
                 </div>
               </div>
@@ -372,9 +436,9 @@ const StoreDetail: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">เว็บไซต์</p>
-                    <a 
-                      href={(store as any).website} 
-                      target="_blank" 
+                    <a
+                      href={(store as any).website}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="font-medium text-green-600 hover:text-green-700"
                     >
@@ -392,26 +456,34 @@ const StoreDetail: React.FC = () => {
               <p className="text-sm text-gray-600 mb-3">ติดตามเรา</p>
               <div className="flex space-x-3">
                 {(store as any).facebook && (
-                  <a 
-                    href={(store as any).facebook} 
-                    target="_blank" 
+                  <a
+                    href={(store as any).facebook}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 bg-blue-100 hover:bg-blue-200 rounded-lg flex items-center justify-center transition-colors"
                   >
-                    <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    <svg
+                      className="w-5 h-5 text-blue-600"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                     </svg>
                   </a>
                 )}
                 {(store as any).instagram && (
-                  <a 
-                    href={(store as any).instagram} 
-                    target="_blank" 
+                  <a
+                    href={(store as any).instagram}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 bg-pink-100 hover:bg-pink-200 rounded-lg flex items-center justify-center transition-colors"
                   >
-                    <svg className="w-5 h-5 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    <svg
+                      className="w-5 h-5 text-pink-600"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                     </svg>
                   </a>
                 )}
@@ -422,8 +494,10 @@ const StoreDetail: React.FC = () => {
 
         {/* Main Action Button */}
         <div className="mb-6">
-          <button 
-            onClick={() => showToast(`กำลังเปิดแผนที่${getFloorDisplay(store.floorId)}...`)}
+          <button
+            onClick={() =>
+              showToast(`กำลังเปิดแผนที่${getFloorDisplay(store.floorId)}...`)
+            }
             className="w-full bg-green-600 hover:bg-green-700 text-white py-4 px-6 rounded-2xl font-medium text-lg flex items-center justify-center space-x-3 transition-colors shadow-lg"
           >
             <MapPin className="w-6 h-6" />
@@ -436,9 +510,9 @@ const StoreDetail: React.FC = () => {
           <div className="p-6 border-b">
             <h2 className="text-xl font-semibold text-gray-900">ภาพร้าน</h2>
           </div>
-          
+
           <div className="relative">
-            <div 
+            <div
               className="flex transition-transform duration-300 ease-in-out"
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
@@ -446,39 +520,54 @@ const StoreDetail: React.FC = () => {
                 const IconComponent = image.icon;
                 return (
                   <div key={image.id} className="w-full flex-shrink-0">
-                    <div className={`aspect-video bg-gradient-to-br ${image.color} flex items-center justify-center`}>
+                    <div
+                      className={`aspect-video bg-gradient-to-br ${image.color} flex items-center justify-center`}
+                    >
                       <div className="text-center">
-                        <div className={`w-16 h-16 ${image.iconColor} rounded-full mx-auto mb-3 flex items-center justify-center`}>
+                        <div
+                          className={`w-16 h-16 ${image.iconColor} rounded-full mx-auto mb-3 flex items-center justify-center`}
+                        >
                           <IconComponent className="w-8 h-8 text-gray-600" />
                         </div>
-                        <p className="text-gray-600 font-medium">{image.title}</p>
-                        <p className="text-sm text-gray-500">{image.subtitle}</p>
+                        <p className="text-gray-600 font-medium">
+                          {image.title}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {image.subtitle}
+                        </p>
                       </div>
                     </div>
                   </div>
                 );
               })}
             </div>
-            
+
             {/* Carousel Controls */}
-            <button 
-              onClick={() => setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length)}
+            <button
+              onClick={() =>
+                setCurrentSlide(
+                  prev =>
+                    (prev - 1 + carouselImages.length) % carouselImages.length,
+                )
+              }
               className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-colors"
             >
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
-            
-            <button 
-              onClick={() => setCurrentSlide((prev) => (prev + 1) % carouselImages.length)}
+
+            <button
+              onClick={() =>
+                setCurrentSlide(prev => (prev + 1) % carouselImages.length)
+              }
               className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-colors"
             >
               <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
-            
+
             {/* Carousel Indicators */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
               {carouselImages.map((_, _index) => (
-                <button 
+                <button
                   key={_index}
                   onClick={() => setCurrentSlide(_index)}
                   className={`w-2 h-2 rounded-full transition-all ${
@@ -494,25 +583,38 @@ const StoreDetail: React.FC = () => {
         {/* Nearby Stores */}
         <div className="bg-white rounded-2xl shadow-sm border p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">ร้านใกล้เคียง</h2>
-            <button className="text-green-600 hover:text-green-700 font-medium text-sm" aria-label="ดูร้านใกล้เคียงทั้งหมด">ดูทั้งหมด</button>
+            <h2 className="text-xl font-semibold text-gray-900">
+              ร้านใกล้เคียง
+            </h2>
+            <button
+              className="text-green-600 hover:text-green-700 font-medium text-sm"
+              aria-label="ดูร้านใกล้เคียงทั้งหมด"
+            >
+              ดูทั้งหมด
+            </button>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {nearbyStores.map((nearbyStore) => (
-              <div 
+            {nearbyStores.map(nearbyStore => (
+              <div
                 key={nearbyStore.id}
-                onClick={() => showToast(`กำลังเปิดหน้า ${nearbyStore.name}...`)}
+                onClick={() =>
+                  showToast(`กำลังเปิดหน้า ${nearbyStore.name}...`)
+                }
                 className="border border-gray-200 rounded-xl p-4 hover:border-green-200 hover:bg-green-50/10 transition-all cursor-pointer"
               >
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className={`w-12 h-12 ${nearbyStore.color} rounded-lg flex items-center justify-center`}>
+                  <div
+                    className={`w-12 h-12 ${nearbyStore.color} rounded-lg flex items-center justify-center`}
+                  >
                     <span className={`${nearbyStore.textColor} font-bold`}>
                       {nearbyStore.name.charAt(0)}
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">{nearbyStore.name}</h3>
+                    <h3 className="font-medium text-gray-900">
+                      {nearbyStore.name}
+                    </h3>
                     <p className="text-sm text-gray-600">{nearbyStore.unit}</p>
                   </div>
                 </div>
@@ -520,7 +622,9 @@ const StoreDetail: React.FC = () => {
                   <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded font-medium">
                     {nearbyStore.status === 'open' ? 'เปิดอยู่' : 'ปิดแล้ว'}
                   </span>
-                  <span className="text-xs text-gray-600">{nearbyStore.distance}</span>
+                  <span className="text-xs text-gray-600">
+                    {nearbyStore.distance}
+                  </span>
                 </div>
               </div>
             ))}
@@ -530,36 +634,53 @@ const StoreDetail: React.FC = () => {
         {/* Promotions */}
         <div className="bg-white rounded-2xl shadow-sm border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">โปรโมชั่นที่เกี่ยวข้อง</h2>
-            <button className="text-green-600 hover:text-green-700 font-medium text-sm" aria-label="ดูโปรโมชั่นทั้งหมด">ดูทั้งหมด</button>
+            <h2 className="text-xl font-semibold text-gray-900">
+              โปรโมชั่นที่เกี่ยวข้อง
+            </h2>
+            <button
+              className="text-green-600 hover:text-green-700 font-medium text-sm"
+              aria-label="ดูโปรโมชั่นทั้งหมด"
+            >
+              ดูทั้งหมด
+            </button>
           </div>
-          
+
           <div className="space-y-4">
-            {promotions.map((promotion) => {
+            {promotions.map(promotion => {
               const IconComponent = promotion.icon;
               return (
-                <div 
+                <div
                   key={promotion.id}
                   className={`border ${promotion.borderColor} bg-gradient-to-r ${promotion.bgColor} rounded-xl p-4`}
                 >
                   <div className="flex items-start space-x-4">
-                    <div className={`w-16 h-16 ${promotion.iconColor} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                    <div
+                      className={`w-16 h-16 ${promotion.iconColor} rounded-xl flex items-center justify-center flex-shrink-0`}
+                    >
                       <IconComponent className="w-8 h-8 text-gray-600" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-medium text-gray-900 mb-1">{promotion.title}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{promotion.description}</p>
+                      <h3 className="font-medium text-gray-900 mb-1">
+                        {promotion.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {promotion.description}
+                      </p>
                       <div className="flex items-center space-x-2">
                         <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded font-medium">
                           {promotion.endDate}
                         </span>
-                        <span className={`px-2 py-1 ${promotion.tagColor} text-xs rounded font-medium`}>
+                        <span
+                          className={`px-2 py-1 ${promotion.tagColor} text-xs rounded font-medium`}
+                        >
                           {promotion.tag}
                         </span>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => showToast('กำลังเปิดรายละเอียดโปรโมชั่น...')}
+                    <button
+                      onClick={() =>
+                        showToast('กำลังเปิดรายละเอียดโปรโมชั่น...')
+                      }
                       className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors"
                       aria-label={`ดูรายละเอียดโปรโมชั่น ${promotion.title}`}
                     >
