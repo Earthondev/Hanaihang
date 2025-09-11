@@ -32,7 +32,12 @@ export interface Mall {
   };
   district?: string;
   // หมวดหมู่ห้างสรรพสินค้า
-  category?: 'shopping-center' | 'community-mall' | 'high-end' | 'outlet' | 'department-store';
+  category?:
+    | 'shopping-center'
+    | 'community-mall'
+    | 'high-end'
+    | 'outlet'
+    | 'department-store';
   categoryLabel?: string; // "ศูนย์การค้า", "คอมมูนิตี้มอลล์", "ไฮเอนด์"
   // สถานะห้าง
   status?: 'Active' | 'Closed' | 'Maintenance';
@@ -47,6 +52,8 @@ export interface Floor {
   id?: string;
   label: string; // "G", "1", "2", ...
   order: number; // 0,1,2...
+  mallId?: string; // FK to malls.id (legacy compatibility)
+  _mallId?: string; // FK to malls.id (new format)
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }
@@ -64,7 +71,8 @@ export interface Store {
   hours?: string | null; // "10:00-22:00"
   status: StoreStatus;
   // Location info
-  mallId?: string; // FK to malls.id
+  mallId?: string; // FK to malls.id (legacy compatibility)
+  _mallId?: string; // FK to malls.id (new format)
   mallSlug?: string; // denormalized mall slug
   mallName?: string; // denormalized mall name
   location?: {
@@ -260,4 +268,64 @@ export interface PaginatedResponse<T> {
   page: number;
   limit: number;
   hasMore: boolean;
+}
+
+// Missing Types for Legacy Compatibility
+export interface MallSearchResult {
+  id: string;
+  name: string;
+  displayName: string;
+  address?: string;
+  district?: string;
+  coords?: {
+    lat: number;
+    lng: number;
+  };
+  hours?: {
+    open: string;
+    close: string;
+  };
+  storeCount?: number;
+}
+
+export interface StoreCategoryStatus {
+  category: StoreCategory;
+  status: StoreStatus;
+}
+
+// Legacy Form Data Types
+export interface MallFormDataFormData {
+  displayName: string;
+  name?: string;
+  address?: string;
+  district?: string;
+  phone?: string;
+  website?: string;
+  social?: string;
+  facebook?: string;
+  line?: string;
+  lat?: number;
+  lng?: number;
+  openTime?: string;
+  closeTime?: string;
+  hours?: string;
+  logoUrl?: string;
+}
+
+// Store Input Type for Forms
+export interface StoreInput {
+  _mallId: string;
+  name: string;
+  category: StoreCategory;
+  floorId: string;
+  unit?: string;
+  phone?: string;
+  hours?: string;
+  status: StoreStatus;
+  brandSlug?: string;
+  landmarks?: string[];
+  directions?: string;
+  nearbyStores?: string[];
+  searchKeywords?: string[];
+  tags?: string[];
 }

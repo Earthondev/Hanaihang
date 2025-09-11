@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, MapPin, Clock, Phone, Globe, Facebook, MessageCircle } from 'lucide-react';
+import { Building2, MapPin, Clock } from 'lucide-react';
 
 import Card from '../../ui/Card';
 import TextField from '../../ui/form/fields/TextField';
@@ -23,12 +23,18 @@ interface MallFormProps {
 
 export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
   const [isEveryday, setIsEveryday] = useState(true);
-  const [logoUrl, setLogoUrl] = useState<string | null>(mall?.logoUrl || null);
+  // const [logoUrl, setLogoUrl] = useState<string | null>(mall?.logoUrl || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { isLoading, run } = useSafeSubmit({
+  const { isLoading } = useSafeSubmit({
     formName: `mall_${mode}`,
-    successMessage: mode === 'create' ? "สร้างห้างสรรพสินค้าสำเร็จ 🎉" : "อัปเดตห้างสรรพสินค้าสำเร็จ ✅",
-    errorMessage: mode === 'create' ? "ไม่สามารถสร้างห้างสรรพสินค้าได้" : "ไม่สามารถอัปเดตห้างสรรพสินค้าได้"
+    successMessage:
+      mode === 'create'
+        ? 'สร้างห้างสรรพสินค้าสำเร็จ 🎉'
+        : 'อัปเดตห้างสรรพสินค้าสำเร็จ ✅',
+    errorMessage:
+      mode === 'create'
+        ? 'ไม่สามารถสร้างห้างสรรพสินค้าได้'
+        : 'ไม่สามารถอัปเดตห้างสรรพสินค้าได้',
   });
 
   const form = useForm({
@@ -56,14 +62,22 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
       location: (() => {
         const lat0 = mall?.lat ?? mall?.coords?.lat;
         const lng0 = mall?.lng ?? mall?.coords?.lng;
-        return (typeof lat0 === 'number' && typeof lng0 === 'number')
+        return typeof lat0 === 'number' && typeof lng0 === 'number'
           ? { lat: lat0, lng: lng0 }
           : undefined;
       })(),
       // v2 schema: อ่านจาก openTime/closeTime
       openTime: (mall as any)?.openTime || mall?.hours?.open || '10:00',
       closeTime: (mall as any)?.closeTime || mall?.hours?.close || '22:00',
-    }
+      // Individual day hours
+      'hours.mon': '',
+      'hours.tue': '',
+      'hours.wed': '',
+      'hours.thu': '',
+      'hours.fri': '',
+      'hours.sat': '',
+      'hours.sun': '',
+    },
   });
 
   // Debug: Log mall data (only when mall changes)
@@ -78,20 +92,21 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
     console.log('🔍 Form errors:', form.formState.errors);
     console.log('🔍 Form is valid:', form.formState.isValid);
     console.log('🔍 Form is dirty:', form.formState.isDirty);
-    
+
     if (isSubmitting) {
       console.log('⚠️ Already submitting, ignoring duplicate submission');
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       console.log('🔄 Starting mall submission process...');
-      
+
       // Map payload ตาม schema v2 (ไม่ส่ง hours legacy)
-      const loc = values.location ?? 
-        ((typeof values.lat === 'number' && typeof values.lng === 'number')
+      const loc =
+        values.location ??
+        (typeof values.lat === 'number' && typeof values.lng === 'number'
           ? { lat: values.lat, lng: values.lng }
           : undefined);
 
@@ -109,9 +124,10 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
         openTime: values.openTime || undefined,
         closeTime: values.closeTime || undefined,
         // พิกัด - ส่งเฉพาะเมื่อครบและเป็นตัวเลข
-        location: (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number')
-          ? loc
-          : undefined,
+        location:
+          loc && typeof loc.lat === 'number' && typeof loc.lng === 'number'
+            ? loc
+            : undefined,
       } as any;
 
       console.log('🔄 Submitting mall data (v2 schema):', payload);
@@ -127,17 +143,19 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
       } else {
         throw new Error('ไม่พบ ID ของห้างสำหรับการอัปเดต');
       }
-      
+
       // Call onSuccess callback หลัง await createMall สำเร็จเท่านั้น
       console.log('🎉 Calling onSuccess callback...');
       console.log('🔍 onSuccess function:', onSuccess);
       console.log('🔍 payload.displayName:', payload.displayName);
       onSuccess?.(payload.displayName);
       console.log('✅ onSuccess callback completed');
-      
     } catch (error) {
       console.error('❌ Mall submission failed:', error);
-      const errorMessage = error instanceof Error ? error.message : 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
       // แสดง error ในฟอร์ม
       form.setError('displayName', { message: errorMessage });
     } finally {
@@ -145,27 +163,31 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
     }
   };
 
-  const _handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const value = e.target.value.trim();
-    if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
-      form.setValue('website' as any, `https://${value}`, { shouldDirty: true, shouldValidate: true });
-    }
-  };
+  // const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  //   const value = e.target.value.trim();
+  //   if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
+  //     form.setValue('website' as any, `https://${value}`, { shouldDirty: true, shouldValidate: true });
+  //   }
+  // };
 
   return (
     <div className="space-y-6">
-    <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-          console.log('❌ Form validation errors:', errors);
-        })} className="space-y-6">
-          
+      <FormProvider {...form}>
+        <form
+          onSubmit={form.handleSubmit(handleSubmit, errors => {
+            console.log('❌ Form validation errors:', errors);
+          })}
+          className="space-y-6"
+        >
           {/* 🏢 ข้อมูลทั่วไป */}
           <Card>
             <div className="flex items-center space-x-2 mb-6">
               <Building2 className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-gray-900">ข้อมูลทั่วไป</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                ข้อมูลทั่วไป
+              </h2>
             </div>
-            
+
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <TextField
@@ -209,7 +231,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                   placeholder="02-xxx-xxxx หรือ +66 xx xxx xxxx"
                   helper="เบอร์โทรติดต่อห้าง"
                 />
-                
+
                 <UrlField
                   name="website"
                   label="เว็บไซต์"
@@ -225,7 +247,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                   placeholder="facebook.com/centralplaza"
                   helper="Facebook page ของห้าง"
                 />
-                
+
                 <TextField
                   name="line"
                   label="Line"
@@ -233,7 +255,6 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                   helper="Line Official Account"
                 />
               </div>
-
             </div>
           </Card>
 
@@ -241,9 +262,11 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
           <Card>
             <div className="flex items-center space-x-2 mb-6">
               <MapPin className="w-5 h-5 text-green-600" />
-              <h2 className="text-xl font-semibold text-gray-900">ตำแหน่ง & แผนที่</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                ตำแหน่ง & แผนที่
+              </h2>
             </div>
-            
+
             <MapPicker
               name="location"
               label="ตำแหน่ง"
@@ -257,14 +280,14 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
               <Clock className="w-5 h-5 text-orange-600" />
               <h2 className="text-xl font-semibold text-gray-900">เวลาทำการ</h2>
             </div>
-            
+
             <div className="space-y-4">
               <Switch
                 checked={isEveryday}
                 onCheckedChange={setIsEveryday}
                 label="ใช้เวลาเดียวกันทุกวัน"
               />
-              
+
               {isEveryday ? (
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -282,26 +305,52 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                     />
                   </div>
                   <div className="mt-3 text-sm text-gray-600">
-                    <p>🕐 เวลาทำการ: จันทร์ - อาทิตย์ {form.watch('openTime') || '10:00'} - {form.watch('closeTime') || '22:00'}</p>
+                    <p>
+                      🕐 เวลาทำการ: จันทร์ - อาทิตย์{' '}
+                      {form.watch('openTime') || '10:00'} -{' '}
+                      {form.watch('closeTime') || '22:00'}
+                    </p>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 mb-3">เวลาทำการรายวัน</h3>
+                    <h3 className="font-medium text-gray-900 mb-3">
+                      เวลาทำการรายวัน
+                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-3">
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-medium text-gray-700 w-16">จันทร์-ศุกร์:</span>
-                          <TimeField name="hours.mon" label="" className="flex-1" />
+                          <span className="text-sm font-medium text-gray-700 w-16">
+                            จันทร์-ศุกร์:
+                          </span>
+                          <TimeField
+                            name="hours.mon"
+                            label=""
+                            className="flex-1"
+                          />
                           <span className="text-gray-500">ถึง</span>
-                          <TimeField name="hours.mon" label="" className="flex-1" />
+                          <TimeField
+                            name="hours.mon"
+                            label=""
+                            className="flex-1"
+                          />
                         </div>
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-medium text-gray-700 w-16">เสาร์-อาทิตย์:</span>
-                          <TimeField name="hours.sat" label="" className="flex-1" />
+                          <span className="text-sm font-medium text-gray-700 w-16">
+                            เสาร์-อาทิตย์:
+                          </span>
+                          <TimeField
+                            name="hours.sat"
+                            label=""
+                            className="flex-1"
+                          />
                           <span className="text-gray-500">ถึง</span>
-                          <TimeField name="hours.sat" label="" className="flex-1" />
+                          <TimeField
+                            name="hours.sat"
+                            label=""
+                            className="flex-1"
+                          />
                         </div>
                       </div>
                     </div>
@@ -309,7 +358,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                 </div>
               )}
             </div>
-            
+
             <div className="mt-4">
               <TextField
                 name="holidayNotice"
@@ -341,14 +390,16 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                   className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors flex items-center space-x-2"
                   aria-busy={isLoading || isSubmitting}
                 >
-                  {(isLoading || isSubmitting) ? (
+                  {isLoading || isSubmitting ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       <span>กำลังบันทึก...</span>
                     </>
                   ) : (
                     <>
-                      <span>{mode === 'create' ? 'สร้างห้าง' : 'บันทึกการแก้ไข'}</span>
+                      <span>
+                        {mode === 'create' ? 'สร้างห้าง' : 'บันทึกการแก้ไข'}
+                      </span>
                     </>
                   )}
                 </button>

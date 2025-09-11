@@ -1,27 +1,29 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { 
-  listMalls, 
-  getMall, 
-  listFloors, 
-  listStores, 
+import {
+  listMalls,
+  getMall,
+  listFloors,
+  listStores,
   getStore,
   createMall,
   createStore,
   updateMall,
   updateStore,
   deleteMall,
-  deleteStore
+  deleteStore,
 } from '@/services/firebase/firestore';
-import { MallFormDataFormData } from '@/types/mall-system';
+// import { MallFormDataFormData } from '@/types/mall-system';
 
 // Query Keys
 export const queryKeys = {
   malls: ['malls'] as const,
   mall: (id: string) => ['mall', id] as const,
   floors: (_mallId: string) => ['floors', mallId] as const,
-  stores: (_mallId: string, filters?: any) => ['stores', mallId, filters] as const,
-  store: (_mallId: string, storeId: string) => ['store', mallId, storeId] as const,
+  stores: (_mallId: string, filters?: any) =>
+    ['stores', mallId, filters] as const,
+  store: (_mallId: string, storeId: string) =>
+    ['store', mallId, storeId] as const,
 };
 
 // Mall Hooks
@@ -33,7 +35,7 @@ export function useMalls(limit?: number) {
   });
 }
 
-export function useMall(_mallId: string) {
+export function useMall(mallId: string) {
   return useQuery({
     queryKey: queryKeys.mall(mallId),
     queryFn: () => getMall(mallId),
@@ -44,9 +46,9 @@ export function useMall(_mallId: string) {
 
 export function useCreateMall() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: MallFormData) => createMall(data),
+    mutationFn: (data: any) => createMall(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.malls });
     },
@@ -55,9 +57,9 @@ export function useCreateMall() {
 
 export function useUpdateMall() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ mallId, data }: { _mallId: string; data: Partial<MallFormData> }) =>
+    mutationFn: ({ mallId, data }: { mallId: string; data: Partial<any> }) =>
       updateMall(mallId, data),
     onSuccess: (_, { mallId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.malls });
@@ -68,9 +70,9 @@ export function useUpdateMall() {
 
 export function useDeleteMall() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (_mallId: string) => deleteMall(mallId),
+    mutationFn: (mallId: string) => deleteMall(mallId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.malls });
     },
@@ -78,7 +80,7 @@ export function useDeleteMall() {
 }
 
 // Floor Hooks
-export function useFloors(_mallId: string) {
+export function useFloors(mallId: string) {
   return useQuery({
     queryKey: queryKeys.floors(mallId),
     queryFn: () => listFloors(mallId),
@@ -88,12 +90,15 @@ export function useFloors(_mallId: string) {
 }
 
 // Store Hooks
-export function useStores(_mallId: string, filters?: {
-  floorId?: string;
-  category?: string;
-  status?: string;
-  query?: string;
-}) {
+export function useStores(
+  mallId: string,
+  filters?: {
+    floorId?: string;
+    category?: string;
+    status?: string;
+    query?: string;
+  },
+) {
   return useQuery({
     queryKey: queryKeys.stores(mallId, filters),
     queryFn: () => listStores(mallId, filters),
@@ -102,7 +107,7 @@ export function useStores(_mallId: string, filters?: {
   });
 }
 
-export function useStore(_mallId: string, storeId: string) {
+export function useStore(mallId: string, storeId: string) {
   return useQuery({
     queryKey: queryKeys.store(mallId, storeId),
     queryFn: () => getStore(mallId, storeId),
@@ -113,9 +118,9 @@ export function useStore(_mallId: string, storeId: string) {
 
 export function useCreateStore() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ mallId, data }: { _mallId: string; data: StoreFormData }) =>
+    mutationFn: ({ mallId, data }: { mallId: string; data: any }) =>
       createStore(mallId, data),
     onSuccess: (_, { mallId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.stores(mallId) });
@@ -125,29 +130,31 @@ export function useCreateStore() {
 
 export function useUpdateStore() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ 
-      mallId, 
-      storeId, 
-      data 
-    }: { 
-      _mallId: string; 
-      storeId: string; 
-      data: Partial<StoreFormData> 
+    mutationFn: ({
+      mallId,
+      storeId,
+      data,
+    }: {
+      mallId: string;
+      storeId: string;
+      data: Partial<any>;
     }) => updateStore(mallId, storeId, data),
     onSuccess: (_, { mallId, storeId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.stores(mallId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.store(mallId, storeId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.store(mallId, storeId),
+      });
     },
   });
 }
 
 export function useDeleteStore() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ mallId, storeId }: { _mallId: string; storeId: string }) =>
+    mutationFn: ({ mallId, storeId }: { mallId: string; storeId: string }) =>
       deleteStore(mallId, storeId),
     onSuccess: (_, { mallId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.stores(mallId) });

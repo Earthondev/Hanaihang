@@ -16,18 +16,18 @@ interface SearchInputProps {
 }
 
 const SearchInput: React.FC<SearchInputProps> = ({
-  placeholder = "ค้นหา...",
-  value = "",
+  placeholder = 'ค้นหา...',
+  value = '',
   onChange,
   onSubmit,
   onFocus,
   onBlur,
-  className = "",
-  size = "md",
+  className = '',
+  size = 'md',
   disabled = false,
   loading = false,
   clearable = true,
-  autoFocus = false
+  autoFocus = false,
 }) => {
   const [internalValue, setInternalValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +42,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
     }
   }, [autoFocus]);
 
-  const handleChange = (_e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInternalValue(newValue);
     onChange?.(newValue);
@@ -54,21 +54,21 @@ const SearchInput: React.FC<SearchInputProps> = ({
   };
 
   const handleClear = () => {
-    setInternalValue("");
-    onChange?.("");
+    setInternalValue('');
+    onChange?.('');
     inputRef.current?.focus();
   };
 
   const sizeClasses = {
-    sm: "py-2 px-3 text-sm",
-    md: "py-3 px-4 text-base",
-    lg: "py-4 px-5 text-lg"
+    sm: 'py-2 px-3 text-sm',
+    md: 'py-3 px-4 text-base',
+    lg: 'py-4 px-5 text-lg',
   };
 
   const iconSizes = {
-    sm: "w-4 h-4",
-    md: "w-5 h-5", 
-    lg: "w-6 h-6"
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5',
+    lg: 'w-6 h-6',
   };
 
   return (
@@ -76,17 +76,17 @@ const SearchInput: React.FC<SearchInputProps> = ({
       <div className="relative">
         {/* Search Icon */}
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg 
-            className={`${iconSizes[size]} text-gray-400`} 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            className={`${iconSizes[size]} text-gray-400`}
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth="2" 
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
         </div>
@@ -114,7 +114,9 @@ const SearchInput: React.FC<SearchInputProps> = ({
         {/* Clear Button / Loading Spinner */}
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
           {loading ? (
-            <div className={`animate-spin rounded-full border-2 border-green-200 border-t-green-600 ${iconSizes[size]}`} />
+            <div
+              className={`animate-spin rounded-full border-2 border-green-200 border-t-green-600 ${iconSizes[size]}`}
+            />
           ) : clearable && internalValue && !disabled ? (
             <button
               type="button"
@@ -122,8 +124,18 @@ const SearchInput: React.FC<SearchInputProps> = ({
               className="text-gray-400 hover:text-gray-600 transition-colors"
               aria-label="ล้างข้อความค้นหา"
             >
-              <svg className={iconSizes[size]} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className={iconSizes[size]}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           ) : null}
