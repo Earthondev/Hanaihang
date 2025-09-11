@@ -357,7 +357,7 @@ const Explore: React.FC = () => {
                         ? 'bg-green-600 text-white'
                         : 'text-gray-600 hover:bg-white hover:text-green-600'
                     }`}
-                    onClick={() => setSelectedFloor(floor.id)}
+                    onClick={() => setSelectedFloor(floor.id || '')}
                   >
                     {floor.label ||
                       (floor.id === 'G' ? 'ชั้น G' : `${floor.id}st Floor`)}
@@ -433,7 +433,7 @@ const Explore: React.FC = () => {
                           ? 'bg-green-600 text-white'
                           : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
                       }`}
-                      onClick={() => setSelectedFloor(floor.id)}
+                      onClick={() => setSelectedFloor(floor.id || '')}
                     >
                       {floor.label || floor.id}
                     </button>
@@ -749,7 +749,7 @@ const Explore: React.FC = () => {
                           ? 'bg-green-600 text-white'
                           : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
                       }`}
-                      onClick={() => setSelectedFloor(floor.id)}
+                      onClick={() => setSelectedFloor(floor.id || '')}
                       aria-label={`แสดงร้านค้าชั้น ${floor.label || floor.id}`}
                     >
                       {floor.label || floor.id}
