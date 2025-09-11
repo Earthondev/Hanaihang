@@ -10,7 +10,7 @@ import MapPicker from '../ui/form/fields/MapPicker';
 import TimeField from '../ui/form/fields/TimeField';
 import Switch from '../ui/Switch';
 import LogoUpload from '../ui/LogoUpload';
-import { mallSchema } from '../../validation/mall.schema';
+import { mallSchema, MallRawInput } from '../../validation/mall.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createMall, updateMall } from '../../lib/firestore';
 import { toSlug } from '../../lib/firestore';
@@ -37,7 +37,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
         : 'ไม่สามารถอัปเดตห้างสรรพสินค้าได้',
   });
 
-  const form = useForm<MallInput>({
+  const form = useForm<MallRawInput>({
     resolver: zodResolver(mallSchema),
     defaultValues: {
       displayName: mall?.displayName || '',
@@ -62,8 +62,20 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
     },
   });
 
-  const handleSubmit = async (values: MallInput) => {
+  const handleSubmit = async (values: MallRawInput) => {
     await run(async () => {
+      // Convert coordinates to numbers if they exist
+      const lat = values.lat
+        ? typeof values.lat === 'string'
+          ? parseFloat(values.lat)
+          : values.lat
+        : undefined;
+      const lng = values.lng
+        ? typeof values.lng === 'string'
+          ? parseFloat(values.lng)
+          : values.lng
+        : undefined;
+
       const mallData = {
         displayName: values.displayName,
         name: values.name || toSlug(values.displayName),
@@ -72,8 +84,8 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
         phone: values.phone,
         website: values.website,
         social: values.social,
-        lat: values.lat,
-        lng: values.lng,
+        lat: lat,
+        lng: lng,
         openTime: values.openTime,
         closeTime: values.closeTime,
         logoUrl: logoUrl,
@@ -111,7 +123,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
           {/* Logo Upload Section */}
           {mode === 'edit' && mall?.id && (
             <LogoUpload
-              mallId={mall.id}
+              _mallId={mall.id}
               currentLogoUrl={mall.logoUrl}
               onLogoChange={setLogoUrl}
             />
