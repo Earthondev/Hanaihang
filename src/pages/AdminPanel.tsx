@@ -2,23 +2,27 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 
 import { useAuth } from '@/config/contexts/AuthContext';
-import { useMallsWithStats, useAllStores, useInvalidateMalls } from '@/hooks/useMallsQuery';
+import {
+  useMallsWithStats,
+  useAllStores,
+  useInvalidateMalls,
+} from '@/hooks/useMallsQuery';
 // import MallCreateDrawer from '@/legacy/admin/MallCreateDrawer';
 // import { StoreCreateDrawer } from '@/legacy/admin/StoreCreateDrawer';
 import MallsTableView from '@/components/admin/MallsTableView';
-import StoresTable from '@/legacy/admin/StoresTable';
 import MallLogoManager from '@/components/admin/MallLogoManager';
-import { AdminPanelSkeleton, MallListSkeleton, StoreTableSkeleton } from '@/components/ui/loading/SkeletonLoader';
-import { Pagination, PaginationInfo } from '@/components/ui/pagination/Pagination';
+import { AdminPanelSkeleton } from '@/components/ui/loading/SkeletonLoader';
+import {
+  Pagination,
+  PaginationInfo,
+} from '@/components/ui/pagination/Pagination';
 import { usePagination } from '@/hooks/usePagination';
-
 // Premium components
 import AdminHeader from '@/components/admin/AdminHeader';
 import PremiumTabs from '@/components/ui/PremiumTabs';
 import FilterBar from '@/components/ui/FilterBar';
 import { PremiumTable } from '@/components/ui/PremiumTable';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { SkeletonBlock } from '../components/ui/SkeletonBlock';
 import { getStoreReactKey } from '@/lib/store-utils';
 
 const AdminPanel: React.FC = () => {
@@ -31,7 +35,7 @@ const AdminPanel: React.FC = () => {
   // const [showMallForm, setShowMallForm] = useState(false);
   // const [showStoreForm, setShowStoreForm] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(12);
-  
+
   // Filter states for stores
   const [searchQuery, setSearchQuery] = useState('');
   const [mallFilter, setMallFilter] = useState('');
@@ -39,7 +43,7 @@ const AdminPanel: React.FC = () => {
   const [deletingKey, setDeletingKey] = useState<string | null>(null);
 
   const { user, logout } = useAuth();
-  
+
   // React Query hooks
   const mallsQuery = useMallsWithStats();
   const storesQuery = useAllStores();
@@ -49,25 +53,29 @@ const AdminPanel: React.FC = () => {
   const mallPagination = usePagination({
     data: mallsQuery.data || [],
     itemsPerPage,
-    initialPage: 1
+    initialPage: 1,
   });
 
   // Pagination for stores
   const storePagination = usePagination({
-    data: storesQuery.data?.map(item => ({ ...item.store, mallId: item._mallId })) || [],
+    data:
+      storesQuery.data?.map(item => ({
+        ...item.store,
+        mallId: item._mallId,
+      })) || [],
     itemsPerPage: 20,
-    initialPage: 1
+    initialPage: 1,
   });
 
   // Derived data
   const malls = mallsQuery.data || [];
-  const stores = storesQuery.data?.map(item => ({
-    ...item.store,
-    mallId: item._mallId,     // ⬅️ ฟิลด์ที่ StoresTable ใช้จริง
-  })) || [];
+  const stores =
+    storesQuery.data?.map(item => ({
+      ...item.store,
+      mallId: item._mallId, // ⬅️ ฟิลด์ที่ StoresTable ใช้จริง
+    })) || [];
   const storesWithMallId = storesQuery.data || [];
   const loading = mallsQuery.isLoading || storesQuery.isLoading;
-  const error = mallsQuery.error || storesQuery.error;
 
   // Valid tabs for parameter validation
   const validTabs = useMemo(() => new Set(['stores', 'malls', 'logos']), []);
@@ -76,9 +84,9 @@ const AdminPanel: React.FC = () => {
   const initializedRef = useRef(false);
   useEffect(() => {
     if (initializedRef.current) return;
-    
+
     const tabParam = (searchParams.get('tab') || '').toLowerCase();
-    
+
     // Check if we're on /admin/malls route
     if (pathname === '/admin/malls') {
       setActiveTab('malls');
@@ -92,7 +100,7 @@ const AdminPanel: React.FC = () => {
       setActiveTab('malls');
       setSearchParams({ tab: 'malls' }, { replace: true });
     }
-    
+
     initializedRef.current = true;
   }, [pathname, searchParams, setSearchParams, validTabs]);
 
@@ -101,7 +109,7 @@ const AdminPanel: React.FC = () => {
   useEffect(() => {
     const drawerParam = searchParams.get('drawer');
     if (!drawerParam || drawerProcessedRef.current) return;
-    
+
     if (drawerParam === 'create-mall') {
       navigate('/admin/malls/create');
       drawerProcessedRef.current = true;
@@ -147,7 +155,7 @@ const AdminPanel: React.FC = () => {
   // Store filtering and management
   const filteredStores = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return stores.filter((store) => {
+    return stores.filter(store => {
       if (!store.id) return false; // Filter out stores without id
       const name = (store.name ?? '').toString().toLowerCase();
       const category = (store.category ?? '').toString();
@@ -170,7 +178,7 @@ const AdminPanel: React.FC = () => {
   const handleDelete = async (storeId: string, mallId: string) => {
     const rowKey = `${mallId}/${storeId}`;
     if (!confirm('คุณแน่ใจหรือไม่ที่จะลบร้านค้านี้?')) return;
-    
+
     try {
       if (!mallId) {
         alert('❌ ไม่พบข้อมูลห้างสรรพสินค้า');
@@ -206,19 +214,23 @@ const AdminPanel: React.FC = () => {
           <PremiumTabs
             active={activeTab}
             onChange={handleTabChange}
-            counts={{ malls: malls.length, stores: stores.length, logos: malls.length }}
+            counts={{
+              malls: malls.length,
+              stores: stores.length,
+              logos: malls.length,
+            }}
           />
         </div>
 
         {/* Content */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          {loading && (
-            <AdminPanelSkeleton />
-          )}
+          {loading && <AdminPanelSkeleton />}
 
           {mallsQuery.error && (
             <div className="p-6 text-center">
-              <div className="text-red-600 mb-2">❌ โหลดห้างล้มเหลว: {(mallsQuery.error as Error).message}</div>
+              <div className="text-red-600 mb-2">
+                ❌ โหลดห้างล้มเหลว: {(mallsQuery.error as Error).message}
+              </div>
               <button
                 type="button"
                 onClick={loadData}
@@ -228,10 +240,12 @@ const AdminPanel: React.FC = () => {
               </button>
             </div>
           )}
-          
+
           {storesQuery.error && (
             <div className="p-6 text-center">
-              <div className="text-red-600 mb-2">❌ โหลดร้านล้มเหลว: {(storesQuery.error as Error).message}</div>
+              <div className="text-red-600 mb-2">
+                ❌ โหลดร้านล้มเหลว: {(storesQuery.error as Error).message}
+              </div>
               <button
                 type="button"
                 onClick={loadData}
@@ -246,23 +260,26 @@ const AdminPanel: React.FC = () => {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-3xl font-bold text-gray-900">
                     จัดการห้างสรรพสินค้า
                   </h2>
-                  <p className="text-gray-600">
+                  <p className="text-gray-700 text-lg">
                     เพิ่ม แก้ไข และลบข้อมูลห้างสรรพสินค้า
                   </p>
                 </div>
                 <div className="flex items-center space-x-3">
                   {/* Items per page selector */}
                   <div className="flex items-center space-x-2">
-                    <label htmlFor="items-per-page" className="text-sm text-gray-600">
+                    <label
+                      htmlFor="items-per-page"
+                      className="text-sm text-gray-600"
+                    >
                       แสดง:
                     </label>
                     <select
                       id="items-per-page"
                       value={itemsPerPage}
-                      onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                      onChange={e => setItemsPerPage(Number(e.target.value))}
                       className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     >
                       <option value={6}>6 รายการ</option>
@@ -271,7 +288,7 @@ const AdminPanel: React.FC = () => {
                       <option value={48}>48 รายการ</option>
                     </select>
                   </div>
-                  
+
                   <button
                     type="button"
                     onClick={() => {
@@ -297,7 +314,7 @@ const AdminPanel: React.FC = () => {
               </div>
 
               <MallsTableView stores={storesWithMallId} onRefresh={loadData} />
-              
+
               {/* Pagination for malls */}
               {malls.length > itemsPerPage && (
                 <div className="mt-8 flex flex-col items-center space-y-4">
@@ -322,10 +339,10 @@ const AdminPanel: React.FC = () => {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-3xl font-bold text-gray-900">
                     จัดการร้านค้า
                   </h2>
-                  <p className="text-gray-600">
+                  <p className="text-gray-700 text-lg">
                     เพิ่ม แก้ไข และลบข้อมูลร้านค้า
                   </p>
                 </div>
@@ -349,7 +366,7 @@ const AdminPanel: React.FC = () => {
                 <div className="flex gap-3">
                   <select
                     value={mallFilter}
-                    onChange={(e) => setMallFilter(e.target.value)}
+                    onChange={e => setMallFilter(e.target.value)}
                     className="h-11 px-3 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="">ทุกห้าง</option>
@@ -361,26 +378,28 @@ const AdminPanel: React.FC = () => {
                   </select>
                   <select
                     value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    onChange={e => setCategoryFilter(e.target.value)}
                     className="h-11 px-3 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="">ทุกหมวดหมู่</option>
                     {categories.map(category => (
-                      <option key={category} value={category}>{category}</option>
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
                     ))}
                   </select>
                 </div>
               </FilterBar>
-              
+
               {filteredStores.length === 0 ? (
                 <EmptyState
                   type="no-stores"
                   title="ยังไม่มีร้านค้า"
                   description="เริ่มต้นโดยการเพิ่มร้านค้าแรกของคุณ เพื่อให้ลูกค้าสามารถค้นหาและดูข้อมูลร้านค้าได้"
                   action={{
-                    label: "เพิ่มร้านค้าแรก",
+                    label: 'เพิ่มร้านค้าแรก',
                     onClick: () => navigate('/admin/stores/create'),
-                    variant: "primary"
+                    variant: 'primary',
                   }}
                 />
               ) : (
@@ -391,20 +410,27 @@ const AdminPanel: React.FC = () => {
                     meta: store.phone,
                     badge: store.category,
                     mall: getMallName(store.mallId),
-                    position: `ชั้น ${store.floorId || '—'} ยูนิต ${store.unit || '—'}`
+                    position: `ชั้น ${store.floorId || '—'} ยูนิต ${store.unit || '—'}`,
                   }))}
-                  onEdit={(key) => {
-                    const store = filteredStores.find(s => getStoreReactKey(s as any) === key);
-                    if (store && store.id) navigate(`/admin/stores/${store.mallId}/${store.id}/edit`);
+                  onEdit={key => {
+                    const store = filteredStores.find(
+                      s => getStoreReactKey(s as any) === key,
+                    );
+                    if (store && store.id)
+                      navigate(
+                        `/admin/stores/${store.mallId}/${store.id}/edit`,
+                      );
                   }}
-                  onDelete={(key) => {
-                    const store = filteredStores.find(s => getStoreReactKey(s as any) === key);
+                  onDelete={key => {
+                    const store = filteredStores.find(
+                      s => getStoreReactKey(s as any) === key,
+                    );
                     if (store && store.id) handleDelete(store.id, store.mallId);
                   }}
                   deletingKey={deletingKey}
                 />
               )}
-              
+
               {/* Pagination for stores */}
               {stores.length > 20 && (
                 <div className="mt-8 flex flex-col items-center space-y-4">

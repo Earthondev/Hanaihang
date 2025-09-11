@@ -319,10 +319,10 @@ const StoreDetail: React.FC = () => {
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
                   <div>
-                    <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-3">
                       {store.name}
                     </h1>
-                    <p className="text-lg text-gray-600 mb-3">
+                    <p className="text-xl text-gray-700 mb-4 leading-relaxed">
                       {store.category} • {mall?.displayName || 'ห้างสรรพสินค้า'}
                     </p>
 
@@ -381,9 +381,7 @@ const StoreDetail: React.FC = () => {
 
         {/* Store Metadata */}
         <div className="bg-white rounded-2xl shadow-sm border p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            ข้อมูลร้าน
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">ข้อมูลร้าน</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Location Info */}

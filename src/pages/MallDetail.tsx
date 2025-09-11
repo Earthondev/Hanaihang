@@ -258,13 +258,13 @@ export default function MallDetail() {
           {/* Sidebar Filters (Desktop) */}
           <aside className="hidden lg:block w-80 flex-shrink-0">
             <div className="bg-white rounded-2xl shadow-sm border p-6 sticky top-24">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                ตัวกรอง
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">ตัวกรอง</h2>
 
               {/* Category Filter */}
               <div className="mb-8">
-                <h3 className="font-medium text-gray-900 mb-4">หมวดหมู่</h3>
+                <h3 className="font-semibold text-gray-900 mb-4 text-lg">
+                  หมวดหมู่
+                </h3>
                 <div className="space-y-3">
                   <label className="flex items-center space-x-3 cursor-pointer">
                     <input
@@ -487,12 +487,12 @@ export default function MallDetail() {
             {/* Results Header */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-2xl font-semibold text-gray-900 mb-1">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   สำรวจร้าน
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-gray-700 text-lg">
                   พบ{' '}
-                  <span className="font-medium">{filteredStores.length}</span>{' '}
+                  <span className="font-semibold">{filteredStores.length}</span>{' '}
                   ร้าน
                 </p>
               </div>

@@ -290,7 +290,7 @@ const Explore: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">กำลังโหลดข้อมูลห้าง...</p>
+          <p className="mt-4 text-gray-700 text-lg">กำลังโหลดข้อมูลห้าง...</p>
         </div>
       </div>
     );
@@ -300,7 +300,9 @@ const Explore: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error || 'ไม่พบข้อมูลห้าง'}</p>
+          <p className="text-red-600 text-lg mb-4">
+            {error || 'ไม่พบข้อมูลห้าง'}
+          </p>
           <Link
             to="/"
             className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
@@ -384,13 +386,13 @@ const Explore: React.FC = () => {
           {/* Sidebar Filters (Desktop) */}
           <aside className="hidden lg:block w-80 flex-shrink-0">
             <div className="bg-white rounded-2xl shadow-sm border p-6 sticky top-24">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                ตัวกรอง
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">ตัวกรอง</h2>
 
               {/* Category Filter */}
               <div className="mb-8">
-                <h3 className="font-medium text-gray-900 mb-4">หมวดหมู่</h3>
+                <h3 className="font-semibold text-gray-900 mb-4 text-lg">
+                  หมวดหมู่
+                </h3>
                 <div className="space-y-3">
                   {categories.map(category => (
                     <label
@@ -556,10 +558,10 @@ const Explore: React.FC = () => {
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 text-lg mb-1">
+                          <h3 className="font-bold text-gray-900 text-xl mb-2">
                             {store.name}
                           </h3>
-                          <p className="text-gray-600 text-sm mb-2">
+                          <p className="text-gray-700 text-base mb-3 leading-relaxed">
                             {store.category} • {getFloorDisplay(store.floorId)},{' '}
                             {store.unit || 'N/A'}
                           </p>

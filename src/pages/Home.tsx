@@ -412,15 +412,15 @@ const Home: React.FC = () => {
         <div className="text-center mb-8">
           <h1
             data-testid="hero-title"
-            className="text-3xl md:text-4xl font-semibold text-text-primary mb-4 font-kanit"
+            className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 font-kanit leading-tight"
           >
             หาห้างใกล้คุณ
           </h1>
-          <p className="text-text-secondary text-lg mb-2 font-prompt">
+          <p className="text-gray-700 text-xl mb-3 font-prompt leading-relaxed">
             เราจะช่วยหาห้างสรรพสินค้าที่ใกล้คุณที่สุด พร้อมเวลาเปิด–ปิด
             และการเดินทาง
           </p>
-          <p className="text-gray-500 text-sm mb-6 font-prompt">
+          <p className="text-gray-600 text-base mb-8 font-prompt">
             {userLoc
               ? 'เรียงจากระยะทางใกล้คุณที่สุด'
               : 'ค้นหาห้างสรรพสินค้าใกล้ตำแหน่งของคุณ'}
@@ -455,7 +455,7 @@ const Home: React.FC = () => {
                 </>
               )}
             </button>
-            <p className="text-xs text-gray-500 font-prompt">
+            <p className="text-sm text-gray-600 font-prompt">
               กดเพื่ออนุญาตใช้ตำแหน่งปัจจุบันของคุณ
             </p>
           </div>
@@ -471,10 +471,10 @@ const Home: React.FC = () => {
                     <MapPin className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-green-900">
+                    <h3 className="font-bold text-green-900 text-lg">
                       คุณอยู่ใกล้ Central Rama 3!
                     </h3>
-                    <p className="text-green-700 text-sm">
+                    <p className="text-green-700 text-base">
                       ห่างเพียง{' '}
                       {Math.round(
                         distanceKm(userLoc!, { lat: 13.6891, lng: 100.5441 }) *
@@ -501,7 +501,7 @@ const Home: React.FC = () => {
           {loadingMalls ? (
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900">
+                <h2 className="text-3xl font-bold text-gray-900">
                   ห้างสรรพสินค้า
                 </h2>
                 <div className="h-px bg-gray-200 flex-1 ml-4"></div>
@@ -551,7 +551,7 @@ const Home: React.FC = () => {
             <div data-testid="search-results">
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-semibold text-text-primary font-kanit">
+                  <h2 className="text-3xl font-bold text-gray-900 font-kanit">
                     {userLoc ? '📍 ห้างใกล้คุณ' : '🏢 ห้างสรรพสินค้า'}
                   </h2>
                   <div className="h-px bg-gradient-to-r from-gray-200 to-transparent flex-1 ml-6"></div>
@@ -662,7 +662,7 @@ const Home: React.FC = () => {
 
               {/* Results Count */}
               <div className="mb-4">
-                <p className="text-sm text-gray-600 font-prompt">
+                <p className="text-base text-gray-700 font-prompt">
                   แสดง {gridFilteredMalls.length} จาก {withDistance.length} ห้าง
                 </p>
               </div>
@@ -728,12 +728,12 @@ const Home: React.FC = () => {
                           </div>
 
                           {/* Mall Name - Larger and Bolder */}
-                          <h3 className="text-xl font-semibold text-text-primary mb-2 group-hover:text-primary transition-colors font-kanit">
+                          <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors font-kanit">
                             {mall.displayName}
                           </h3>
 
                           {/* Address - Lighter Color */}
-                          <p className="text-gray-500 text-sm mb-4 line-clamp-2 font-prompt">
+                          <p className="text-gray-600 text-base mb-4 line-clamp-2 font-prompt leading-relaxed">
                             {mall.address || mall.district}
                           </p>
 

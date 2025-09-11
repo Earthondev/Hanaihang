@@ -97,10 +97,12 @@ const FloorDetail: React.FC = () => {
             กลับไปยัง {mall.displayName}
           </button>
 
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">
             {mall.displayName} - ชั้น {floor.label}
           </h1>
-          {mall.address && <p className="text-gray-600">{mall.address}</p>}
+          {mall.address && (
+            <p className="text-gray-700 text-lg">{mall.address}</p>
+          )}
         </div>
 
         {/* Category Filter */}
@@ -143,7 +145,7 @@ const FloorDetail: React.FC = () => {
               className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6"
             >
               <div className="flex items-start justify-between mb-3">
-                <h3 className="text-lg font-semibold text-gray-900 flex-1">
+                <h3 className="text-xl font-bold text-gray-900 flex-1">
                   {store.name}
                 </h3>
                 <span
@@ -163,18 +165,20 @@ const FloorDetail: React.FC = () => {
                 </span>
               </div>
 
-              <p className="text-sm text-gray-600 mb-2">{store.category}</p>
+              <p className="text-base text-gray-700 mb-3">{store.category}</p>
 
               {store.unit && (
-                <p className="text-sm text-gray-500 mb-2">📍 {store.unit}</p>
+                <p className="text-base text-gray-600 mb-2">📍 {store.unit}</p>
               )}
 
               {store.hours && (
-                <p className="text-sm text-green-600 mb-2">🕒 {store.hours}</p>
+                <p className="text-base text-green-600 mb-2">
+                  🕒 {store.hours}
+                </p>
               )}
 
               {store.phone && (
-                <p className="text-sm text-blue-600">📞 {store.phone}</p>
+                <p className="text-base text-blue-600">📞 {store.phone}</p>
               )}
             </div>
           ))}
