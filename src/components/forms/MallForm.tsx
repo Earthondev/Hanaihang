@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -19,6 +19,7 @@ import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createMall, updateMall } from '../../lib/firestore';
 import { toSlug } from '../../lib/firestore';
 import { Mall } from '../../types/mall-system';
+import { checkMallExists } from '../../services/firebase/firestore';
 
 interface MallFormProps {
   mode: 'create' | 'edit';
@@ -30,6 +31,15 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
   // Initialize isEveryday - assume everyday mode for now since Mall type doesn't have individual day hours
   const [isEveryday, setIsEveryday] = useState(true);
   const [logoUrl, setLogoUrl] = useState<string | null>(mall?.logoUrl || null);
+  const [nameValidation, setNameValidation] = useState<{
+    isValidating: boolean;
+    isValid: boolean;
+    message: string;
+  }>({
+    isValidating: false,
+    isValid: true,
+    message: '',
+  });
   const { isLoading, run } = useSafeSubmit({
     formName: `mall_${mode}`,
     successMessage:
@@ -42,6 +52,28 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
         : 'ไม่สามารถอัปเดตห้างสรรพสินค้าได้',
   });
 
+  // ตรวจสอบชื่อห้างแบบ debounced
+  const validateMallName = async (displayName: string, slug?: string) => {
+    if (!displayName.trim() || mode === 'edit') return;
+
+    setNameValidation(prev => ({ ...prev, isValidating: true }));
+
+    try {
+      const result = await checkMallExists(displayName, slug);
+      setNameValidation({
+        isValidating: false,
+        isValid: !result.exists,
+        message: result.message,
+      });
+    } catch (error) {
+      setNameValidation({
+        isValidating: false,
+        isValid: false,
+        message: 'ไม่สามารถตรวจสอบชื่อห้างได้',
+      });
+    }
+  };
+
   const form = useForm({
     resolver: zodResolver(rawMallSchema),
     defaultValues: {
@@ -52,8 +84,8 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
       phone: mall?.contact?.phone || '',
       website: mall?.contact?.website || '',
       social: mall?.contact?.social || '',
-      facebook: (mall as any)?.facebook || '',
-      line: (mall as any)?.line || '',
+      facebook: (mall as Mall & { facebook?: string })?.facebook || '',
+      line: (mall as Mall & { line?: string })?.line || '',
       lat: mall?.coords?.lat || mall?.lat,
       lng: mall?.coords?.lng || mall?.lng,
       openTime: mall?.hours?.open || mall?.openTime || '10:00',
@@ -69,13 +101,30 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
     },
   });
 
+  // Debounced validation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const displayName = form.getValues('displayName');
+      const name = form.getValues('name');
+      const slug = name?.trim() || toSlug(displayName);
+
+      if (displayName?.trim()) {
+        validateMallName(displayName, slug);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [form.watch('displayName'), form.watch('name')]);
+
   // Handle toggle between everyday and individual hours
   const handleToggleEveryday = (next: boolean) => {
     setIsEveryday(next);
     if (next) {
       // Use everyday hours - clear individual day hours
       ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].forEach(d =>
-        form.setValue(`hours.${d}` as any, '', { shouldDirty: true }),
+        form.setValue(`hours.${d}` as keyof MallRawInput, '', {
+          shouldDirty: true,
+        }),
       );
     } else {
       // Use individual hours - clear everyday hours
@@ -98,6 +147,14 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
       // Generate slug if name is empty
       const name = values.name?.trim() || toSlug(values.displayName || '');
 
+      // ตรวจสอบชื่อห้างซ้ำก่อนส่ง (เฉพาะโหมดสร้าง)
+      if (mode === 'create') {
+        const duplicateCheck = await checkMallExists(values.displayName, name);
+        if (duplicateCheck.exists) {
+          throw new Error(duplicateCheck.message);
+        }
+      }
+
       // Auto-https for website
       const website = normalizeWebsite(values.website);
 
@@ -111,7 +168,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
       };
       if (isEveryday) {
         ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].forEach(d => {
-          (nextValues as any)[`hours.${d}`] = '';
+          (nextValues as Record<string, unknown>)[`hours.${d}`] = '';
         });
       } else {
         nextValues.openTime = '';
@@ -150,13 +207,53 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <TextField
-              name="displayName"
-              label="ชื่อห้างสรรพสินค้า"
-              placeholder="เช่น Central Embassy, MBK Center, Terminal 21, Siam Paragon"
-              helper="ชื่อที่แสดงในแอปพลิเคชัน"
-              required
-            />
+            <div>
+              <TextField
+                name="displayName"
+                label="ชื่อห้างสรรพสินค้า"
+                placeholder="เช่น Central Embassy, MBK Center, Terminal 21, Siam Paragon"
+                helper="ชื่อที่แสดงในแอปพลิเคชัน"
+                required
+              />
+              {/* แสดงผลการตรวจสอบชื่อห้าง */}
+              {mode === 'create' && nameValidation.message && (
+                <div className="mt-2 flex items-center space-x-2">
+                  {nameValidation.isValidating ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      <span className="text-sm text-blue-600">
+                        กำลังตรวจสอบ...
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <div
+                        className={`w-4 h-4 rounded-full flex items-center justify-center ${
+                          nameValidation.isValid ? 'bg-green-100' : 'bg-red-100'
+                        }`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            nameValidation.isValid
+                              ? 'bg-green-600'
+                              : 'bg-red-600'
+                          }`}
+                        ></div>
+                      </div>
+                      <span
+                        className={`text-sm ${
+                          nameValidation.isValid
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        }`}
+                      >
+                        {nameValidation.message}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
 
             <TextField
               name="name"

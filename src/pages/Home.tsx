@@ -28,16 +28,23 @@ import MapFilters from '@/components/map/MapFilters';
 
 // Analytics tracking function with device info
 const trackEvent = (eventName: string, category: string, label: string) => {
-  if (typeof window !== 'undefined' && (window as any).gtag) {
+  if (
+    typeof window !== 'undefined' &&
+    (window as Window & { gtag?: unknown }).gtag
+  ) {
     const device = window.innerWidth < 640 ? 'mobile' : 'desktop';
-    (window as any).gtag('event', eventName, {
-      event_category: category,
-      event_label: label,
-      custom_parameter: {
-        device: device,
-        viewport_width: window.innerWidth,
+    (window as unknown as Window & { gtag: (...args: unknown[]) => void }).gtag(
+      'event',
+      eventName,
+      {
+        event_category: category,
+        event_label: label,
+        custom_parameter: {
+          device: device,
+          viewport_width: window.innerWidth,
+        },
       },
-    });
+    );
   }
 };
 
@@ -151,7 +158,7 @@ const Home: React.FC = () => {
   }, [withDistance]);
 
   // Helper function to check if mall is currently open
-  const isMallOpen = (mall: any) => {
+  const isMallOpen = (mall: Mall) => {
     // รองรับทั้ง schema v2 (openTime/closeTime) และ legacy (hours.open/hours.close)
     const openTime = mall.openTime || mall.hours?.open;
     const closeTime = mall.closeTime || mall.hours?.close;
@@ -559,48 +566,8 @@ const Home: React.FC = () => {
                 <div className="h-px bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20"></div>
               </div>
 
-              {/* Filter Bar and View Toggle */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                {/* Filter Buttons */}
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { key: 'all', label: 'ทั้งหมด', icon: '🏢' },
-                    {
-                      key: 'open-now',
-                      label: 'เปิดอยู่ตอนนี้',
-                      icon: '🕐',
-                      count: withDistance.filter(mall => isMallOpen(mall))
-                        .length,
-                    },
-                  ].map(filter => {
-                    // ถ้าเป็น open-now และไม่มีห้างที่เปิดอยู่ ให้ซ่อนปุ่ม
-                    if (filter.key === 'open-now' && filter.count === 0) {
-                      return null;
-                    }
-
-                    return (
-                      <button
-                        key={filter.key}
-                        onClick={() => setFilterBy(filter.key as FilterOption)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                          filterBy === filter.key
-                            ? 'bg-primary text-white shadow-md'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        <span className="mr-1">{filter.icon}</span>
-                        {filter.label}
-                        {filter.count !== undefined && filter.count > 0 && (
-                          <span className="ml-1 px-1.5 py-0.5 text-xs bg-white/20 rounded-full">
-                            {filter.count}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* View Toggle */}
+              {/* View Toggle */}
+              <div className="flex justify-end items-center gap-4 mb-6">
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setViewMode('grid')}
