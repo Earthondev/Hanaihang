@@ -1,9 +1,29 @@
 [build]
-  command = "npm ci && npm run build"
+  command = "npm ci --prefer-offline && npm run build"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "20"
+  NPM_CONFIG_CACHE = "/opt/buildhome/.npm"
+  NPM_CONFIG_PREFER_OFFLINE = "true"
+
+# Build Cache
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+# Build Cache
+[[plugins]]
+  package = "@netlify/plugin-cache"
+  [plugins.inputs]
+    paths = ["node_modules/.cache", ".vite"]
 
 [[redirects]]
   from = "/*"
