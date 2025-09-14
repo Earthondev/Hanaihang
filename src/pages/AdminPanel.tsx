@@ -24,6 +24,7 @@ import FilterBar from '@/components/ui/FilterBar';
 import { PremiumTable } from '@/components/ui/PremiumTable';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getStoreReactKey } from '@/lib/store-utils';
+import { deleteStore } from '@/services/firebase/stores-unified';
 
 const AdminPanel: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -185,8 +186,20 @@ const AdminPanel: React.FC = () => {
         return;
       }
       setDeletingKey(rowKey);
-      // await deleteStore(mallId, storeId);
+      await deleteStore(mallId, storeId);
+
+      // ล้าง cache และรีเฟรชข้อมูล
       loadData();
+
+      // เพิ่มการล้าง cache เพิ่มเติม
+      try {
+        const { clearStoresCache } = await import('../lib/optimized-firestore');
+        clearStoresCache(mallId);
+        console.log(`🧹 Cleared cache for mall: ${mallId}`);
+      } catch (error) {
+        console.warn('⚠️ Could not clear cache:', error);
+      }
+
       alert('✅ ลบร้านค้าสำเร็จ!');
     } catch (error) {
       console.error('❌ Error deleting store:', error);
@@ -201,7 +214,7 @@ const AdminPanel: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader
-        user={user}
+        user={user ? { email: user.email || undefined } : undefined}
         onRefresh={loadData}
         onLogout={logout}
         dataUpdatedAt={mallsQuery.dataUpdatedAt}
@@ -407,7 +420,7 @@ const AdminPanel: React.FC = () => {
                   rows={filteredStores.map(store => ({
                     key: getStoreReactKey(store as any),
                     name: store.name || '—',
-                    meta: store.phone,
+                    meta: store.phone || undefined,
                     badge: store.category,
                     mall: getMallName(store.mallId),
                     position: `ชั้น ${store.floorId || '—'} ยูนิต ${store.unit || '—'}`,
