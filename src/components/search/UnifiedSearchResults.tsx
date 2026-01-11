@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Clock, Building, Navigation } from 'lucide-react';
+import { MapPin, Clock, Building, Navigation, Store } from 'lucide-react';
 
 import { UnifiedSearchResult } from '@/lib/enhanced-search';
 
@@ -102,11 +102,11 @@ function SearchResultCard({ result, rank, query, onClick }: SearchResultCardProp
 
   const highlightText = (text: string, query: string) => {
     if (!query.trim()) return text;
-    
+
     const regex = new RegExp(`(${query})`, 'gi');
     const parts = text.split(regex);
-    
-    return parts.map((part, index) => 
+
+    return parts.map((part, index) =>
       regex.test(part) ? (
         <mark key={index} className="bg-yellow-200 px-1 rounded">
           {part}
@@ -121,7 +121,7 @@ function SearchResultCard({ result, rank, query, onClick }: SearchResultCardProp
     <div className={`bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] ${getResultColor()}`}>
       {/* Accent Color Bar */}
       <div className={`h-1 ${result.kind === 'mall' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
-      
+
       <div className="p-6">
         {/* Top Section - Icon, Badges, Rank */}
         <div className="flex items-start justify-between mb-4">
@@ -140,7 +140,7 @@ function SearchResultCard({ result, rank, query, onClick }: SearchResultCardProp
               )}
             </div>
           </div>
-          
+
           {/* Badges */}
           <div className="flex flex-col gap-1">
             {isTopResult && (
@@ -210,7 +210,7 @@ function SearchResultCard({ result, rank, query, onClick }: SearchResultCardProp
           <div className="flex items-center justify-center text-sm text-primary font-medium hover:text-primary-hover transition-all duration-200 font-prompt">
             <span>ดูรายละเอียด</span>
             <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
             </svg>
           </div>
         </div>
@@ -227,8 +227,8 @@ function SearchResultCard({ result, rank, query, onClick }: SearchResultCardProp
   }
 
   // Default navigation
-  const href = result.kind === 'mall' 
-    ? `/malls/${result.name}` 
+  const href = result.kind === 'mall'
+    ? `/malls/${result.id}`
     : `/stores/${result.id}`;
 
   return (
@@ -246,7 +246,7 @@ function SearchResultsSkeleton() {
         <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
         <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
       </div>
-      
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (
           <div key={index} data-testid="skeleton-card" className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-pulse">
@@ -282,12 +282,12 @@ function SearchErrorState({ error }: { error: string }) {
       <div className="text-center py-8">
         <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z"/>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
         </div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">เกิดข้อผิดพลาด</h3>
         <p className="text-gray-600 mb-4">{error}</p>
-        <button 
+        <button
           onClick={() => window.location.reload()}
           className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors font-prompt"
         >
@@ -302,7 +302,7 @@ function SearchErrorState({ error }: { error: string }) {
 function SearchEmptyState({ query }: { query: string }) {
   const suggestions = [
     'Central Rama 3',
-    'Siam Paragon', 
+    'Siam Paragon',
     'Terminal 21',
     'Zara',
     'Starbucks'
@@ -313,7 +313,7 @@ function SearchEmptyState({ query }: { query: string }) {
       <div className="text-center py-12">
         <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
         <h3 className="text-xl font-semibold text-gray-900 mb-2 font-kanit">
@@ -322,7 +322,7 @@ function SearchEmptyState({ query }: { query: string }) {
         <p className="text-gray-600 mb-6 font-prompt">
           ไม่พบผลลัพธ์สำหรับ <span className="font-medium">"{query}"</span>
         </p>
-        
+
         <div className="max-w-md mx-auto">
           <p className="text-sm text-gray-500 mb-4 font-prompt">ลองค้นหาด้วยคำเหล่านี้:</p>
           <div className="flex flex-wrap gap-2 justify-center">

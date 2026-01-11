@@ -1,296 +1,181 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Search,
-  Heart,
   Filter,
   ChevronLeft,
   ChevronRight,
-  Building,
+  Store as StoreIcon,
+  MapPin,
+  X,
+  Check
 } from 'lucide-react';
 
 import { useRealtimeMall } from '@/hooks/useRealtimeMalls';
 import { useRealtimeStores } from '@/hooks/useRealtimeStores';
 import { listFloors } from '@/services/firebase/firestore';
 import { Store, Floor } from '@/types/mall-system';
+import FadeIn from '@/components/ui/FadeIn';
 
 const Explore: React.FC = () => {
-  const { _mallId: mallId } = useParams<{ _mallId: string }>();
+  const { mallId } = useParams<{ mallId: string }>();
+  const navigate = useNavigate();
+
+  // State
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFloor, setSelectedFloor] = useState('all');
-  const [selectedCategories, setSelectedCategories] = useState(['all']);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['all']);
   const [openNowOnly, setOpenNowOnly] = useState(false);
   const [sortBy, setSortBy] = useState('name');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const storesPerPage = 6;
   const [floors, setFloors] = useState<Floor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // ใช้ real-time data สำหรับห้างและร้าน
-  const {
-    mall,
-    loading: mallLoading,
-    error: mallError,
-  } = useRealtimeMall(mallId || '');
-  const {
-    stores,
-    loading: storesLoading,
-    error: storesError,
-  } = useRealtimeStores(mall?.id || '');
+  const storesPerPage = 9;
 
-  // Load floors data
+  // Real-time Data
+  const { mall, loading: mallLoading, error: mallError } = useRealtimeMall(mallId || '');
+  const { stores, loading: storesLoading, error: storesError } = useRealtimeStores(mall?.id || '');
+
+  const loading = mallLoading || storesLoading;
+  const error = mallError || storesError;
+
+  // Load Floors
   useEffect(() => {
     const loadFloors = async () => {
       if (!mall?.id) return;
-
       try {
-        console.log('🔍 Loading floors for mall:', mall.id);
         const floorsData = await listFloors(mall.id);
-        console.log('✅ Floors loaded:', floorsData);
-        setFloors(floorsData);
+        const sortedFloors = floorsData.sort((a, b) => {
+          const order = ['G', 'M', '1', '2', '3', '4', '5', '6', '7', '8'];
+          return order.indexOf(a.label) - order.indexOf(b.label);
+        });
+        setFloors(sortedFloors);
       } catch (err) {
-        console.error('❌ Error loading floors:', err);
-        setError('ไม่สามารถโหลดข้อมูลชั้นได้');
+        console.error('Error loading floors:', err);
       }
     };
-
     loadFloors();
   }, [mall?.id]);
 
-  // Update loading and error states
-  useEffect(() => {
-    setLoading(mallLoading || storesLoading);
-    setError(mallError || storesError);
-  }, [mallLoading, storesLoading, mallError, storesError]);
+  // Categories Definition
+  const categories = [
+    { id: 'all', name: 'ทั้งหมด' },
+    { id: 'food', name: 'อาหารและเครื่องดื่ม' },
+    { id: 'fashion', name: 'แฟชั่น' },
+    { id: 'beauty', name: 'ความงาม' },
+    { id: 'tech', name: 'ไอทีและอิเล็กทรอนิกส์' },
+    { id: 'service', name: 'บริการ' },
+    { id: 'bank', name: 'ธนาคาร' },
+    { id: 'entertainment', name: 'บันเทิง' },
+  ];
 
-  // Helper function to map store category to filter category
-  const getCategoryFromStore = (store: any) => {
-    const category = store.category.toLowerCase();
-    if (
-      category.includes('อาหาร') ||
-      category.includes('food') ||
-      category.includes('dining')
-    )
-      return 'food';
-    if (category.includes('แฟชั่น') || category.includes('fashion'))
-      return 'fashion';
-    if (category.includes('เครื่องสำอาง') || category.includes('beauty'))
-      return 'beauty';
-    if (
-      category.includes('เทคโนโลยี') ||
-      category.includes('tech') ||
-      category.includes('electronics')
-    )
-      return 'tech';
-    if (category.includes('บริการ') || category.includes('service'))
-      return 'service';
-    if (category.includes('lifestyle')) return 'fashion';
-    if (category.includes('sport')) return 'fashion';
-    if (category.includes('entertainment')) return 'service';
-    if (category.includes('fitness')) return 'service';
-    if (category.includes('supermarket')) return 'food';
-    if (category.includes('optical')) return 'beauty';
-    if (category.includes('home') || category.includes('living'))
-      return 'service';
-    if (category.includes('kids') || category.includes('edutainment'))
-      return 'service';
+  // Helper: Get generic category key from store category string
+  const getCategoryKey = (storeCategory: string = '') => {
+    const cat = storeCategory.toLowerCase();
+    if (cat.includes('food') || cat.includes('อาหาร') || cat.includes('café') || cat.includes('drink')) return 'food';
+    if (cat.includes('fashion') || cat.includes('clo') || cat.includes('เสื้อ')) return 'fashion';
+    if (cat.includes('beauty') || cat.includes('cosmetic') || cat.includes('สวย')) return 'beauty';
+    if (cat.includes('tech') || cat.includes('mobile') || cat.includes('gadget')) return 'tech';
+    if (cat.includes('service') || cat.includes('บริการ')) return 'service';
+    if (cat.includes('bank') || cat.includes('ธนาคาร')) return 'bank';
+    if (cat.includes('cinema') || cat.includes('movie') || cat.includes('บันเทิง')) return 'entertainment';
     return 'other';
   };
 
-  // Categories mapping
-  const categories = [
-    { id: 'all', name: 'ทั้งหมด' },
-    { id: 'food', name: 'ร้านอาหาร' },
-    { id: 'fashion', name: 'แฟชั่น' },
-    { id: 'beauty', name: 'เครื่องสำอาง' },
-    { id: 'tech', name: 'เทคโนโลยี' },
-    { id: 'service', name: 'บริการ' },
-  ];
-
-  // Helper function to check if store is open
+  // Helper: Check open status
   const isStoreOpen = (store: Store) => {
-    if (!store.hours) return 'unknown';
-
-    const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-
-    // Parse hours (format: "10:00-22:00" or "10:00")
-    const hours = store.hours.split('-');
-    if (hours.length < 1) return 'unknown';
-
-    const [openHour, openMin] = hours[0].split(':').map(Number);
-    const openTimeMinutes = openHour * 60 + openMin;
-
-    if (hours.length === 1) {
-      // Only open time provided, assume closes at 22:00
-      const closeTimeMinutes = 22 * 60;
-      return currentTime >= openTimeMinutes && currentTime <= closeTimeMinutes
-        ? 'open'
-        : 'closed';
-    }
-
-    const [closeHour, closeMin] = hours[1].split(':').map(Number);
-    const closeTimeMinutes = closeHour * 60 + closeMin;
-
-    return currentTime >= openTimeMinutes && currentTime <= closeTimeMinutes
-      ? 'open'
-      : 'closed';
-  };
-
-  // Filter stores based on current filters
-  const filteredStores = stores.filter(store => {
-    // Search filter
-    const matchesSearch =
-      !searchQuery ||
-      store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      store.category.toLowerCase().includes(searchQuery.toLowerCase());
-
-    // Floor filter
-    const matchesFloor =
-      selectedFloor === 'all' || store.floorId === selectedFloor;
-
-    // Category filter
-    const storeCategory = getCategoryFromStore(store);
-    const matchesCategory =
-      selectedCategories.includes('all') ||
-      selectedCategories.includes(storeCategory);
-
-    // Open now filter
-    const storeStatus = isStoreOpen(store);
-    const matchesOpenNow = !openNowOnly || storeStatus === 'open';
-
-    return matchesSearch && matchesFloor && matchesCategory && matchesOpenNow;
-  });
-
-  // Sort stores
-  const sortedStores = [...filteredStores].sort((a, b) => {
-    switch (sortBy) {
-      case 'name':
-        return a.name.localeCompare(b.name);
-      case 'floor':
-        return a.floorId.localeCompare(b.floorId);
-      case 'category':
-        return a.category.localeCompare(b.category);
-      default:
-        return 0;
-    }
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(sortedStores.length / storesPerPage);
-  const startIndex = (currentPage - 1) * storesPerPage;
-  const displayedStores = sortedStores.slice(
-    startIndex,
-    startIndex + storesPerPage,
-  );
-
-  // Get store status
-  const getStoreStatus = (store: Store) => {
+    if (!store.hours) return true; // Default to true if no hours
     try {
-      const status = isStoreOpen(store);
-      return {
-        status,
-        text:
-          status === 'open'
-            ? 'Open now'
-            : status === 'closed'
-              ? 'Closed'
-              : 'Unknown',
-        color:
-          status === 'open'
-            ? 'bg-green-100 text-green-700'
-            : status === 'closed'
-              ? 'bg-gray-100 text-gray-700'
-              : 'bg-yellow-100 text-yellow-700',
-      };
-    } catch (error) {
-      return {
-        status: 'unknown',
-        text: 'Unknown',
-        color: 'bg-yellow-100 text-yellow-700',
-      };
+      const now = new Date();
+      const currentMins = now.getHours() * 60 + now.getMinutes();
+
+      let openTimeStr = '10:00';
+      let closeTimeStr = '22:00';
+
+      if (store.hours.includes('-')) {
+        [openTimeStr, closeTimeStr] = store.hours.split('-');
+      } else {
+        // Try to parse if object
+        // fallback
+      }
+
+      const [oh, om] = openTimeStr.split(':').map(Number);
+      const [ch, cm] = closeTimeStr.split(':').map(Number);
+
+      const openMins = oh * 60 + (om || 0);
+      const closeMins = ch * 60 + (cm || 0);
+
+      if (closeMins < openMins) {
+        // Cross midnight
+        return currentMins >= openMins || currentMins <= closeMins;
+      }
+      return currentMins >= openMins && currentMins <= closeMins;
+    } catch (e) {
+      return true;
     }
   };
 
-  // Get store color based on name
-  const getStoreColor = (storeName: string) => {
-    const colors = [
-      'from-green-400 to-green-600',
-      'from-red-400 to-red-600',
-      'from-pink-400 to-pink-600',
-      'from-blue-400 to-blue-600',
-      'from-yellow-400 to-yellow-600',
-      'from-indigo-400 to-indigo-600',
-      'from-purple-400 to-purple-600',
-      'from-orange-400 to-orange-600',
-    ];
-    const index = storeName.charCodeAt(0) % colors.length;
-    return colors[index];
-  };
+  // Filter Logic
+  const filteredStores = stores.filter(store => {
+    // 1. Search
+    const searchMatch = !searchQuery.trim() ||
+      store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      store.category?.toLowerCase().includes(searchQuery.toLowerCase());
 
-  // Handle category selection
-  const handleCategoryChange = (categoryId: string) => {
-    if (categoryId === 'all') {
+    // 2. Floor
+    const floorMatch = selectedFloor === 'all' || store.floorId === selectedFloor;
+
+    // 3. Category
+    const storeCatKey = getCategoryKey(store.category);
+    const catMatch = selectedCategories.includes('all') || selectedCategories.some(c => c === storeCatKey);
+
+    // 4. Open Now
+    const openMatch = !openNowOnly || isStoreOpen(store);
+
+    return searchMatch && floorMatch && catMatch && openMatch;
+  });
+
+  // Sort Logic
+  const sortedStores = [...filteredStores].sort((a, b) => {
+    if (sortBy === 'name') return a.name.localeCompare(b.name, 'th');
+    if (sortBy === 'floor') return a.floorId.localeCompare(b.floorId);
+    if (sortBy === 'category') return (a.category || '').localeCompare(b.category || '');
+    return 0;
+  });
+
+  // Pagination Logic
+  const totalPages = Math.ceil(sortedStores.length / storesPerPage);
+  const displayedStores = sortedStores.slice((currentPage - 1) * storesPerPage, currentPage * storesPerPage);
+
+  const handleCategoryToggle = (id: string) => {
+    if (id === 'all') {
       setSelectedCategories(['all']);
     } else {
       setSelectedCategories(prev => {
-        const newCategories = prev.filter(c => c !== 'all');
-        if (newCategories.includes(categoryId)) {
-          return newCategories.filter(c => c !== categoryId);
+        const withoutAll = prev.filter(c => c !== 'all');
+        if (withoutAll.includes(id)) {
+          const next = withoutAll.filter(c => c !== id);
+          return next.length === 0 ? ['all'] : next;
         } else {
-          return [...newCategories, categoryId];
+          return [...withoutAll, id];
         }
       });
     }
-  };
-
-  // Clear all filters
-  const clearFilters = () => {
-    setSearchQuery('');
-    setSelectedFloor('all');
-    setSelectedCategories(['all']);
-    setOpenNowOnly(false);
     setCurrentPage(1);
   };
 
-  // Show toast notification
-  const showToast = (message: string) => {
-    const toast = document.createElement('div');
-    toast.className =
-      'fixed top-20 right-4 bg-green-100 border border-green-300 p-4 rounded-xl flex items-center space-x-3 z-50 transform translate-x-full transition-transform duration-300';
-    toast.innerHTML = `
-      <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-        </svg>
-      </div>
-      <p class="text-green-700 font-medium">${message}</p>
-    `;
-
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      toast.classList.remove('translate-x-full');
-    }, 100);
-
-    setTimeout(() => {
-      toast.classList.add('translate-x-full');
-      setTimeout(() => {
-        if (toast.parentNode) {
-          toast.parentNode.removeChild(toast);
-        }
-      }, 300);
-    }, 3000);
+  const getStoreColor = (name: string) => {
+    const colors = ['bg-blue-100 text-blue-800', 'bg-green-100 text-green-800', 'bg-purple-100 text-purple-800', 'bg-orange-100 text-orange-800', 'bg-pink-100 text-pink-800'];
+    return colors[name.length % colors.length];
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-700 text-lg">กำลังโหลดข้อมูลห้าง...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-prompt">กำลังโหลดข้อมูลร้านค้า...</p>
         </div>
       </div>
     );
@@ -300,496 +185,331 @@ const Explore: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 text-lg mb-4">
-            {error || 'ไม่พบข้อมูลห้าง'}
-          </p>
-          <Link
-            to="/"
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-          >
-            กลับไปหน้าแรก
-          </Link>
+          <p className="text-red-500 mb-4 font-prompt">ไม่พบข้อมูลห้าง ({error})</p>
+          <button onClick={() => navigate('/')} className="text-primary-600 hover:underline">กลับหน้าหลัก</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 font-prompt">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between space-x-6">
-            {/* Logo */}
-            <div className="flex-shrink-0">
-              <Link
-                to={`/mall/${mallId}`}
-                className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
-              >
-                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                  <Building className="w-6 h-6 text-green-600" />
-                </div>
-                <div className="text-lg font-semibold">
-                  <span className="text-gray-900">HaaNai</span>
-                  <span className="text-green-600">Hang</span>
-                </div>
+      <header className="bg-white shadow-sm border-b sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Link to={`/mall/${mallId}`} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <ChevronLeft className="w-6 h-6 text-gray-600" />
               </Link>
+              <h1 className="text-xl font-bold text-gray-900 font-kanit">ค้นหาร้านค้า</h1>
             </div>
 
-            {/* Floor Picker (Center) - Hidden on mobile */}
-            <div className="hidden md:flex flex-1 justify-center max-w-md">
-              <div className="flex items-center space-x-2 bg-gray-50 p-1 rounded-xl overflow-x-auto">
-                <button
-                  className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                    selectedFloor === 'all'
-                      ? 'bg-green-600 text-white'
-                      : 'text-gray-600 hover:bg-white hover:text-green-600'
-                  }`}
-                  onClick={() => setSelectedFloor('all')}
-                >
-                  ทั้งหมด
-                </button>
-                {floors.map(floor => (
-                  <button
-                    key={floor.id}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                      selectedFloor === floor.id
-                        ? 'bg-green-600 text-white'
-                        : 'text-gray-600 hover:bg-white hover:text-green-600'
-                    }`}
-                    onClick={() => setSelectedFloor(floor.id || '')}
-                  >
-                    {floor.label ||
-                      (floor.id === 'G' ? 'ชั้น G' : `${floor.id}st Floor`)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Search Box */}
-            <div className="flex-shrink-0 w-80 lg:w-96 relative">
+            {/* Desktop Search */}
+            <div className="hidden md:block w-96 relative">
               <input
                 type="text"
-                placeholder="ค้นหาร้านได้ตลอดเวลา..."
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-200 focus:border-green-500 outline-none text-gray-900 placeholder-gray-500 transition-all"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="ค้นหาชื่อร้าน หรือหมวดหมู่..."
+                className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-xl focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all"
               />
-              <Search className="w-5 h-5 text-gray-500 absolute left-4 top-1/2 transform -translate-y-1/2" />
+              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
             </div>
+
+            <button
+              onClick={() => setShowMobileFilters(true)}
+              className="md:hidden p-2 text-gray-600 relative"
+            >
+              <Filter className="w-6 h-6" />
+              {(selectedCategories.length > 1 || selectedFloor !== 'all' || openNowOnly) && (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+              )}
+            </button>
+          </div>
+
+          {/* Mobile Search */}
+          <div className="md:hidden mt-4 relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="ค้นหาชื่อร้าน..."
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-none rounded-xl focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all"
+            />
+            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex flex-col lg:flex-row gap-6">
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters (Desktop) */}
-          <aside className="hidden lg:block w-80 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-sm border p-6 sticky top-24">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">ตัวกรอง</h2>
+          <aside className="hidden lg:block w-72 flex-shrink-0 space-y-8">
+            {/* Filter Box */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-24">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-bold text-gray-900 flex items-center gap-2">
+                  <Filter className="w-4 h-4" /> ตัวกรอง
+                </h2>
+                {(selectedFloor !== 'all' || !selectedCategories.includes('all') || openNowOnly) && (
+                  <button
+                    onClick={() => {
+                      setSelectedFloor('all');
+                      setSelectedCategories(['all']);
+                      setOpenNowOnly(false);
+                    }}
+                    className="text-xs text-red-500 hover:underline"
+                  >
+                    ล้างทั้งหมด
+                  </button>
+                )}
+              </div>
 
-              {/* Category Filter */}
-              <div className="mb-8">
-                <h3 className="font-semibold text-gray-900 mb-4 text-lg">
-                  หมวดหมู่
-                </h3>
-                <div className="space-y-3">
-                  {categories.map(category => (
-                    <label
-                      key={category.id}
-                      className="flex items-center space-x-3 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-200"
-                        checked={selectedCategories.includes(category.id)}
-                        onChange={() => handleCategoryChange(category.id)}
-                      />
-                      <span className="text-gray-600">{category.name}</span>
-                    </label>
-                  ))}
-                </div>
+              {/* Open Now */}
+              <div className="mb-6 pb-6 border-b border-gray-100">
+                <label className="flex items-center justify-between cursor-pointer group">
+                  <span className="text-gray-700 font-medium group-hover:text-primary-600 transition-colors">เปิดอยู่ตอนนี้</span>
+                  <div className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 ${openNowOnly ? 'bg-green-500' : 'bg-gray-200'}`}>
+                    <div className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${openNowOnly ? 'translate-x-6' : 'translate-x-0'}`} />
+                  </div>
+                  <input type="checkbox" checked={openNowOnly} onChange={(e) => setOpenNowOnly(e.target.checked)} className="hidden" />
+                </label>
               </div>
 
               {/* Floor Filter */}
-              <div className="mb-8">
-                <h3 className="font-medium text-gray-900 mb-4">ชั้น</h3>
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">ชั้น</h3>
                 <div className="grid grid-cols-3 gap-2">
                   <button
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      selectedFloor === 'all'
-                        ? 'bg-green-600 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
-                    }`}
                     onClick={() => setSelectedFloor('all')}
+                    className={`py-2 px-1 text-sm rounded-lg border transition-all ${selectedFloor === 'all' ? 'border-primary-500 bg-primary-50 text-primary-700 font-bold' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
                   >
-                    ทั้งหมด
+                    All
                   </button>
                   {floors.map(floor => (
                     <button
                       key={floor.id}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                        selectedFloor === floor.id
-                          ? 'bg-green-600 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
-                      }`}
-                      onClick={() => setSelectedFloor(floor.id || '')}
+                      onClick={() => setSelectedFloor(floor.label)}
+                      className={`py-2 px-1 text-sm rounded-lg border transition-all ${selectedFloor === floor.label ? 'border-primary-500 bg-primary-50 text-primary-700 font-bold' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
                     >
-                      {floor.label || floor.id}
+                      {floor.label}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Open Now Toggle */}
-              <div className="mb-8">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-gray-900">เปิดตอนนี้</h3>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={openNowOnly}
-                      onChange={e => setOpenNowOnly(e.target.checked)}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-                  </label>
+              {/* Categories Filter */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">หมวดหมู่</h3>
+                <div className="space-y-2">
+                  {categories.map(cat => {
+                    const isSelected = selectedCategories.includes(cat.id);
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => handleCategoryToggle(cat.id)}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${isSelected ? 'bg-primary-50 text-primary-700 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
+                      >
+                        <span>{cat.name}</span>
+                        {isSelected && <Check className="w-4 h-4" />}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-
-              {/* Clear Filters */}
-              <button
-                onClick={clearFilters}
-                className="w-full px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl font-medium transition-colors"
-                aria-label="ล้างตัวกรองทั้งหมด"
-              >
-                ล้างตัวกรอง
-              </button>
             </div>
           </aside>
 
-          {/* Mobile Filter Toggle */}
-          <div className="lg:hidden mb-4">
-            <button
-              onClick={() => setShowMobileFilters(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
-              aria-label="เปิดตัวกรองการค้นหา"
-            >
-              <Filter className="w-5 h-5 text-gray-600" />
-              <span className="font-medium text-gray-600">ตัวกรอง</span>
-            </button>
-          </div>
-
-          {/* Main Content Area */}
+          {/* Results Area */}
           <div className="flex-1">
             {/* Results Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-2xl font-semibold text-gray-900 mb-1">
-                  สำรวจร้าน
-                </h1>
-                <p className="text-gray-600">พบ {filteredStores.length} ร้าน</p>
-              </div>
-
-              {/* Sort Dropdown */}
-              <div className="relative">
-                <select
-                  value={sortBy}
-                  onChange={e => setSortBy(e.target.value)}
-                  className="appearance-none bg-white border border-gray-300 rounded-xl px-4 py-2 pr-8 text-gray-600 focus:ring-2 focus:ring-green-200 focus:border-green-500 outline-none"
-                >
-                  <option value="name">เรียงตามชื่อ</option>
-                  <option value="floor">เรียงตามชั้น</option>
-                  <option value="category">เรียงตามหมวด</option>
-                </select>
-                <svg
-                  className="w-4 h-4 text-gray-600 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            {/* Store Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-              {displayedStores.map(store => {
-                const storeStatus = getStoreStatus(store);
-                const storeColor = getStoreColor(store.name);
-                const getFloorDisplay = (floorId: string) => {
-                  return floorId === 'G'
-                    ? 'ชั้น G'
-                    : floorId === '1'
-                      ? '1st Floor'
-                      : floorId === '2'
-                        ? '2nd Floor'
-                        : floorId === '3'
-                          ? '3rd Floor'
-                          : floorId === '4'
-                            ? '4th Floor'
-                            : floorId === '5'
-                              ? '5th Floor'
-                              : floorId === '6'
-                                ? '6th Floor'
-                                : `ชั้น ${floorId}`;
-                };
-
-                return (
-                  <div
-                    key={store.id}
-                    className="store-card bg-white rounded-2xl shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-200 overflow-hidden"
-                  >
-                    <div
-                      className={`aspect-video bg-gradient-to-br ${storeColor} flex items-center justify-center`}
-                    >
-                      <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center">
-                        <span className="text-2xl font-bold text-gray-700">
-                          {store.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <h3 className="font-bold text-gray-900 text-xl mb-2">
-                            {store.name}
-                          </h3>
-                          <p className="text-gray-700 text-base mb-3 leading-relaxed">
-                            {store.category} • {getFloorDisplay(store.floorId)},{' '}
-                            {store.unit || 'N/A'}
-                          </p>
-                          <div className="flex items-center space-x-2 mb-3">
-                            <span
-                              className={`px-2 py-1 text-xs rounded-lg font-medium ${storeStatus.color}`}
-                            >
-                              {storeStatus.text}
-                            </span>
-                            {store.tags?.slice(0, 2).map((tag, index) => (
-                              <span
-                                key={index}
-                                className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-lg font-medium"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <button className="p-2 hover:bg-green-50 rounded-lg transition-colors">
-                          <Heart className="w-5 h-5 text-gray-600 hover:text-green-600" />
-                        </button>
-                      </div>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() =>
-                            showToast(
-                              `กำลังแสดงตำแหน่ง ${store.name} บนแผนที่...`,
-                            )
-                          }
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-xl text-sm font-medium transition-colors"
-                        >
-                          ดูตำแหน่งบนแผนที่
-                        </button>
-                        <Link
-                          to={`/mall/${mallId}/stores/${store.id}`}
-                          className="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors"
-                        >
-                          รายละเอียด
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Pagination */}
-            <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-              <div className="text-gray-600 text-sm">
-                แสดง {startIndex + 1}-
-                {Math.min(startIndex + storesPerPage, filteredStores.length)}{' '}
-                จาก {filteredStores.length} ร้าน
-              </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+              <h2 className="text-gray-900 font-medium">
+                ค้นพบ <span className="font-bold text-primary-600">{filteredStores.length}</span> ร้านค้า
+              </h2>
 
               <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500">เรียงตาม:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="text-sm border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="name">ชื่อร้าน (ก-ฮ)</option>
+                  <option value="floor">ชั้น (ล่าง-บน)</option>
+                  <option value="category">หมวดหมู่</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Grid */}
+            <FadeIn>
+              {displayedStores.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {displayedStores.map((store) => (
+                    <Link
+                      key={store.id}
+                      to={`/mall/${mallId}/stores/${store.id}`}
+                      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all duration-300 group flex flex-col"
+                    >
+                      <div className="h-32 bg-gray-50 relative overflow-hidden">
+                        {/* Mock Cover Image - In real app, use store.coverImage */}
+                        <div className={`absolute inset-0 bg-gradient-to-br ${getStoreColor(store.name || '')} opacity-10 group-hover:opacity-20 transition-opacity`} />
+
+                        {/* Floor Tag */}
+                        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-700 shadow-sm border border-gray-100">
+                          ชั้น {store.floorId}
+                        </div>
+
+                        {/* Store Initials/Icon */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-4xl font-black text-gray-200 group-hover:text-primary-200 transition-colors select-none">
+                            {(store.name || '?').charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-5 flex-1 flex flex-col">
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="font-bold text-gray-900 text-lg line-clamp-1 group-hover:text-primary-600 transition-colors">
+                            {store.name}
+                          </h3>
+                        </div>
+
+                        <p className="text-sm text-gray-500 mb-4 line-clamp-1">
+                          {store.category || 'ร้านค้าทั่วไป'}
+                        </p>
+
+                        <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
+                          <div className={`flex items-center text-xs font-medium ${isStoreOpen(store) ? 'text-green-600' : 'text-red-500'}`}>
+                            <span className={`w-2 h-2 rounded-full mr-1.5 ${isStoreOpen(store) ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                            {isStoreOpen(store) ? 'เปิดอยู่' : 'ปิดแล้ว'}
+                          </div>
+                          <span className="text-xs text-primary-600 font-medium group-hover:underline">ดูรายละเอียด</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
+                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <StoreIcon className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">ไม่พบร้านค้า</h3>
+                  <p className="text-gray-500 mb-6">ลองปรับตัวกรองหรือคำค้นหาใหม่ดูนะครับ</p>
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedFloor('all');
+                      setSelectedCategories(['all']);
+                      setOpenNowOnly(false);
+                    }}
+                    className="px-6 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
+                  >
+                    ล้างตัวกรองทั้งหมด
+                  </button>
+                </div>
+              )}
+            </FadeIn>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-10 flex justify-center space-x-2">
                 <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="px-3 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  className="p-2 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
-
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const pageNum = i + 1;
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`px-3 py-2 rounded-lg transition-colors ${
-                        currentPage === pageNum
-                          ? 'bg-green-600 text-white'
-                          : 'border border-gray-300 text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-
-                {totalPages > 5 && (
-                  <>
-                    <span className="px-2 text-gray-600">...</span>
-                    <button
-                      onClick={() => setCurrentPage(totalPages)}
-                      className="px-3 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      {totalPages}
-                    </button>
-                  </>
-                )}
-
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`w-10 h-10 rounded-lg border font-medium transition-colors ${currentPage === i + 1 ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
                 <button
-                  onClick={() =>
-                    setCurrentPage(prev => Math.min(prev + 1, totalPages))
-                  }
                   disabled={currentPage === totalPages}
-                  className="px-3 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  className="p-2 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
-
-              <button
-                onClick={() => showToast('กำลังโหลดร้านเพิ่มเติม...')}
-                className="px-6 py-2 bg-white border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl font-medium transition-colors"
-              >
-                โหลดเพิ่มเติม
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </main>
 
       {/* Mobile Filter Modal */}
       {showMobileFilters && (
-        <div className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-6 max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowMobileFilters(false)} />
+          <div className="absolute inset-y-0 right-0 w-80 bg-white shadow-2xl p-6 flex flex-col h-full transform transition-transform duration-300">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">ตัวกรอง</h2>
-              <button
-                onClick={() => setShowMobileFilters(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg"
-                aria-label="ปิดตัวกรอง"
-              >
-                <svg
-                  className="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+              <h2 className="text-xl font-bold font-kanit">ตัวกรอง</h2>
+              <button onClick={() => setShowMobileFilters(false)} className="p-1 hover:bg-gray-100 rounded-lg">
+                <X className="w-6 h-6 text-gray-500" />
               </button>
             </div>
 
-            <div className="space-y-6">
-              {/* Category Filter */}
-              <div>
-                <h3 className="font-medium text-gray-900 mb-4">หมวดหมู่</h3>
-                <div className="space-y-3">
-                  {categories.map(category => (
-                    <label
-                      key={category.id}
-                      className="flex items-center space-x-3 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-200"
-                        checked={selectedCategories.includes(category.id)}
-                        onChange={() => handleCategoryChange(category.id)}
-                      />
-                      <span className="text-gray-600">{category.name}</span>
-                    </label>
-                  ))}
-                </div>
+            <div className="flex-1 overflow-y-auto space-y-8 pr-2">
+              {/* Duplicate content from sidebar filters for mobile */}
+              {/* Open Now */}
+              <div className="border-b border-gray-100 pb-6">
+                <label className="flex items-center justify-between">
+                  <span className="font-medium text-gray-900">เปิดอยู่ตอนนี้</span>
+                  <input type="checkbox" checked={openNowOnly} onChange={e => setOpenNowOnly(e.target.checked)} className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500" />
+                </label>
               </div>
 
-              {/* Floor Filter */}
+              {/* Floors */}
               <div>
-                <h3 className="font-medium text-gray-900 mb-4">ชั้น</h3>
+                <h3 className="font-semibold mb-3 text-gray-900">ชั้น</h3>
                 <div className="grid grid-cols-3 gap-2">
-                  <button
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      selectedFloor === 'all'
-                        ? 'bg-green-600 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
-                    }`}
-                    onClick={() => setSelectedFloor('all')}
-                    aria-label="แสดงร้านค้าทุกชั้น"
-                  >
-                    ทั้งหมด
-                  </button>
-                  {floors.map(floor => (
+                  <button onClick={() => setSelectedFloor('all')} className={`py-2 text-sm border rounded ${selectedFloor === 'all' ? 'bg-primary-50 border-primary-500 text-primary-700 font-bold' : 'text-gray-600'}`}>All</button>
+                  {floors.map(f => (
                     <button
-                      key={floor.id}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                        selectedFloor === floor.id
-                          ? 'bg-green-600 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
-                      }`}
-                      onClick={() => setSelectedFloor(floor.id || '')}
-                      aria-label={`แสดงร้านค้าชั้น ${floor.label || floor.id}`}
+                      key={f.id}
+                      onClick={() => setSelectedFloor(f.label)}
+                      className={`py-2 text-sm border rounded ${selectedFloor === f.label ? 'bg-primary-50 border-primary-500 text-primary-700 font-bold' : 'text-gray-600'}`}
                     >
-                      {floor.label || floor.id}
+                      {f.label}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Open Now Toggle */}
+              {/* Categories */}
               <div>
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-gray-900">เปิดตอนนี้</h3>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={openNowOnly}
-                      onChange={e => setOpenNowOnly(e.target.checked)}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-                  </label>
+                <h3 className="font-semibold mb-3 text-gray-900">หมวดหมู่</h3>
+                <div className="space-y-3">
+                  {categories.map(cat => (
+                    <label key={cat.id} className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(cat.id)}
+                        onChange={() => handleCategoryToggle(cat.id)}
+                        className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
+                      />
+                      <span className="text-gray-700">{cat.name}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Apply Filters Button */}
-            <div className="flex space-x-3 mt-8">
-              <button
-                onClick={clearFilters}
-                className="flex-1 px-4 py-3 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl font-medium transition-colors"
-                aria-label="ล้างตัวกรองทั้งหมด"
-              >
-                ล้างตัวกรอง
-              </button>
+            <div className="pt-6 border-t mt-auto">
               <button
                 onClick={() => setShowMobileFilters(false)}
-                className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors"
-                aria-label="ใช้ตัวกรองที่เลือก"
+                className="w-full py-3 bg-primary-600 text-white rounded-xl font-bold text-lg hover:bg-primary-700 transition-colors"
               >
-                ใช้ตัวกรอง
+                ดูผลลัพธ์ ({filteredStores.length})
               </button>
             </div>
           </div>

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Search, AlertCircle, Store, MapPin } from 'lucide-react';
+import { Search, AlertCircle, Store, MapPin, Database } from 'lucide-react';
 
 interface EmptyStateProps {
-  type: 'no-results' | 'no-stores' | 'no-malls' | 'error' | 'bookmarks';
+  type: 'no-results' | 'no-stores' | 'no-malls' | 'error' | 'bookmarks' | 'no-data';
   title?: string;
   description?: string;
   action?: {
@@ -38,15 +38,20 @@ const defaultConfig = {
     title: 'ยังไม่มีห้างโปรด',
     description: 'กดปุ่ม ❤️ เพื่อบันทึกห้างที่คุณชอบ',
     icon: <Search className="w-16 h-16 text-gray-400" />
+  },
+  'no-data': {
+    title: 'ไม่พบข้อมูล',
+    description: 'ยังไม่มีข้อมูลในระบบ',
+    icon: <Database className="w-16 h-16 text-gray-400" />
   }
 };
 
-export function EmptyState({ 
-  type, 
-  title, 
-  description, 
-  action, 
-  icon 
+export function EmptyState({
+  type,
+  title,
+  description,
+  action,
+  icon
 }: EmptyStateProps) {
   const config = defaultConfig[type] || defaultConfig['error'];
   const displayTitle = title || config.title;
@@ -58,22 +63,22 @@ export function EmptyState({
       <div className="w-20 h-20 bg-gray-100 rounded-2xl mx-auto mb-6 flex items-center justify-center">
         {displayIcon}
       </div>
-      
+
       <h3 className="text-xl font-semibold text-gray-900 mb-3">
         {displayTitle}
       </h3>
-      
+
       <p className="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
         {displayDescription}
       </p>
-      
+
       {action && (
         <button
           onClick={action.onClick}
           className={`
             inline-flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200
-            ${action.variant === 'primary' 
-              ? 'bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2' 
+            ${action.variant === 'primary'
+              ? 'bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2'
             }
           `}

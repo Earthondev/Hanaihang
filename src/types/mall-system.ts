@@ -33,17 +33,18 @@ export interface Mall {
   district?: string;
   // หมวดหมู่ห้างสรรพสินค้า
   category?:
-    | 'shopping-center'
-    | 'community-mall'
-    | 'high-end'
-    | 'outlet'
-    | 'department-store';
+  | 'shopping-center'
+  | 'community-mall'
+  | 'high-end'
+  | 'outlet'
+  | 'department-store';
   categoryLabel?: string; // "ศูนย์การค้า", "คอมมูนิตี้มอลล์", "ไฮเอนด์"
   // สถานะห้าง
   status?: 'Active' | 'Closed' | 'Maintenance';
   storeCount?: number; // จำนวนร้านในห้าง (denormalized)
   floorCount?: number; // จำนวนชั้นในห้าง (denormalized)
   logoUrl?: string; // URL ของโลโก้ห้างจาก Firebase Storage
+  images?: string[]; // รูปภาพห้าง
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }
@@ -51,6 +52,7 @@ export interface Mall {
 export interface Floor {
   id?: string;
   label: string; // "G", "1", "2", ...
+  name?: string; // "Ground Floor", "First Floor"
   order: number; // 0,1,2...
   mallId?: string; // FK to malls.id (legacy compatibility)
   _mallId?: string; // FK to malls.id (new format)
@@ -75,6 +77,7 @@ export interface Store {
   _mallId?: string; // FK to malls.id (new format)
   mallSlug?: string; // denormalized mall slug
   mallName?: string; // denormalized mall name
+  mallCoords?: { lat: number; lng: number }; // denormalized mall coords cache
   location?: {
     lat?: number;
     lng?: number;

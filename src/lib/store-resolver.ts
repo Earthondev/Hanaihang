@@ -1,29 +1,14 @@
 import { getMall, getFloorInfo } from "./malls";
 import { distanceKm } from "./geo";
-
-export type Store = {
-  id: string;
-  name: string;
-  _mallId: string;
-  mallSlug: string;
-  floorId: string;
-  unit?: string;
-  location?: {lat: number, lng: number};   // optional
-  mallCoords?: {lat: number, lng: number}; // denormalized cache
-  floorLabel?: string;                     // denormalized cache
-  category?: string;
-  status?: string;
-  phone?: string;
-  hours?: string;
-};
+import { Store, Mall, Floor } from "../types/mall-system";
 
 export type ResolvedStore = {
   mallName: string;
   floorLabel: string;
   distanceKm: number | null;
-  coordsUsed: {lat: number, lng: number} | null;
-  mall?: any;
-  floor?: any;
+  coordsUsed: { lat: number, lng: number } | null;
+  mall?: Mall;
+  floor?: Floor;
 };
 
 /**
@@ -34,26 +19,50 @@ export type ResolvedStore = {
  */
 export async function resolveStoreComputed(
   store: Store,
-  user?: {lat: number; lng: number}
+  user?: { lat: number; lng: number }
 ): Promise<ResolvedStore> {
+  const mallId = store.mallId || store._mallId;
+
   // 1) ดึงข้อมูลห้าง
-  const mall = store.mallId ? await getMall(store.mallId) : null;
-  const mallCoords = store.mallCoords ?? mall?.location ?? mall?.coords ?? null;
+  const mall = mallId ? await getMall(mallId) : null;
+
+  // Resolve Mall Coords (priority: denormalized > v2 > legacy)
+  let mallCoords = store.mallCoords ?? null;
+
+  if (!mallCoords && mall) {
+    if (mall.lat != null && mall.lng != null) {
+      mallCoords = { lat: mall.lat, lng: mall.lng };
+    } else if (mall.coords) {
+      mallCoords = mall.coords;
+    }
+  }
 
   // 2) ดึงข้อมูลชั้น
-  const floor = store.floorLabel
-    ? { label: store.floorLabel }
-    : (store.mallId && store.floorId ? await getFloorInfo(store.mallId, store.floorId) : null);
+  // พยายามดึงข้อมูลชั้นจริงก่อนเพื่อให้ได้ชื่อเต็ม (เช่น "Ground Floor")
+  let floor = null;
+  if (mallId && store.floorId) {
+    floor = await getFloorInfo(mallId, store.floorId);
+  }
+
+  // fallback to denormalized label
+  const floorLabel = floor?.name || floor?.label || store.floorLabel || store.floorId;
 
   // 3) คำนวณระยะทาง
-  const coordsForDistance = store.location ?? mallCoords ?? null;
+  // 3) คำนวณระยะทาง
+  let coordsForDistance: { lat: number, lng: number } | null = null;
+
+  if (store.location?.lat != null && store.location?.lng != null) {
+    coordsForDistance = { lat: store.location.lat, lng: store.location.lng };
+  } else if (mallCoords) {
+    coordsForDistance = mallCoords;
+  }
   const distance = (user && coordsForDistance)
     ? distanceKm(user, coordsForDistance)
     : null;
 
   return {
     mallName: mall?.displayName ?? store.mallSlug ?? "",
-    floorLabel: floor?.name || floor?.label || store.floorId,
+    floorLabel: floorLabel,
     distanceKm: distance,
     coordsUsed: coordsForDistance,
     mall,
@@ -69,7 +78,7 @@ export async function resolveStoreComputed(
  */
 export async function resolveStoresComputed(
   stores: Store[],
-  user?: {lat: number; lng: number}
+  user?: { lat: number; lng: number }
 ): Promise<(Store & ResolvedStore)[]> {
   const promises = stores.map(async (store) => {
     const resolved = await resolveStoreComputed(store, user);
@@ -87,11 +96,17 @@ export async function resolveStoresComputed(
  */
 export function resolveStoreLazy(
   store: Store,
-  user?: {lat: number; lng: number}
+  user?: { lat: number; lng: number }
 ): ResolvedStore {
   // ใช้ข้อมูล denormalized ที่มีอยู่
   const mallCoords = store.mallCoords ?? null;
-  const coordsForDistance = store.location ?? mallCoords ?? null;
+
+  let coordsForDistance: { lat: number, lng: number } | null = null;
+  if (store.location?.lat != null && store.location?.lng != null) {
+    coordsForDistance = { lat: store.location.lat, lng: store.location.lng };
+  } else if (mallCoords) {
+    coordsForDistance = mallCoords;
+  }
   const distance = (user && coordsForDistance)
     ? distanceKm(user, coordsForDistance)
     : null;
@@ -113,7 +128,7 @@ export function resolveStoreLazy(
  */
 export async function isStoreWithinRadius(
   store: Store,
-  user: {lat: number; lng: number},
+  user: { lat: number; lng: number },
   radiusKm: number
 ): Promise<boolean> {
   const resolved = await resolveStoreComputed(store, user);

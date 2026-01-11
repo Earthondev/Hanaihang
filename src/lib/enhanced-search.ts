@@ -226,7 +226,7 @@ async function searchStores(
       mallSlug: store.mallSlug || _mallId,
       coords: store.location,          // ถ้าร้านไม่มีพิกัดจริง เดี๋ยว enrich จากห้าง
       mallCoords: undefined,           // จะเติมทีหลัง
-      floorLabel: store.floorId,
+      floorLabel: store.floorLabel || store.floorId,
       category: store.category,
       hours: store.hours
         ? { open: store.hours.split('-')[0], close: store.hours.split('-')[1] }
@@ -328,7 +328,7 @@ export function sortSearchResults(
 }
 
 // Haversine distance calculation
-function haversineKm(a: {lat: number; lng: number}, b: {lat: number; lng: number}): number {
+function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
   const toRad = (d: number) => (d * Math.PI) / 180;
   const R = 6371; // km
   const dLat = toRad(b.lat - a.lat);
@@ -336,14 +336,14 @@ function haversineKm(a: {lat: number; lng: number}, b: {lat: number; lng: number
   const lat1 = toRad(a.lat);
   const lat2 = toRad(b.lat);
   const h =
-    Math.sin(dLat/2)**2 +
-    Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
 // Check if currently open (V2 with cross-midnight support)
 function isCurrentlyOpenV2(mallOrStore: {
-  openTime?: string; 
+  openTime?: string;
   closeTime?: string;
   hours?: { open?: string; close?: string }
 }): boolean {

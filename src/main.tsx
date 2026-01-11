@@ -9,7 +9,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { theme } from './config/theme';
 
 import Home from './pages/Home';
-// import MallPicker from './pages/MallPicker'
 import GlobalSearch from './pages/GlobalSearch';
 import MallLayout from './pages/MallLayout';
 import MallHome from './pages/MallHome';
@@ -18,14 +17,21 @@ import StoreDetail from './pages/StoreDetail';
 import FloorDetail from './pages/FloorDetail';
 import Favorites from './pages/Favorites';
 import AdminPanel from './pages/AdminPanel';
-import MallEditPage from './pages/MallEditPage';
+import MallsPage from './pages/admin/malls/MallsPage';
+import MallCreatePage from './pages/admin/malls/MallCreatePage';
+import MallEditPage from './pages/admin/malls/MallEditPage';
+import StoresPage from './pages/admin/stores/StoresPage';
+import StoreCreatePage from './pages/admin/stores/StoreCreatePage';
+import StoreEditPage from './pages/admin/stores/StoreEditPage';
+import CategoriesPage from './pages/admin/categories/CategoriesPage';
+import CategoryCreatePage from './pages/admin/categories/CategoryCreatePage';
+import CategoryEditPage from './pages/admin/categories/CategoryEditPage';
 import MallDetail from './pages/MallDetail';
-import MallCreatePage from './pages/MallCreatePage';
-import StoreCreatePage from './pages/StoreCreatePage';
-import StoreEditPage from './pages/StoreEditPage';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
-import ProtectedRoute from './legacy/components/ProtectedRoute';
+import AdminRoute from './components/auth/AdminRoute';
+import AdminLayout from './components/admin/layout/AdminLayout';
 import AuthTest from './pages/AuthTest';
 import AuthDebug from './pages/AuthDebug';
 import AdminTest from './pages/AdminTest';
@@ -34,22 +40,16 @@ import { LocationProvider } from './contexts/LocationContext';
 import { ToastProvider } from './ui/feedback/Toast';
 import { ErrorBoundary } from './ui/feedback/ErrorBoundary';
 import './legacy/utils/debugAuth';
-import './lib/clear-cache'; // Enable cache clearing functions
-import './build-info'; // Load build information
+import './lib/clear-cache';
+import './build-info';
 
-// Debug: Check if we can access the root element
 const rootElement = document.getElementById('root');
-console.log('Root element:', rootElement);
+if (!rootElement) throw new Error('Root element not found');
 
-if (!rootElement) {
-  throw new Error('Root element not found');
-}
-
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
       retry: 1,
     },
   },
@@ -62,6 +62,7 @@ const router = createBrowserRouter([
   { path: '/malls/:mallId/stores/:storeId', element: <StoreDetail /> },
   { path: '/stores/:storeId', element: <StoreDetail /> },
   { path: '/login', element: <Login /> },
+  { path: '/register', element: <Register /> },
   { path: '/forgot-password', element: <ForgotPassword /> },
   { path: '/auth-test', element: <AuthTest /> },
   { path: '/auth-debug', element: <AuthDebug /> },
@@ -69,50 +70,22 @@ const router = createBrowserRouter([
   {
     path: '/admin',
     element: (
-      <ProtectedRoute>
-        <AdminPanel />
-      </ProtectedRoute>
+      <AdminRoute>
+        <AdminLayout />
+      </AdminRoute>
     ),
-  },
-  {
-    path: '/admin/malls',
-    element: (
-      <ProtectedRoute>
-        <AdminPanel />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/admin/malls/:id/edit',
-    element: (
-      <ProtectedRoute>
-        <MallEditPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/admin/malls/create',
-    element: (
-      <ProtectedRoute>
-        <MallCreatePage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/admin/stores/create',
-    element: (
-      <ProtectedRoute>
-        <StoreCreatePage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/admin/stores/:mallId/:storeId/edit',
-    element: (
-      <ProtectedRoute>
-        <StoreEditPage />
-      </ProtectedRoute>
-    ),
+    children: [
+      { index: true, element: <AdminPanel /> }, // Overview
+      { path: 'malls', element: <MallsPage /> },
+      { path: 'malls/:id/edit', element: <MallEditPage /> },
+      { path: 'malls/create', element: <MallCreatePage /> },
+      { path: 'stores', element: <StoresPage /> },
+      { path: 'stores/create', element: <StoreCreatePage /> },
+      { path: 'stores/:mallId/:storeId/edit', element: <StoreEditPage /> },
+      { path: 'categories', element: <CategoriesPage /> },
+      { path: 'categories/create', element: <CategoryCreatePage /> },
+      { path: 'categories/:id/edit', element: <CategoryEditPage /> }
+    ]
   },
   {
     path: '/mall/:mallId',
@@ -127,12 +100,6 @@ const router = createBrowserRouter([
   },
 ]);
 
-// Using the new ErrorBoundary component
-
-// Debug: Log that we're about to render
-console.log('About to render React app');
-
-// Create root
 const root = createRoot(rootElement);
 
 root.render(
@@ -153,5 +120,3 @@ root.render(
     </ThemeProvider>
   </StrictMode>,
 );
-
-console.log('React app rendered successfully');
