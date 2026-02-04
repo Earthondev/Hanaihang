@@ -1,0 +1,123 @@
+export const siamParagonStores = [
+    {
+        id: "louis-vuitton-men-paragon",
+        name: "Louis Vuitton Men",
+        nameEN: "Louis Vuitton Men",
+        floor: "M",
+        category: "Luxury",
+        hours: "10:00 - 22:00",
+        description: "Men's specialized boutique for Louis Vuitton.",
+        shortDesc: "Luxury French Fashion for Men",
+        features: ["Fashion", "Leather Goods", "Accessories"],
+        order: 1
+    },
+    {
+        id: "louis-vuitton-women-paragon",
+        name: "Louis Vuitton Women",
+        nameEN: "Louis Vuitton Women",
+        floor: "M",
+        category: "Luxury",
+        hours: "10:00 - 22:00",
+        description: "Women's specialized boutique for Louis Vuitton.",
+        shortDesc: "Luxury French Fashion for Women",
+        features: ["Fashion", "Leather Goods", "Accessories"],
+        order: 2
+    },
+    {
+        id: "prada-paragon",
+        name: "Prada",
+        nameEN: "Prada",
+        floor: "1",
+        category: "Luxury",
+        hours: "10:00 - 22:00",
+        description: "Italian luxury fashion house.",
+        shortDesc: "Italian Luxury Fashion",
+        features: ["Fashion", "Leather Goods", "Shoes"],
+        order: 3
+    },
+    {
+        id: "cartier-paragon",
+        name: "Cartier",
+        nameEN: "Cartier",
+        floor: "1",
+        category: "Luxury",
+        hours: "10:00 - 20:00",
+        description: "French luxury goods conglomerate company which designs, manufactures, distributes, and sells jewellery and watches.",
+        shortDesc: "Jewelry and Watches",
+        features: ["Jewelry", "Watches"],
+        order: 4
+    },
+    {
+        id: "hm-paragon",
+        name: "H&M",
+        nameEN: "H&M",
+        floor: "1",
+        unit: "1F-2F",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Global fashion retailer offering the latest trends.",
+        shortDesc: "Fast Fashion Retailer",
+        features: ["Clothing", "Accessories"],
+        order: 5
+    },
+    {
+        id: "zara-paragon",
+        name: "Zara",
+        nameEN: "Zara",
+        floor: "1",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Spanish fast fashion retailer.",
+        shortDesc: "Trendy Fast Fashion",
+        features: ["Clothing", "Shoes", "Accessories"],
+        order: 6
+    },
+    {
+        id: "uniqlo-paragon",
+        name: "Uniqlo",
+        nameEN: "Uniqlo",
+        floor: "1",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Japanese casual wear designer, manufacturer and retailer.",
+        shortDesc: "LifeWear",
+        features: ["Clothing", "Basics"],
+        order: 7
+    },
+    {
+        id: "kinokuniya-paragon",
+        name: "Kinokuniya",
+        nameEN: "Kinokuniya",
+        floor: "3",
+        category: "Books & Stationery",
+        hours: "10:00 - 22:00",
+        description: "Massive bookstore with huge selection of English, Thai, and Japanese books.",
+        shortDesc: "Large International Bookstore",
+        features: ["Books", "Stationery", "Magazines"],
+        order: 8
+    },
+    {
+        id: "sealife-paragon",
+        name: "SEA LIFE Bangkok Ocean World",
+        nameEN: "SEA LIFE Bangkok Ocean World",
+        floor: "B1",
+        category: "Entertainment",
+        hours: "10:00 - 20:00",
+        description: "Large aquarium in the basement of Siam Paragon.",
+        shortDesc: "World-class Aquarium",
+        features: ["Aquarium", "Entertainment"],
+        order: 9
+    },
+    {
+        id: "gourmet-market-paragon",
+        name: "Gourmet Market",
+        nameEN: "Gourmet Market",
+        floor: "G",
+        category: "Supermarket",
+        hours: "10:00 - 22:00",
+        description: "Premium supermarket with imported goods.",
+        shortDesc: "Premium Supermarket",
+        features: ["Groceries", "Imported Food"],
+        order: 10
+    }
+];

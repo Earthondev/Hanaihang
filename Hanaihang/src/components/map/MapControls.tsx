@@ -22,59 +22,60 @@ const MapControls: React.FC<MapControlsProps> = ({
   userLocation,
   mallsCount
 }) => {
+  const buttonClass = "p-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 hover:bg-white hover:scale-105 active:scale-95 transition-all duration-200 text-gray-700 hover:text-primary";
+
   return (
-    <div className="absolute top-4 right-4 z-[1000] flex flex-col space-y-2">
+    <div className="absolute top-4 right-4 z-[400] flex flex-col space-y-3">
       {/* Center on User Location */}
       <button
         onClick={onCenterUserLocation}
         disabled={!userLocation}
         className={`
-          p-3 bg-white rounded-lg shadow-lg border border-gray-200
-          hover:bg-gray-50 transition-colors
-          ${!userLocation ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-xl'}
+          ${buttonClass}
+          ${!userLocation ? 'opacity-50 cursor-not-allowed grayscale' : ''}
         `}
         title={userLocation ? 'ไปยังตำแหน่งของคุณ' : 'ไม่พบตำแหน่งของคุณ'}
       >
-        <Navigation className={`w-5 h-5 ${userLocation ? 'text-blue-600' : 'text-gray-400'}`} />
+        <Navigation className={`w-5 h-5 ${userLocation ? 'fill-current' : ''}`} />
       </button>
 
       {/* Show All Malls */}
       <button
         onClick={onShowAllMalls}
-        className="p-3 bg-white rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 hover:shadow-xl transition-colors"
+        className={buttonClass}
         title={`แสดงห้างสรรพสินค้าทั้งหมด (${mallsCount} ห้าง)`}
       >
-        <MapPin className="w-5 h-5 text-green-600" />
+        <MapPin className="w-5 h-5" />
       </button>
 
       {/* Filters */}
       <button
         onClick={onToggleFilters}
-        className="p-3 bg-white rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 hover:shadow-xl transition-colors"
+        className={buttonClass}
         title="ตัวกรอง"
       >
-        <Filter className="w-5 h-5 text-purple-600" />
+        <Filter className="w-5 h-5" />
       </button>
 
       {/* Layers */}
       <button
         onClick={onToggleLayers}
-        className="p-3 bg-white rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 hover:shadow-xl transition-colors"
+        className={buttonClass}
         title="ชั้นข้อมูล"
       >
-        <Layers className="w-5 h-5 text-orange-600" />
+        <Layers className="w-5 h-5" />
       </button>
 
       {/* Fullscreen Toggle */}
       <button
         onClick={onToggleFullscreen}
-        className="p-3 bg-white rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 hover:shadow-xl transition-colors"
+        className={buttonClass}
         title={isFullscreen ? 'ออกจากเต็มหน้าจอ' : 'เต็มหน้าจอ'}
       >
         {isFullscreen ? (
-          <Minimize2 className="w-5 h-5 text-gray-600" />
+          <Minimize2 className="w-5 h-5" />
         ) : (
-          <Maximize2 className="w-5 h-5 text-gray-600" />
+          <Maximize2 className="w-5 h-5" />
         )}
       </button>
     </div>

@@ -1,0 +1,122 @@
+export const centralEmbassyStores = [
+    {
+        id: "eathai-embassy",
+        name: "Eathai",
+        nameEN: "Eathai",
+        floor: "LG",
+        category: "Food & Beverage",
+        hours: "10:00 - 22:00",
+        description: "Upscale food court featuring Thai street food from all regions.",
+        shortDesc: "Thai Food Court",
+        features: ["Thai Food", "Street Food"],
+        order: 1
+    },
+    {
+        id: "open-house-embassy",
+        name: "Open House",
+        nameEN: "Open House",
+        floor: "6",
+        category: "Lifestyle",
+        hours: "10:00 - 22:00",
+        description: "Co-living space with bookstore, restaurants, and co-working area.",
+        shortDesc: "Co-living Space & Bookstore",
+        features: ["Books", "Dining", "Workspace"],
+        order: 2
+    },
+    {
+        id: "embassy-diplomat-screens",
+        name: "Embassy Diplomat Screens",
+        nameEN: "Embassy Diplomat Screens",
+        floor: "6",
+        category: "Entertainment",
+        hours: "10:00 - 24:00",
+        description: "Ultra-luxury cinema experience.",
+        shortDesc: "Luxury Cinema",
+        features: ["Movies", "VIP Service"],
+        order: 3
+    },
+    {
+        id: "siwilai-city-club",
+        name: "Siwilai City Club",
+        nameEN: "Siwilai City Club",
+        floor: "5",
+        category: "Food & Beverage",
+        hours: "11:00 - 24:00",
+        description: "Social club and rooftop dining.",
+        shortDesc: "Rooftop Dining",
+        features: ["Dining", "Bar", "View"],
+        order: 4
+    },
+    {
+        id: "chanel-embassy",
+        name: "Chanel",
+        nameEN: "Chanel",
+        floor: "G",
+        category: "Luxury",
+        hours: "10:30 - 20:00",
+        description: "Chanel boutique.",
+        shortDesc: "Luxury Fashion",
+        features: ["Fashion", "Bags"],
+        order: 5
+    },
+    {
+        id: "hermes-embassy",
+        name: "Hermès",
+        nameEN: "Hermès",
+        floor: "G",
+        category: "Luxury",
+        hours: "10:30 - 20:00",
+        description: "Hermès flagship store.",
+        shortDesc: "Luxury Fashion",
+        features: ["Fashion", "Leather Goods"],
+        order: 6
+    },
+    {
+        id: "gucci-embassy",
+        name: "Gucci",
+        nameEN: "Gucci",
+        floor: "G",
+        category: "Luxury",
+        hours: "10:30 - 20:00",
+        description: "Gucci boutique.",
+        shortDesc: "Luxury Fashion",
+        features: ["Fashion", "Accessories"],
+        order: 7
+    },
+    {
+        id: "prada-embassy",
+        name: "Prada",
+        nameEN: "Prada",
+        floor: "G",
+        category: "Luxury",
+        hours: "10:30 - 20:00",
+        description: "Prada boutique.",
+        shortDesc: "Luxury Fashion",
+        features: ["Fashion", "Bags"],
+        order: 8
+    },
+    {
+        id: "muji-embassy",
+        name: "MUJI",
+        nameEN: "MUJI",
+        floor: "3",
+        category: "Lifestyle",
+        hours: "10:00 - 22:00",
+        description: "Japanese lifestyle brand.",
+        shortDesc: "Japanese Lifestyle",
+        features: ["Home", "Clothing", "Stationery"],
+        order: 9
+    },
+    {
+        id: "zara-embassy",
+        name: "Zara",
+        nameEN: "Zara",
+        floor: "3",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Large Zara store.",
+        shortDesc: "Fast Fashion",
+        features: ["Clothing", "Shoes"],
+        order: 10
+    }
+];

@@ -1,0 +1,122 @@
+export const centralWorldStores = [
+    {
+        id: "central-dept-world",
+        name: "Central Department Store",
+        nameEN: "Central Department Store",
+        floor: "1-7",
+        category: "Department Store",
+        hours: "10:00 - 22:00",
+        description: "The largest branch of Central Department Store in Thailand.",
+        shortDesc: "Major Department Store",
+        features: ["Fashion", "Beauty", "Home"],
+        order: 1
+    },
+    {
+        id: "sf-world-cinema",
+        name: "SF World Cinema",
+        nameEN: "SF World Cinema",
+        floor: "7",
+        category: "Entertainment",
+        hours: "10:00 - 24:00",
+        description: "Upscale cinema complex with 15 screens.",
+        shortDesc: "World-class Cinema",
+        features: ["Movies", "Entertainment"],
+        order: 2
+    },
+    {
+        id: "tops-food-hall-world",
+        name: "Tops Food Hall",
+        nameEN: "Tops Food Hall",
+        floor: "7",
+        category: "Supermarket",
+        hours: "10:00 - 22:00",
+        description: "Premium food hall and supermarket.",
+        shortDesc: "Premium Supermarket",
+        features: ["Groceries", "Dining"],
+        order: 3
+    },
+    {
+        id: "apple-central-world",
+        name: "Apple Central World",
+        nameEN: "Apple Central World",
+        floor: "1-2",
+        category: "Electronics",
+        hours: "10:00 - 22:00",
+        description: "Apple's second and largest store in Thailand, located at the outdoor plaza.",
+        shortDesc: "Apple Store",
+        features: ["Tech", "Gadgets", "Service"],
+        order: 4
+    },
+    {
+        id: "uniqlo-central-world",
+        name: "UNIQLO",
+        nameEN: "UNIQLO",
+        floor: "3",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Large format UNIQLO store.",
+        shortDesc: "Japanese Casual Wear",
+        features: ["Clothing", "Basics"],
+        order: 5
+    },
+    {
+        id: "hm-central-world",
+        name: "H&M",
+        nameEN: "H&M",
+        floor: "1",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Large H&M flagship store.",
+        shortDesc: "Fast Fashion",
+        features: ["Clothing", "Accessories"],
+        order: 6
+    },
+    {
+        id: "kinokuniya-central-world",
+        name: "Kinokuniya",
+        nameEN: "Kinokuniya",
+        floor: "6",
+        category: "Books & Stationery",
+        hours: "10:00 - 22:00",
+        description: "Huge bookstore with extensive collection.",
+        shortDesc: "International Bookstore",
+        features: ["Books", "Magazines"],
+        order: 7
+    },
+    {
+        id: "nitori-central-world",
+        name: "Nitori",
+        nameEN: "Nitori",
+        floor: "5",
+        category: "Home & Living",
+        hours: "10:00 - 22:00",
+        description: "Japanese furniture and home accessories store.",
+        shortDesc: "Japanese Home Goods",
+        features: ["Furniture", "Decor"],
+        order: 8
+    },
+    {
+        id: "tk-park-world",
+        name: "TK Park",
+        nameEN: "TK Park",
+        floor: "8",
+        category: "Education",
+        hours: "10:00 - 20:00",
+        description: "Thailand Knowledge Park, a modern library and learning center.",
+        shortDesc: "Modern Library",
+        features: ["Library", "Coworking"],
+        order: 9
+    },
+    {
+        id: "groove-central-world",
+        name: "GROOVE",
+        nameEN: "GROOVE",
+        floor: "G-2",
+        category: "Food & Beverage",
+        hours: "10:00 - 01:00",
+        description: "Dining and hangout zone with many restaurants and bars.",
+        shortDesc: "Dining & Hangout Zone",
+        features: ["Dining", "Nightlife"],
+        order: 10
+    }
+];

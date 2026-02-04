@@ -3,6 +3,7 @@ import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
 import { Store } from '../types/mall-system';
+import { getStaticStores } from '../data/stores';
 
 /**
  * Hook สำหรับดึงข้อมูลร้านแบบ real-time
@@ -19,18 +20,27 @@ export function useRealtimeStores(mallId: string) {
       return;
     }
 
+    // Check for static data first
+    const staticData = getStaticStores(mallId);
+    if (staticData && staticData.length > 0) {
+      console.log(`📦 Using static data for ${mallId}:`, staticData.length, 'stores');
+      setStores(staticData as Store[]);
+      setLoading(false);
+      return;
+    }
+
     console.log('🔄 เริ่มต้น real-time listener สำหรับร้านในห้าง:', mallId);
-    
+
     const q = query(
       collection(db, 'malls', mallId, 'stores'),
       orderBy('name')
     );
-    
+
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
         console.log('📡 ข้อมูลร้านเปลี่ยนแปลง:', snapshot.size, 'ร้าน');
-        
+
         const storesData: Store[] = [];
         snapshot.forEach((doc) => {
           const data = doc.data();
@@ -42,15 +52,17 @@ export function useRealtimeStores(mallId: string) {
             updatedAt: data.updatedAt?.toDate?.() || data.updatedAt,
           } as Store);
         });
-        
+
         setStores(storesData);
         setLoading(false);
         setError(null);
-        
+
         console.log('✅ อัปเดตข้อมูลร้านสำเร็จ:', storesData.length, 'ร้าน');
       },
       (error) => {
         console.error('❌ เกิดข้อผิดพลาดในการ listen ข้อมูลร้าน:', error);
+        // Don't set error if we have static data (though we returned early if we did)
+        // actually if static data failed we might want to fallback here but we returned early.
         setError(error.message);
         setLoading(false);
       }
@@ -76,15 +88,15 @@ export function useRealtimeAllStores() {
 
   useEffect(() => {
     console.log('🔄 เริ่มต้น real-time listener สำหรับร้านทั้งหมด...');
-    
+
     // ใช้ collectionGroup เพื่อดึงร้านจากทุกห้าง
     const q = query(collection(db, 'stores'), orderBy('name'));
-    
+
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
         console.log('📡 ข้อมูลร้านทั้งหมดเปลี่ยนแปลง:', snapshot.size, 'ร้าน');
-        
+
         const storesData: { store: Store; mallId: string }[] = [];
         snapshot.forEach((doc) => {
           const data = doc.data();
@@ -95,20 +107,20 @@ export function useRealtimeAllStores() {
             createdAt: data.createdAt?.toDate?.() || data.createdAt,
             updatedAt: data.updatedAt?.toDate?.() || data.updatedAt,
           } as Store;
-          
+
           // Extract mallId from document path
           const pathParts = doc.ref.path.split('/');
           const mallId = pathParts[1]; // malls/{mallId}/stores/{storeId}
-          
+
           if (mallId) {
             storesData.push({ store: storeWithId, mallId });
           }
         });
-        
+
         setStores(storesData);
         setLoading(false);
         setError(null);
-        
+
         console.log('✅ อัปเดตข้อมูลร้านทั้งหมดสำเร็จ:', storesData.length, 'ร้าน');
       },
       (error) => {

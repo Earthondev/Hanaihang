@@ -1,0 +1,122 @@
+export const siamDiscoveryStores = [
+    {
+        id: "loft-siam-discovery",
+        name: "Loft",
+        nameEN: "Loft",
+        floor: "2",
+        category: "Lifestyle",
+        hours: "10:00 - 22:00",
+        description: "Japanese lifestyle variety store.",
+        shortDesc: "Japanese Variety Store",
+        features: ["Stationery", "Gifts", "Gadgets"],
+        order: 1
+    },
+    {
+        id: "issey-miyake-siam-discovery",
+        name: "Club 21 (Issey Miyake)",
+        nameEN: "Club 21 (Issey Miyake)",
+        floor: "G",
+        category: "Luxury",
+        hours: "10:00 - 22:00",
+        description: "Exclusive fashion brands including Issey Miyake.",
+        shortDesc: "Designer Fashion",
+        features: ["Fashion", "Accessories"],
+        order: 2
+    },
+    {
+        id: "ecotopia",
+        name: "Ecotopia",
+        nameEN: "Ecotopia",
+        floor: "3",
+        category: "Lifestyle",
+        hours: "10:00 - 22:00",
+        description: "Eco-friendly products and lifestyle zone.",
+        shortDesc: "Eco Lifestyle Zone",
+        features: ["Sustainable", "Organic"],
+        order: 3
+    },
+    {
+        id: "madame-tussauds",
+        name: "Madame Tussauds Bangkok",
+        nameEN: "Madame Tussauds Bangkok",
+        floor: "4-5",
+        category: "Entertainment",
+        hours: "10:00 - 20:00",
+        description: "World-famous wax museum.",
+        shortDesc: "Wax Museum",
+        features: ["Attraction", "Museum"],
+        order: 4
+    },
+    {
+        id: "virgin-active-siam-discovery",
+        name: "Virgin Active",
+        nameEN: "Virgin Active",
+        floor: "5",
+        category: "Fitness",
+        hours: "06:00 - 22:00",
+        description: "Premium fitness club.",
+        shortDesc: "Fitness Club",
+        features: ["Gym", "Classes"],
+        order: 5
+    },
+    {
+        id: "flavor-lab",
+        name: "Flavor Lab",
+        nameEN: "Flavor Lab",
+        floor: "3",
+        category: "Food & Beverage",
+        hours: "10:00 - 22:00",
+        description: "Curated dining zone with international cuisines.",
+        shortDesc: "Dining Zone",
+        features: ["Dining", "Cafe"],
+        order: 6
+    },
+    {
+        id: "objects-of-desire-store",
+        name: "O.D.S. (Objects of Desire Store)",
+        nameEN: "O.D.S.",
+        floor: "3",
+        category: "Home & Living",
+        hours: "10:00 - 22:00",
+        description: "Multi-brand home decorative items.",
+        shortDesc: "Home Decor",
+        features: ["Home", "Design"],
+        order: 7
+    },
+    {
+        id: "digital-lab",
+        name: "Digital Lab",
+        nameEN: "Digital Lab",
+        floor: "2",
+        category: "Electronics",
+        hours: "10:00 - 22:00",
+        description: "Gadgets and tech accessories zone.",
+        shortDesc: "Tech Zone",
+        features: ["Gadgets", "Tech"],
+        order: 8
+    },
+    {
+        id: "street-lab",
+        name: "Street Lab",
+        nameEN: "Street Lab",
+        floor: "1",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Streetwear and sneaker culture zone.",
+        shortDesc: "Streetwear Zone",
+        features: ["Sneakers", "Fashion"],
+        order: 9
+    },
+    {
+        id: "her-lab",
+        name: "Her Lab",
+        nameEN: "Her Lab",
+        floor: "G",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Women's fashion and beauty zone.",
+        shortDesc: "Women's Fashion Zone",
+        features: ["Fashion", "Beauty"],
+        order: 10
+    }
+];

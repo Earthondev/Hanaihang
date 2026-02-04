@@ -572,9 +572,7 @@ const Home: React.FC = () => {
             <div className="h-[600px] relative rounded-[40px] overflow-hidden shadow-2xl border border-gray-100">
               <MapView malls={mapFilteredMalls} userLocation={userLoc} onMallClick={handleMallSelect} className="w-full h-full" />
               <MapControls onCenterUserLocation={handleCenterUserLocation} onShowAllMalls={handleShowAllMalls} onToggleFilters={handleToggleMapFilters} onToggleLayers={handleToggleLayers} onToggleFullscreen={handleToggleFullscreen} isFullscreen={isMapFullscreen} userLocation={userLoc} mallsCount={mapFilteredMalls.length} />
-              <AnimatePresence>
-                {showMapFilters && <MapFilters malls={malls} onFiltersChange={handleMapFiltersChange} onClose={handleToggleMapFilters} isVisible={true} />}
-              </AnimatePresence>
+              <MapFilters malls={malls} onFiltersChange={handleMapFiltersChange} onClose={handleToggleMapFilters} isVisible={showMapFilters} />
             </div>
           )
         ) : (

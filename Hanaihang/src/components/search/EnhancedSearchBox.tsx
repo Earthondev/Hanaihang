@@ -146,8 +146,8 @@ export default function EnhancedSearchBox({
         </div>
       )}
 
-      {/* Smart Suggestions (When query is empty) */}
-      {!query && focused && suggestions.length > 0 && (
+      {/* Smart Suggestions (Overlay) */}
+      {focused && suggestions.length > 0 && !showResults && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-xl border border-gray-200 rounded-2xl shadow-xl p-4 z-20 overflow-hidden">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {suggestions.map((suggestion, idx) => {

@@ -1,0 +1,122 @@
+export const iconsiamStores = [
+    {
+        id: "siam-takashimaya",
+        name: "Siam Takashimaya",
+        nameEN: "Siam Takashimaya",
+        floor: "G-4",
+        category: "Department Store",
+        hours: "10:00 - 22:00",
+        description: "Authentic Japanese department store experience.",
+        shortDesc: "Japanese Department Store",
+        features: ["Fashion", "Food", "Home"],
+        order: 1
+    },
+    {
+        id: "apple-iconsiam",
+        name: "Apple ICONSIAM",
+        nameEN: "Apple ICONSIAM",
+        floor: "2",
+        category: "Electronics",
+        hours: "10:00 - 22:00",
+        description: "Apple's first official store in Thailand, overlooking the Chao Phraya River.",
+        shortDesc: "Apple Store",
+        features: ["Tech", "Genius Bar"],
+        order: 2
+    },
+    {
+        id: "sooksiam",
+        name: "SOOKSIAM",
+        nameEN: "SOOKSIAM",
+        floor: "G",
+        category: "Food & Culture",
+        hours: "10:00 - 22:00",
+        description: "Indoor floating market and cultural zone featuring food and crafts from 77 provinces of Thailand.",
+        shortDesc: "Thai Cultural Zone",
+        features: ["Street Food", "Souvenirs"],
+        order: 3
+    },
+    {
+        id: "dear-tummy",
+        name: "Dear Tummy",
+        nameEN: "Dear Tummy",
+        floor: "G",
+        category: "Supermarket",
+        hours: "10:00 - 22:00",
+        description: "Premium lifestyle supermarket.",
+        shortDesc: "Premium Supermarket",
+        features: ["Groceries", "Imported Food"],
+        order: 4
+    },
+    {
+        id: "iconluxe",
+        name: "ICONLUXE",
+        nameEN: "ICONLUXE",
+        floor: "G-1",
+        category: "Luxury",
+        hours: "10:00 - 22:00",
+        description: "Exclusive luxury wing housing global high-end fashion brands.",
+        shortDesc: "Luxury Fashion Zone",
+        features: ["Luxury Brands"],
+        order: 5
+    },
+    {
+        id: "hm-iconsiam",
+        name: "H&M",
+        nameEN: "H&M",
+        floor: "1-2",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Large 3-story duplex store.",
+        shortDesc: "Fast Fashion",
+        features: ["Clothing", "Accessories"],
+        order: 6
+    },
+    {
+        id: "uniqlo-iconsiam",
+        name: "UNIQLO",
+        nameEN: "UNIQLO",
+        floor: "1",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Large format Japanese casual wear store.",
+        shortDesc: "Japanese Casual Wear",
+        features: ["Clothing", "Lifewear"],
+        order: 7
+    },
+    {
+        id: "jd-sports-iconsiam",
+        name: "JD Sports",
+        nameEN: "JD Sports",
+        floor: "3",
+        category: "Sportswear",
+        hours: "10:00 - 22:00",
+        description: "King of Trainers.",
+        shortDesc: "Sportswear & Sneakers",
+        features: ["Sneakers", "Sportswear"],
+        order: 8
+    },
+    {
+        id: "nike-kicks-lounge",
+        name: "Nike Kicks Lounge",
+        nameEN: "Nike Kicks Lounge",
+        floor: "1",
+        category: "Sportswear",
+        hours: "10:00 - 22:00",
+        description: "Curated selection of Nike sportswear and sneakers.",
+        shortDesc: "Premium Nike Store",
+        features: ["Sneakers", "Sportswear"],
+        order: 9
+    },
+    {
+        id: "super-park",
+        name: "SuperPark",
+        nameEN: "SuperPark",
+        floor: "6",
+        category: "Entertainment",
+        hours: "10:00 - 21:00",
+        description: "All-in-one indoor activity park from Finland.",
+        shortDesc: "Indoor Activity Park",
+        features: ["Activities", "Sports"],
+        order: 10
+    }
+];

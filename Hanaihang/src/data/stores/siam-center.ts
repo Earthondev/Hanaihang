@@ -1,0 +1,122 @@
+export const siamCenterStores = [
+    {
+        id: "sephora-siam-center",
+        name: "Sephora",
+        nameEN: "Sephora",
+        floor: "1",
+        category: "Beauty",
+        hours: "10:00 - 22:00",
+        description: "Multi-brand beauty retailer offering cosmetics, skincare, and fragrance.",
+        shortDesc: "Beauty Superstore",
+        features: ["Cosmetics", "Skincare"],
+        order: 1
+    },
+    {
+        id: "adidas-siam-center",
+        name: "Adidas Originals",
+        nameEN: "Adidas Originals",
+        floor: "G",
+        category: "Sportswear",
+        hours: "10:00 - 22:00",
+        description: "Largest Adidas Originals store in the region.",
+        shortDesc: "Sportswear & Sneakers",
+        features: ["Sneakers", "Streetwear"],
+        order: 2
+    },
+    {
+        id: "nike-siam-center",
+        name: "Nike Bangkok",
+        nameEN: "Nike Bangkok",
+        floor: "G",
+        category: "Sportswear",
+        hours: "10:00 - 22:00",
+        description: "Flagship Nike store with customization services.",
+        shortDesc: "Flagship Nike Store",
+        features: ["Sneakers", "Sportswear", "Customization"],
+        order: 3
+    },
+    {
+        id: "jd-sports-siam-center",
+        name: "JD Sports",
+        nameEN: "JD Sports",
+        floor: "G",
+        category: "Sportswear",
+        hours: "10:00 - 22:00",
+        description: "The Undisputed King of Trainers.",
+        shortDesc: "Sneakers & Fashion",
+        features: ["Sneakers", "Sportswear"],
+        order: 4
+    },
+    {
+        id: "bath-and-body-works-siam-center",
+        name: "Bath & Body Works",
+        nameEN: "Bath & Body Works",
+        floor: "2",
+        category: "Beauty",
+        hours: "10:00 - 22:00",
+        description: "Fragrance and body care retailer.",
+        shortDesc: "Fragrance & Body Care",
+        features: ["Fragrance", "Gifts"],
+        order: 5
+    },
+    {
+        id: "lego-siam-center",
+        name: "LEGO Certified Store",
+        nameEN: "LEGO Certified Store",
+        floor: "2",
+        category: "Toys & Hobbies",
+        hours: "10:00 - 22:00",
+        description: "Official LEGO store with exclusive sets.",
+        shortDesc: "LEGO Store",
+        features: ["Toys", "Collectibles"],
+        order: 6
+    },
+    {
+        id: "lush-siam-center",
+        name: "Lush",
+        nameEN: "Lush",
+        floor: "1",
+        category: "Beauty",
+        hours: "10:00 - 22:00",
+        description: "Fresh handmade cosmetics.",
+        shortDesc: "Fresh Handmade Cosmetics",
+        features: ["Bath Bombs", "Skincare"],
+        order: 7
+    },
+    {
+        id: "kfc-siam-center",
+        name: "KFC",
+        nameEN: "KFC",
+        floor: "2",
+        category: "Food & Beverage",
+        hours: "10:00 - 22:00",
+        description: "KFC Lifestyle Store with modern design.",
+        shortDesc: "Fried Chicken",
+        features: ["Dining", "Fast Food"],
+        order: 8
+    },
+    {
+        id: "sizzler-siam-center",
+        name: "Sizzler",
+        nameEN: "Sizzler",
+        floor: "2",
+        category: "Food & Beverage",
+        hours: "10:00 - 22:00",
+        description: "Steak, Seafood, and Salad Bar.",
+        shortDesc: "Steak & Salad",
+        features: ["Dining", "Salad Bar"],
+        order: 9
+    },
+    {
+        id: "gon-express",
+        name: "Gon Express",
+        nameEN: "Gon Express",
+        floor: "2",
+        category: "Food & Beverage",
+        hours: "10:00 - 22:00",
+        description: "Quick meal station by BBQ Plaza.",
+        shortDesc: "Quick Bites",
+        features: ["Fast Food"],
+        order: 10
+    }
+];

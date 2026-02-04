@@ -8,7 +8,8 @@ import { distanceKm } from '@/services/geoutils/geo-utils';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default markers in react-leaflet
-delete (Icon.Default.prototype as unknown)._getIconUrl;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+delete (Icon.Default.prototype as any)._getIconUrl;
 Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -26,17 +27,17 @@ interface MapViewProps {
 const createCustomIcon = (color: string, icon: string) => {
   // Use simple text instead of emoji to avoid btoa encoding issues
   const safeIcon = icon === '🏢' ? 'M' : icon === '📍' ? 'U' : icon;
-  
+
   const svgString = `
     <svg width="25" height="41" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg">
       <path fill="${color}" stroke="#fff" stroke-width="2" d="M12.5 0C5.6 0 0 5.6 0 12.5c0 12.5 12.5 28.5 12.5 28.5s12.5-16 12.5-28.5C25 5.6 19.4 0 12.5 0z"/>
       <text x="12.5" y="20" text-anchor="middle" fill="white" font-size="12" font-family="Arial" font-weight="bold">${safeIcon}</text>
     </svg>
   `;
-  
+
   // Encode SVG properly for data URL
   const encodedSvg = encodeURIComponent(svgString);
-  
+
   return new Icon({
     iconUrl: `data:image/svg+xml;charset=utf-8,${encodedSvg}`,
     iconSize: [25, 41],
@@ -51,13 +52,13 @@ const userIcon = createCustomIcon('#3b82f6', '📍');
 // Component to center map on user location
 const MapCenter: React.FC<{ userLocation: { lat: number; lng: number } | null }> = ({ userLocation }) => {
   const map = useMap();
-  
+
   useEffect(() => {
     if (userLocation) {
       map.setView([userLocation.lat, userLocation.lng], 13);
     }
   }, [userLocation, map]);
-  
+
   return null;
 };
 
@@ -77,10 +78,13 @@ const MapView: React.FC<MapViewProps> = ({
       setMapZoom(13);
     } else if (malls.length > 0) {
       // Calculate center of all malls
-      const avgLat = malls.reduce((sum, mall) => sum + (mall.coords?.lat || 0), 0) / malls.length;
-      const avgLng = malls.reduce((sum, mall) => sum + (mall.coords?.lng || 0), 0) / malls.length;
-      setMapCenter([avgLat, avgLng]);
-      setMapZoom(11);
+      const validMalls = malls.filter(m => m.coords || (m.lat != null && m.lng != null));
+      if (validMalls.length > 0) {
+        const avgLat = validMalls.reduce((sum, mall) => sum + (mall.coords?.lat || mall.lat || 0), 0) / validMalls.length;
+        const avgLng = validMalls.reduce((sum, mall) => sum + (mall.coords?.lng || mall.lng || 0), 0) / validMalls.length;
+        setMapCenter([avgLat, avgLng]);
+        setMapZoom(11);
+      }
     }
   }, [userLocation, malls]);
 
@@ -95,7 +99,7 @@ const MapView: React.FC<MapViewProps> = ({
     return distanceKm(userLocation, mall.coords);
   };
 
-  const getMallStatusColor = (status: string) => {
+  const getMallStatusColor = (status: string = 'Draft') => {
     switch (status) {
       case 'Published':
         return 'text-green-600';
@@ -108,7 +112,7 @@ const MapView: React.FC<MapViewProps> = ({
     }
   };
 
-  const getMallStatusText = (status: string) => {
+  const getMallStatusText = (status: string = 'Draft') => {
     switch (status) {
       case 'Published':
         return 'เปิด';
@@ -133,10 +137,10 @@ const MapView: React.FC<MapViewProps> = ({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        
+
         {/* Center map on user location */}
         <MapCenter userLocation={userLocation} />
-        
+
         {/* User location marker */}
         {userLocation && (
           <Marker
@@ -156,17 +160,20 @@ const MapView: React.FC<MapViewProps> = ({
             </Popup>
           </Marker>
         )}
-        
+
         {/* Mall markers */}
         {malls.map((mall) => {
-          if (!mall.coords) return null;
-          
+          // Robust coordinate extraction
+          const coords = mall.coords || (mall.lat != null && mall.lng != null ? { lat: mall.lat!, lng: mall.lng! } : null);
+
+          if (!coords) return null;
+
           const distance = getMallDistance(mall);
-          
+
           return (
             <Marker
               key={mall.id}
-              position={[mall.coords.lat, mall.coords.lng]}
+              position={[coords.lat, coords.lng]}
               icon={mallIcon}
               eventHandlers={{
                 click: () => handleMallClick(mall),
@@ -191,7 +198,7 @@ const MapView: React.FC<MapViewProps> = ({
                       {getMallStatusText(mall.status)}
                     </span>
                   </div>
-                  
+
                   {/* Distance */}
                   {distance && (
                     <div className="flex items-center space-x-2 mb-3">
@@ -201,19 +208,19 @@ const MapView: React.FC<MapViewProps> = ({
                       </span>
                     </div>
                   )}
-                  
+
                   {/* Mall Info */}
                   <div className="space-y-2 mb-3">
                     {mall.hours && (
                       <div className="flex items-center space-x-2">
                         <Clock className="w-4 h-4 text-gray-400" />
                         <span className="text-xs text-gray-600">
-                          {typeof mall.hours === 'string' ? mall.hours : 
-                           `${mall.hours.open} - ${mall.hours.close}`}
+                          {typeof mall.hours === 'string' ? mall.hours :
+                            `${mall.hours.open} - ${mall.hours.close}`}
                         </span>
                       </div>
                     )}
-                    
+
                     {mall.contact?.phone && (
                       <div className="flex items-center space-x-2">
                         <Phone className="w-4 h-4 text-gray-400" />
@@ -223,7 +230,7 @@ const MapView: React.FC<MapViewProps> = ({
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Action Button */}
                   <button
                     onClick={() => handleMallClick(mall)}

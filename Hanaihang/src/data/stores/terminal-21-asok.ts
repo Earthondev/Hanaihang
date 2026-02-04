@@ -1,0 +1,122 @@
+export const terminal21AsokStores = [
+    {
+        id: "pier-21-asok",
+        name: "Pier 21 Food Court",
+        nameEN: "Pier 21 Food Court",
+        floor: "5",
+        category: "Food & Beverage",
+        hours: "10:00 - 22:00",
+        description: "Famous food court known for affordable and delicious street food.",
+        shortDesc: "Famous Food Court",
+        features: ["Street Food", "Affordable"],
+        order: 1
+    },
+    {
+        id: "gourmet-market-asok",
+        name: "Gourmet Market",
+        nameEN: "Gourmet Market",
+        floor: "LG",
+        category: "Supermarket",
+        hours: "10:00 - 22:00",
+        description: "Premium supermarket.",
+        shortDesc: "Supermarket",
+        features: ["Groceries"],
+        order: 2
+    },
+    {
+        id: "sf-cinema-terminal-21",
+        name: "SF Cinema City",
+        nameEN: "SF Cinema City",
+        floor: "6",
+        category: "Entertainment",
+        hours: "10:00 - 24:00",
+        description: "Cinema complex on the top floor.",
+        shortDesc: "Cinema",
+        features: ["Movies"],
+        order: 3
+    },
+    {
+        id: "hm-terminal-21",
+        name: "H&M",
+        nameEN: "H&M",
+        floor: "M",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Fashion retailer.",
+        shortDesc: "Fast Fashion",
+        features: ["Clothing"],
+        order: 4
+    },
+    {
+        id: "uniqlo-terminal-21",
+        name: "UNIQLO",
+        nameEN: "UNIQLO",
+        floor: "1",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Japanese casual wear.",
+        shortDesc: "Japanese Fashion",
+        features: ["Clothing"],
+        order: 5
+    },
+    {
+        id: "eveandboy-asok",
+        name: "EVEANDBOY",
+        nameEN: "EVEANDBOY",
+        floor: "3",
+        category: "Beauty",
+        hours: "10:00 - 22:00",
+        description: "Multi-brand beauty store.",
+        shortDesc: "Beauty Store",
+        features: ["Cosmetics", "Skincare"],
+        order: 6
+    },
+    {
+        id: "watsons-asok",
+        name: "Watsons",
+        nameEN: "Watsons",
+        floor: "LG",
+        category: "Beauty",
+        hours: "10:00 - 22:00",
+        description: "Health and beauty retailer.",
+        shortDesc: "Drugstore",
+        features: ["Health", "Beauty"],
+        order: 7
+    },
+    {
+        id: "fitness-first-asok",
+        name: "Fitness First",
+        nameEN: "Fitness First",
+        floor: "6",
+        category: "Fitness",
+        hours: "06:00 - 22:00",
+        description: "Gym and fitness center.",
+        shortDesc: "Fitness Center",
+        features: ["Gym", "Classes"],
+        order: 8
+    },
+    {
+        id: "after-you-asok",
+        name: "After You Dessert Cafe",
+        nameEN: "After You Dessert Cafe",
+        floor: "1",
+        category: "Food & Beverage",
+        hours: "10:00 - 22:00",
+        description: "Popular dessert cafe famous for Shibuya Honey Toast.",
+        shortDesc: "Dessert Cafe",
+        features: ["Dessert", "Cafe"],
+        order: 9
+    },
+    {
+        id: "matsumoto-kiyoshi-asok",
+        name: "Matsumoto Kiyoshi",
+        nameEN: "Matsumoto Kiyoshi",
+        floor: "M",
+        category: "Beauty",
+        hours: "10:00 - 22:00",
+        description: "Japanese drugstore.",
+        shortDesc: "Japanese Drugstore",
+        features: ["Health", "Beauty", "Japanese Products"],
+        order: 10
+    }
+];

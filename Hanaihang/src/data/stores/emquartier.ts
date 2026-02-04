@@ -1,0 +1,122 @@
+export const emquartierStores = [
+    {
+        id: "gourmet-market-emquartier",
+        name: "Gourmet Market",
+        nameEN: "Gourmet Market",
+        floor: "G",
+        category: "Supermarket",
+        hours: "10:00 - 22:00",
+        description: "Premium supermarket with extensive selection of imported goods.",
+        shortDesc: "Premium Supermarket",
+        features: ["Groceries", "Imported Food"],
+        order: 1
+    },
+    {
+        id: "quartier-cineart",
+        name: "Quartier CineArt",
+        nameEN: "Quartier CineArt",
+        floor: "4",
+        category: "Entertainment",
+        hours: "10:00 - 24:00",
+        description: "State-of-the-art cinema complex.",
+        shortDesc: "Luxury Cinema",
+        features: ["Movies", "IMAX"],
+        order: 2
+    },
+    {
+        id: "uniqlo-emquartier",
+        name: "UNIQLO",
+        nameEN: "UNIQLO",
+        floor: "2",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Large UNIQLO store.",
+        shortDesc: "Japanese Casual Wear",
+        features: ["Clothing", "Basics"],
+        order: 3
+    },
+    {
+        id: "hm-emquartier",
+        name: "H&M",
+        nameEN: "H&M",
+        floor: "1",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Popular fast fashion retailer.",
+        shortDesc: "Fast Fashion",
+        features: ["Clothing", "Accessories"],
+        order: 4
+    },
+    {
+        id: "zara-emquartier",
+        name: "Zara",
+        nameEN: "Zara",
+        floor: "1",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "Spanish fashion chain.",
+        shortDesc: "Trendy Fashion",
+        features: ["Clothing", "Shoes"],
+        order: 5
+    },
+    {
+        id: "sephora-emquartier",
+        name: "Sephora",
+        nameEN: "Sephora",
+        floor: "G",
+        category: "Beauty",
+        hours: "10:00 - 22:00",
+        description: "Global beauty retailer.",
+        shortDesc: "Cosmetics & Skincare",
+        features: ["Makeup", "Skincare"],
+        order: 6
+    },
+    {
+        id: "virgin-active-emquartier",
+        name: "Virgin Active",
+        nameEN: "Virgin Active",
+        floor: "4-5",
+        category: "Fitness",
+        hours: "06:00 - 22:00",
+        description: "Premium fitness club with swimming pool.",
+        shortDesc: "Premium Fitness Club",
+        features: ["Gym", "Pool", "Classes"],
+        order: 7
+    },
+    {
+        id: "kinokuniya-emquartier",
+        name: "Kinokuniya",
+        nameEN: "Kinokuniya",
+        floor: "3",
+        category: "Books & Stationery",
+        hours: "10:00 - 22:00",
+        description: "Large bookstore with cafe.",
+        shortDesc: "International Bookstore",
+        features: ["Books", "Cafe"],
+        order: 8
+    },
+    {
+        id: "louis-vuitton-emquartier",
+        name: "Louis Vuitton",
+        nameEN: "Louis Vuitton",
+        floor: "G",
+        category: "Luxury",
+        hours: "10:00 - 20:00",
+        description: "French luxury fashion house.",
+        shortDesc: "Luxury Fashion",
+        features: ["Fashion", "Leather Goods"],
+        order: 9
+    },
+    {
+        id: "helix-dining",
+        name: "Helix Dining",
+        nameEN: "Helix Dining",
+        floor: "6-9",
+        category: "Food & Beverage",
+        hours: "10:00 - 22:00",
+        description: "Spiral dining zone with panoramic city views.",
+        shortDesc: "Spiral Dining Experience",
+        features: ["Restaurants", "Views"],
+        order: 10
+    }
+];

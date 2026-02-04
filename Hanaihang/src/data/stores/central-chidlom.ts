@@ -1,0 +1,122 @@
+export const centralChidlomStores = [
+    {
+        id: "central-dept-chidlom",
+        name: "Central Department Store",
+        nameEN: "Central Department Store",
+        floor: "1-5",
+        category: "Department Store",
+        hours: "10:00 - 22:00",
+        description: "The flagship Central Department Store of Thailand.",
+        shortDesc: "Flagship Department Store",
+        features: ["Fashion", "Beauty", "Home"],
+        order: 1
+    },
+    {
+        id: "tops-food-hall-chidlom",
+        name: "Tops Food Hall",
+        nameEN: "Tops Food Hall",
+        floor: "G",
+        category: "Supermarket",
+        hours: "08:00 - 22:00",
+        description: "Premium supermarket with extensive international selection.",
+        shortDesc: "Premium Supermarket",
+        features: ["Groceries", "Imported Food"],
+        order: 2
+    },
+    {
+        id: "lofter-chidlom",
+        name: "Lofter",
+        nameEN: "Lofter",
+        floor: "7",
+        category: "Food & Beverage",
+        hours: "10:00 - 22:00",
+        description: "Legendary Thai food court (formerly Foodloft) with loft design.",
+        shortDesc: "Premium Thai Food Court",
+        features: ["Thai Food", "Dining"],
+        order: 3
+    },
+    {
+        id: "public-market-chidlom",
+        name: "Public Market",
+        nameEN: "Public Market",
+        floor: "2",
+        category: "Food & Beverage",
+        hours: "10:00 - 22:00",
+        description: "Connection bridge to Central Embassy with hip cafes and eateries.",
+        shortDesc: "Food & Lifestyle Zone",
+        features: ["Cafe", "Dining"],
+        order: 4
+    },
+    {
+        id: "muji-chidlom",
+        name: "MUJI",
+        nameEN: "MUJI",
+        floor: "7",
+        category: "Lifestyle",
+        hours: "10:00 - 22:00",
+        description: "MUJI concept store with cafe.",
+        shortDesc: "Lifestyle Store & Cafe",
+        features: ["Home", "Clothing", "Cafe"],
+        order: 5
+    },
+    {
+        id: "b2s-think-space-chidlom",
+        name: "B2S Think Space",
+        nameEN: "B2S Think Space",
+        floor: "6",
+        category: "Books & Stationery",
+        hours: "10:00 - 22:00",
+        description: "Modern bookstore and stationery shop.",
+        shortDesc: "Books & Lifestyle",
+        features: ["Books", "Stationery", "Art"],
+        order: 6
+    },
+    {
+        id: "power-buy-chidlom",
+        name: "Power Buy",
+        nameEN: "Power Buy",
+        floor: "5",
+        category: "Electronics",
+        hours: "10:00 - 22:00",
+        description: "Electronics and appliances store.",
+        shortDesc: "Electronics Store",
+        features: ["Gadgets", "Appliances"],
+        order: 7
+    },
+    {
+        id: "supersports-chidlom",
+        name: "SuperSports",
+        nameEN: "SuperSports",
+        floor: "4",
+        category: "Sportswear",
+        hours: "10:00 - 22:00",
+        description: "Leading sports retailer.",
+        shortDesc: "Sports Equipment",
+        features: ["Sportswear", "Equipment"],
+        order: 8
+    },
+    {
+        id: "luxe-galerie",
+        name: "Luxe Galerie",
+        nameEN: "Luxe Galerie",
+        floor: "1",
+        category: "Luxury",
+        hours: "10:00 - 22:00",
+        description: "Zone featuring top luxury fashion brands.",
+        shortDesc: "Luxury Fashion Zone",
+        features: ["Luxury Brands"],
+        order: 9
+    },
+    {
+        id: "mark-and-spencer-chidlom",
+        name: "Marks & Spencer",
+        nameEN: "Marks & Spencer",
+        floor: "1",
+        category: "Fashion",
+        hours: "10:00 - 22:00",
+        description: "British retailer offering fashion and food.",
+        shortDesc: "British Fashion & Food",
+        features: ["Clothing", "British Food"],
+        order: 10
+    }
+];
