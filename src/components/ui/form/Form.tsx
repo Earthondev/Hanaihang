@@ -2,8 +2,8 @@ import React from 'react';
 import { FormProvider, UseFormReturn } from 'react-hook-form';
 
 interface FormProps {
-  form: UseFormReturn<any>;
-  onSubmit: (values: any) => void | Promise<void>;
+  form: UseFormReturn<unknown>;
+  onSubmit: (values: unknown) => void | Promise<void>;
   children: React.ReactNode;
   className?: string;
 }

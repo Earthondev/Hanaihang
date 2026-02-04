@@ -51,7 +51,7 @@ export interface FirestoreFloor {
   description: string;
   imageUrl: string;
   storeCount: number;
-  anchors?: any[];
+  anchors?: unknown[];
   published: boolean;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
@@ -212,7 +212,7 @@ export const firebaseFirestore = {
   // Stores
   async getStores(mallId?: string, limitCount: number = 50): Promise<FirestoreStore[]> {
     try {
-      let q: any = collection(db, 'stores');
+      let q: unknown = collection(db, 'stores');
       if (mallId) {
         q = query(q, where('mallId', '==', mallId), orderBy('name'), limit(limitCount));
       } else {
@@ -232,7 +232,7 @@ export const firebaseFirestore = {
   // Search stores by brand name
   async searchStoresByBrand(brandName: string, limitCount: number = 50): Promise<FirestoreStore[]> {
     try {
-      const q: any = query(collection(db, 'stores'), orderBy('name'), limit(limitCount));
+      const q: unknown = query(collection(db, 'stores'), orderBy('name'), limit(limitCount));
       const querySnapshot = await getDocs(q);
       const stores = querySnapshot.docs.map(doc => {
         const data = doc.data() as unknown;
@@ -250,7 +250,17 @@ export const firebaseFirestore = {
   },
 
   // Get stores with mall information
-  async getStoresWithMallInfo(mallId?: string): Promise<any[]> {
+  async getStoresWithMallInfo(
+    mallId?: string
+  ): Promise<
+    Array<
+      FirestoreStore & {
+        mallName: string;
+        mallAddress: string;
+        mallCoords: FirestoreMall['coords'] | null;
+      }
+    >
+  > {
     try {
       // ดึงข้อมูล stores และ malls พร้อมกัน
       const [stores, malls] = await Promise.all([
@@ -326,7 +336,7 @@ export const firebaseFirestore = {
   // Floors
   async getFloors(mallId?: string, limitCount: number = 50): Promise<FirestoreFloor[]> {
     try {
-      let q: any = collection(db, 'floors');
+      let q: unknown = collection(db, 'floors');
       if (mallId) {
         q = query(q, where('mallId', '==', mallId), where('published', '==', true), orderBy('name'), limit(limitCount));
       } else {
@@ -335,7 +345,7 @@ export const firebaseFirestore = {
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...(doc.data() as any)
+        ...(doc.data() as unknown)
       })) as FirestoreFloor[];
     } catch (error) {
       console.error('Error getting floors:', error);
@@ -383,7 +393,7 @@ export const firebaseFirestore = {
   // Promotions
   async getPromotions(mallId?: string, limitCount: number = 50): Promise<FirestorePromotion[]> {
     try {
-      let q: any = collection(db, 'promotions');
+      let q: unknown = collection(db, 'promotions');
       if (mallId) {
         q = query(q, where('mallId', '==', mallId), where('published', '==', true), orderBy('startDate', 'desc'), limit(limitCount));
       } else {
@@ -392,7 +402,7 @@ export const firebaseFirestore = {
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...(doc.data() as any)
+        ...(doc.data() as unknown)
       })) as FirestorePromotion[];
     } catch (error) {
       console.error('Error getting promotions:', error);
@@ -440,7 +450,7 @@ export const firebaseFirestore = {
   // Events
   async getEvents(mallId?: string, limitCount: number = 50): Promise<FirestoreEvent[]> {
     try {
-      let q: any = collection(db, 'events');
+      let q: unknown = collection(db, 'events');
       if (mallId) {
         q = query(q, where('mallId', '==', mallId), where('published', '==', true), orderBy('startDate', 'desc'), limit(limitCount));
       } else {
@@ -449,7 +459,7 @@ export const firebaseFirestore = {
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...(doc.data() as any)
+        ...(doc.data() as unknown)
       })) as FirestoreEvent[];
     } catch (error) {
       console.error('Error getting events:', error);
@@ -458,7 +468,7 @@ export const firebaseFirestore = {
   },
 
   // Analytics
-  async getAnalytics(): Promise<any> {
+  async getAnalytics(): Promise<unknown> {
     try {
       // This would typically connect to Firebase Analytics
       // For now, return mock data

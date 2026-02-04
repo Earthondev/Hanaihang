@@ -37,7 +37,7 @@ const StoreCard: React.FC<StoreCardProps> = ({
 
     const resolveData = async () => {
       try {
-        const resolved = await resolveStoreComputed(store as any, userLocation);
+        const resolved = await resolveStoreComputed(store as unknown, userLocation);
         if (alive) {
           setResolvedData({
             mallName: resolved.mallName,

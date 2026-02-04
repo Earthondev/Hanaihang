@@ -48,5 +48,5 @@ export const debugAuth = {
 
 // Make it available globally for debugging
 if (typeof window !== 'undefined') {
-  (window as any).debugAuth = debugAuth;
+  (window as unknown).debugAuth = debugAuth;
 }

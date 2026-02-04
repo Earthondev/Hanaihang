@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { format, isWithinInterval, parseISO } from 'date-fns';
+import { format, isWithinInterval } from 'date-fns';
 
 import { StoreStatus } from '../types';
 
@@ -16,9 +16,6 @@ export function getDeviceId(): string {
   
   return deviceId;
 }
-
-// Time utilities for Bangkok timezone
-const BANGKOK_TIMEZONE = 'Asia/Bangkok';
 
 export function getCurrentBangkokTime(): Date {
   // Simple timezone conversion for Bangkok (UTC+7)
@@ -153,11 +150,11 @@ export function sortStores(stores: Store[], sortBy: string): Store[] {
 
 // URL utilities
 export function createStoreUrl(_mallId: string, storeId: string): string {
-  return `/${mallId}/stores/${storeId}`;
+  return `/${_mallId}/stores/${storeId}`;
 }
 
 export function createFloorUrl(_mallId: string, floorId: string): string {
-  return `/${mallId}/floors/${floorId}`;
+  return `/${_mallId}/floors/${floorId}`;
 }
 
 // Validation utilities
@@ -191,7 +188,7 @@ export function getFromLocalStorage<T>(key: string, defaultValue: T): T {
 }
 
 // Debounce utility
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
@@ -203,7 +200,7 @@ export function debounce<T extends (...args: any[]) => any>(
 }
 
 // Throttle utility
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {

@@ -12,7 +12,7 @@ export const isFiniteNumber = (v: unknown): v is number =>
 /**
  * ตัดฟิลด์ที่ undefined ออกให้หมด
  */
-export const pruneUndefined = <T extends Record<string, any>>(obj: T): T =>
+export const pruneUndefined = <T extends Record<string, unknown>>(obj: T): T =>
   Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as T;
 
 /**
@@ -52,8 +52,8 @@ export function sanitizeForFirestore<T>(obj: T): T {
       .filter((v) => v !== undefined) as unknown as T;
   }
 
-  const out: any = {};
-  for (const [k, v] of Object.entries(obj as any)) {
+  const out: unknown = {};
+  for (const [k, v] of Object.entries(obj as unknown)) {
     if (v === undefined) continue;
     if (typeof v === 'number' && !Number.isFinite(v)) continue; // ตัด NaN/Infinity
     if (typeof v === 'object' && v !== null) {

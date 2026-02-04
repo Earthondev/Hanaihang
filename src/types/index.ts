@@ -92,7 +92,7 @@ export interface Event {
   event: string;
   store_id?: string;
   mall_id?: string;
-  meta: Record<string, any>;
+  meta: Record<string, unknown>;
   user_email?: string;
 }
 
@@ -102,7 +102,7 @@ export interface Config {
 }
 
 // API Response types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   ok: boolean;
   data?: T;
   error?: {
@@ -136,7 +136,7 @@ export interface LogEventParams {
   event: string;
   store_id?: string;
   mall_id?: string;
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
 }
 
 // UI State types
@@ -174,5 +174,5 @@ export interface AdminUser {
 
 export interface BulkImportData {
   sheetName: string;
-  rows: Record<string, any>[];
+  rows: Record<string, unknown>[];
 }

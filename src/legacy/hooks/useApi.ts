@@ -20,7 +20,7 @@ export const queryKeys = {
   malls: ['malls'] as const,
   mall: (id: string) => ['mall', id] as const,
   floors: (_mallId: string) => ['floors', mallId] as const,
-  stores: (_mallId: string, filters?: any) =>
+  stores: (_mallId: string, filters?: unknown) =>
     ['stores', mallId, filters] as const,
   store: (_mallId: string, storeId: string) =>
     ['store', mallId, storeId] as const,
@@ -48,7 +48,7 @@ export function useCreateMall() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: any) => createMall(data),
+    mutationFn: (data: unknown) => createMall(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.malls });
     },
@@ -59,7 +59,7 @@ export function useUpdateMall() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ mallId, data }: { mallId: string; data: Partial<any> }) =>
+    mutationFn: ({ mallId, data }: { mallId: string; data: Partial<unknown> }) =>
       updateMall(mallId, data),
     onSuccess: (_, { mallId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.malls });
@@ -120,7 +120,7 @@ export function useCreateStore() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ mallId, data }: { mallId: string; data: any }) =>
+    mutationFn: ({ mallId, data }: { mallId: string; data: unknown }) =>
       createStore(mallId, data),
     onSuccess: (_, { mallId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.stores(mallId) });
@@ -139,7 +139,7 @@ export function useUpdateStore() {
     }: {
       mallId: string;
       storeId: string;
-      data: Partial<any>;
+      data: Partial<unknown>;
     }) => updateStore(mallId, storeId, data),
     onSuccess: (_, { mallId, storeId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.stores(mallId) });

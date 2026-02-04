@@ -102,7 +102,6 @@ export default function FloorManager({ mallId, floors, onFloorsChange }: FloorMa
   const { push: toast } = useToast();
   const [newFloorLabel, setNewFloorLabel] = useState('');
   const [isAddingFloor, setIsAddingFloor] = useState(false);
-  const [isReordering, setIsReordering] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -162,8 +161,6 @@ export default function FloorManager({ mallId, floors, onFloorsChange }: FloorMa
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      setIsReordering(true);
-      
       try {
         const sortedFloors = [...floors].sort((a, b) => (a.order || 0) - (b.order || 0));
         const oldIndex = sortedFloors.findIndex(f => f.id === active.id);
@@ -188,8 +185,6 @@ export default function FloorManager({ mallId, floors, onFloorsChange }: FloorMa
       } catch (error) {
         console.error('Error reordering floors:', error);
         toast('ไม่สามารถเปลี่ยนลำดับชั้นได้', 'error');
-      } finally {
-        setIsReordering(false);
       }
     }
   };

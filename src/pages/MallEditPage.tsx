@@ -184,7 +184,7 @@ export default function MallEditPage() {
                   {mall?.createdAt ? 
                     (mall.createdAt.toDate ? 
                       new Date(mall.createdAt.toDate()).toLocaleDateString('th-TH') : 
-                      new Date(mall.createdAt as any).toLocaleDateString('th-TH')
+                      new Date(mall.createdAt as unknown).toLocaleDateString('th-TH')
                     ) : 'ไม่ระบุ'}
                 </div>
                 <div className="text-sm text-gray-500 mt-2 mb-1">อัปเดตล่าสุด</div>
@@ -192,7 +192,7 @@ export default function MallEditPage() {
                   {mall?.updatedAt ? 
                     (mall.updatedAt.toDate ? 
                       new Date(mall.updatedAt.toDate()).toLocaleDateString('th-TH') : 
-                      new Date(mall.updatedAt as any).toLocaleDateString('th-TH')
+                      new Date(mall.updatedAt as unknown).toLocaleDateString('th-TH')
                     ) : 'ไม่ระบุ'}
                 </div>
               </div>

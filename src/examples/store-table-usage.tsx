@@ -16,11 +16,11 @@ import {
 // ตัวอย่าง 1: Basic Table (แก้ duplicate key warnings)
 interface BasicStoresTableProps {
   stores: StoreRow[];
-  malls: any[];
+  malls: unknown[];
   onRefresh: () => void;
 }
 
-export function BasicStoresTable({ stores, malls, onRefresh }: BasicStoresTableProps) {
+export function BasicStoresTable({ stores, malls, onRefresh: _onRefresh }: BasicStoresTableProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [mallFilter, setMallFilter] = useState('');
 

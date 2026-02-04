@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return { success: true, user: response.user };
       }
       return { success: false, error: response.error };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
       return { success: false, error: error.message };
     }
@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return { success: true };
       }
       return { success: false, error: response.error };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { success: false, error: error.message };
     }
   };

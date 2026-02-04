@@ -268,7 +268,7 @@ export const adminApi = {
     return [
       {
         id: '1',
-        mallId,
+        mallId: _mallId,
         name: 'ชั้น G',
         floorCode: 'G',
         description: 'ชั้นล่าง - ร้านอาหาร, ซูเปอร์มาร์เก็ต',
@@ -280,7 +280,7 @@ export const adminApi = {
       },
       {
         id: '2',
-        mallId,
+        mallId: _mallId,
         name: 'ชั้น 1',
         floorCode: '1',
         description: 'ชั้น 1 - แฟชั่น, เสื้อผ้า',
@@ -292,7 +292,7 @@ export const adminApi = {
       },
       {
         id: '3',
-        mallId,
+        mallId: _mallId,
         name: 'ชั้น 2',
         floorCode: '2',
         description: 'ชั้น 2 - เครื่องสำอาง, ของใช้ส่วนตัว',
@@ -306,7 +306,7 @@ export const adminApi = {
   },
 
   // Promotions
-  async getPromotions(mallId?: string): Promise<Promotion[]> {
+  async getPromotions(_mallId?: string): Promise<Promotion[]> {
     await new Promise(resolve => setTimeout(resolve, 500));
     return [
       {

@@ -1,4 +1,4 @@
-import { MallSearchResult } from '../types/mall-system';
+import { Mall, Store, StoreSearchResult } from '../types/mall-system';
 
 import { listMalls, listStores } from './firestore';
 
@@ -67,7 +67,7 @@ export async function searchStoresInMall(
   }
 
   try {
-    return await listStores(mallId, { query: query.trim() });
+    return await listStores(_mallId, { query: query.trim() });
   } catch (error) {
     console.error('Search error:', error);
     return [];
@@ -82,7 +82,7 @@ export async function searchStoresByCategory(
   category: string
 ): Promise<Store[]> {
   try {
-    return await listStores(mallId, { category });
+    return await listStores(_mallId, { category });
   } catch (error) {
     console.error('Category search error:', error);
     return [];

@@ -819,8 +819,8 @@ export function getFloorPins(_mallId: string, floorId: string) {
 
 export function searchBrands(brandName: string) {
   const results: Array<{
-    store: any;
-    mall: any;
+    store: unknown;
+    mall: unknown;
   }> = [];
   
   Object.entries(STORES_BY_MALL).forEach(([mallId, stores]) => {
@@ -856,7 +856,7 @@ export function getActivePromotions(_mallId: string) {
 export const userApi = {
   getMalls: () => Promise.resolve(getMalls()),
   getMallById: (_mallId: string) => Promise.resolve(getMallById(mallId)),
-  getStores: (_mallId: string, filters?: any) => Promise.resolve(getStores(mallId, filters)),
+  getStores: (_mallId: string, filters?: unknown) => Promise.resolve(getStores(mallId, filters)),
   getStoreById: (storeId: string) => Promise.resolve(getStoreById(storeId)),
   getFloors: (_mallId: string) => Promise.resolve(getFloors(mallId)),
   getFloorPins: (_mallId: string, floorId: string) => Promise.resolve(getFloorPins(mallId, floorId)),

@@ -15,7 +15,7 @@ const LocationButton: React.FC<LocationButtonProps> = ({
   variant = "primary",
   onLocationGranted
 }) => {
-  const { requestLocation, isLoading, error, hasLocationPermission, userLocation } = useLocation();
+  const { requestLocation, isLoading, hasLocationPermission, userLocation } = useLocation();
 
   const handleClick = async () => {
     await requestLocation();

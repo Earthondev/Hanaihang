@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (!result.success) {
         throw new Error(result.error || 'เกิดข้อผิดพลาดในการส่งอีเมลรีเซ็ตรหัสผ่าน');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Reset password error:', error);
       throw new Error(error.message || 'เกิดข้อผิดพลาดในการส่งอีเมลรีเซ็ตรหัสผ่าน');
     }

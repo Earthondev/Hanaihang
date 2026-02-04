@@ -1,14 +1,16 @@
 import { doc, getDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 
+import { Floor, Mall } from "../types/mall-system";
+
 import { db } from "./firebase";
 
 // Cache สำหรับ Mall
-const mallCache = new Map<string, any>();
+const mallCache = new Map<string, Mall | null>();
 const mallCacheTimeout = 5 * 60 * 1000; // 5 นาที
 const mallCacheTimestamps = new Map<string, number>();
 
 // Cache สำหรับ Floors
-const floorCache = new Map<string, any[]>();
+const floorCache = new Map<string, Floor[]>();
 const floorCacheTimeout = 5 * 60 * 1000; // 5 นาที
 const floorCacheTimestamps = new Map<string, number>();
 
@@ -17,7 +19,7 @@ const floorCacheTimestamps = new Map<string, number>();
  * @param mallId ID ของห้าง
  * @returns ข้อมูลห้างหรือ null
  */
-export async function getMall(mallId: string): Promise<any | null> {
+export async function getMall(mallId: string): Promise<Mall | null> {
   // ตรวจสอบ cache
   const cacheTime = mallCacheTimestamps.get(mallId);
   if (mallCache.has(mallId) && cacheTime && Date.now() - cacheTime < mallCacheTimeout) {
@@ -26,7 +28,9 @@ export async function getMall(mallId: string): Promise<any | null> {
 
   try {
     const snap = await getDoc(doc(db, "malls", mallId));
-    const data = snap.exists() ? { id: snap.id, ...snap.data() } : null;
+    const data = snap.exists()
+      ? ({ id: snap.id, ...snap.data() } as Mall)
+      : null;
     
     // เก็บใน cache
     mallCache.set(mallId, data);
@@ -44,7 +48,7 @@ export async function getMall(mallId: string): Promise<any | null> {
  * @param mallId ID ของห้าง
  * @returns รายการชั้น
  */
-export async function listFloors(mallId: string): Promise<any[]> {
+export async function listFloors(mallId: string): Promise<Floor[]> {
   // ตรวจสอบ cache
   const cacheTime = floorCacheTimestamps.get(mallId);
   if (floorCache.has(mallId) && cacheTime && Date.now() - cacheTime < floorCacheTimeout) {
@@ -55,7 +59,10 @@ export async function listFloors(mallId: string): Promise<any[]> {
     const col = collection(db, "malls", mallId, "floors");
     const q = query(col, orderBy("order"));
     const snaps = await getDocs(q);
-    const rows = snaps.docs.map(d => ({ id: d.id, ...d.data() }));
+    const rows: Floor[] = snaps.docs.map(d => ({
+      id: d.id,
+      ...(d.data() as Omit<Floor, 'id'>),
+    }));
     
     // เก็บใน cache
     floorCache.set(mallId, rows);
@@ -74,7 +81,10 @@ export async function listFloors(mallId: string): Promise<any[]> {
  * @param floorId ID หรือ label ของชั้น
  * @returns ข้อมูลชั้นหรือ null
  */
-export async function getFloorInfo(mallId: string, floorId: string): Promise<any | null> {
+export async function getFloorInfo(
+  mallId: string,
+  floorId: string
+): Promise<Floor | null> {
   const floors = await listFloors(mallId);
   return floors.find(f => f.id === floorId || f.label === floorId) ?? null;
 }

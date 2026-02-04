@@ -39,7 +39,7 @@ export default function MallLogoManager({
 
   const handleLogoChange = async (_mallId: string, logoUrl: string | null) => {
     try {
-      await updateMall(_mallId, { logoUrl } as any);
+      await updateMall(_mallId, { logoUrl } as unknown);
 
       // Update local state
       setMalls(prev =>

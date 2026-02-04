@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, CheckCircle, AlertCircle } from 'lucide-react';
 
 import { useAuth } from '@/config/contexts/AuthContext';
@@ -21,7 +21,7 @@ const ForgotPassword: React.FC = () => {
     try {
       await resetPassword(email);
       setIsSuccess(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Reset password error:', err);
       setError(err.message || 'เกิดข้อผิดพลาดในการส่งอีเมลรีเซ็ตรหัสผ่าน');
     } finally {

@@ -6,10 +6,11 @@ import Form from '../ui/form/Form';
 import TextField from '../ui/form/fields/TextField';
 import PhoneField from '../ui/form/fields/PhoneField';
 import FormActions from '../ui/form/FormActions';
-import { storeSchemaInput } from '../../validation/store.schema';
+import SelectField from '../ui/form/fields/SelectField';
+import { storeSchema, StoreInput } from '../../validation/store.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createStore, updateStore, listMalls, listFloors } from '../../lib/firestore';
-import { Mall } from '../../types/mall-system';
+import { Floor, Mall } from '../../types/mall-system';
 import { getMall } from '../../lib/malls';
 
 interface StoreFormProps {
@@ -79,7 +80,7 @@ export default function StoreForm({
         setMalls(mallsData);
         
         // Load floors for default mall if exists
-        const defaultMallId = form.getValues("mallId");
+        const defaultMallId = form.getValues("_mallId");
         if (defaultMallId) {
           const floorsData = await listFloors(defaultMallId);
           setFloors(floorsData);
@@ -95,7 +96,7 @@ export default function StoreForm({
   }, [form]);
 
   // Load floors when mall changes
-  const selectedMallId = form.watch("mallId");
+  const selectedMallId = form.watch("_mallId");
   useEffect(() => {
     const loadFloors = async () => {
       if (selectedMallId) {
@@ -118,9 +119,9 @@ export default function StoreForm({
 
   const handleSubmit = async (values: StoreInput) => {
     // Analytics tracking for field changes summary
-    if (typeof window !== 'undefined' && (window as any).gtag) {
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
       const changedFields = Object.keys(form.formState.dirtyFields || {});
-      (window as any).gtag('event', 'form_field_change_summary', {
+      (window as unknown).gtag('event', 'form_field_change_summary', {
         event_category: 'form_actions',
         event_label: 'field_change_summary',
         custom_parameter: {
@@ -133,12 +134,12 @@ export default function StoreForm({
     await run(async () => {
       if (mode === "create") {
         // Get mall data for denormalization
-        const mall = await getMall(values.mallId);
+        const mall = await getMall(values._mallId);
         const mallCoords = mall?.location ?? mall?.coords ?? null;
         
         // Get floor data for denormalization
-        const floors = await listFloors(values.mallId);
-        const _selectedFloor = floors.find(f => f.id === values.floorId);
+        const floors = await listFloors(values._mallId);
+        const selectedFloor = floors.find(f => f.id === values.floorId);
         const floorLabel = selectedFloor?.label ?? values.floorId;
         
         // Create store with denormalized data
@@ -148,17 +149,17 @@ export default function StoreForm({
           floorLabel
         };
         
-        await createStore(values.mallId, storeData);
+        await createStore(values._mallId, storeData);
       } else {
         // For edit mode, you would need to pass the store ID
-        if ((defaultValues as any)?.id) {
+        if ((defaultValues as unknown)?.id) {
           // Get mall data for denormalization
-          const mall = await getMall(values.mallId);
+          const mall = await getMall(values._mallId);
           const mallCoords = mall?.location ?? mall?.coords ?? null;
           
           // Get floor data for denormalization
-          const floors = await listFloors(values.mallId);
-          const _selectedFloor = floors.find(f => f.id === values.floorId);
+          const floors = await listFloors(values._mallId);
+          const selectedFloor = floors.find(f => f.id === values.floorId);
           const floorLabel = selectedFloor?.label ?? values.floorId;
           
           // Update store with denormalized data
@@ -168,7 +169,7 @@ export default function StoreForm({
             floorLabel
           };
           
-          await updateStore(values.mallId, (defaultValues as any).id, updateData);
+          await updateStore(values._mallId, (defaultValues as unknown).id, updateData);
         } else {
           console.log("Store ID not provided for edit mode");
         }
@@ -196,7 +197,7 @@ export default function StoreForm({
     <Form form={form} onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <SelectField
-          name="mallId"
+          name="_mallId"
           label="ห้างสรรพสินค้า"
           options={malls.map(mall => ({ label: mall.displayName || mall.name, value: mall.id }))}
           required

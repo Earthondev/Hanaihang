@@ -1,45 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="th">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Snake</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HaaNaiHang — หาในห้าง</title>
+    
+    <!-- Build Information -->
+    <meta name="app-version" content="0.0.0">
+    <meta name="git-sha" content="5db3541">
+    <meta name="build-time" content="2025-09-07T02:34:25.554Z">
+    <link rel="icon" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@600&family=Prompt:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+      // Simple CSS var for API base (you can change it later)
+      window.__API_BASE__ = "https://script.google.com/macros/s/AKfycbw7X_V-cXPAcp_FNVhVtoA3cjA2-Fw4sMrdhB0KvBTWrqmcs3Rih60-qdq9C83mdMh5/exec";
+    </script>
   </head>
-  <body>
-    <main class="page">
-      <header class="header">
-        <h1>Snake</h1>
-        <div class="stats">
-          <div id="score">Score: 0</div>
-          <div id="status">Running</div>
-        </div>
-      </header>
-
-      <section class="board-wrap">
-        <div id="board" class="board" aria-label="Snake board" role="grid"></div>
-      </section>
-
-      <section class="controls" aria-label="Game controls">
-        <div class="controls-row">
-          <button id="btn-up" class="btn" aria-label="Move up">Up</button>
-        </div>
-        <div class="controls-row">
-          <button id="btn-left" class="btn" aria-label="Move left">Left</button>
-          <button id="btn-down" class="btn" aria-label="Move down">Down</button>
-          <button id="btn-right" class="btn" aria-label="Move right">Right</button>
-        </div>
-        <div class="controls-row">
-          <button id="btn-pause" class="btn" aria-label="Pause or resume">Pause</button>
-          <button id="btn-restart" class="btn" aria-label="Restart game">Restart</button>
-        </div>
-      </section>
-
-      <footer class="help">
-        <p>Controls: Arrow keys or WASD. Space to pause. R to restart.</p>
-      </footer>
-    </main>
-
-    <script type="module" src="src/game.js"></script>
+  <body class="font-body bg-gray-50">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -2,7 +2,6 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  User as FirebaseUser,
   createUserWithEmailAndPassword,
   updateProfile,
   sendPasswordResetEmail
@@ -98,7 +97,7 @@ export const firebaseAuth = {
         success: true,
         user: userData
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Sign in error:', error);
       
       // Handle specific Firebase auth errors
@@ -127,7 +126,7 @@ export const firebaseAuth = {
       localStorage.removeItem('firebaseUser');
       localStorage.removeItem('firebaseToken');
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Sign out error:', error);
       return {
         success: false,
@@ -209,7 +208,7 @@ export const firebaseAuth = {
         success: true,
         user: userData
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Create user error:', error);
       return {
         success: false,
@@ -223,7 +222,7 @@ export const firebaseAuth = {
     try {
       await sendPasswordResetEmail(auth, email);
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Reset password error:', error);
       return {
         success: false,

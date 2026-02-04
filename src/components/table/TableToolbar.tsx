@@ -36,8 +36,8 @@ export default function TableToolbar({
     onSearch(debouncedQuery.trim());
     
     // Analytics tracking
-    if (debouncedQuery.trim() && typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'table_search', {
+    if (debouncedQuery.trim() && typeof window !== 'undefined' && (window as unknown).gtag) {
+      (window as unknown).gtag('event', 'table_search', {
         event_category: 'table_actions',
         event_label: 'search',
         custom_parameter: {
@@ -53,8 +53,8 @@ export default function TableToolbar({
     onReset?.();
     
     // Analytics tracking
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'table_reset_filters', {
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
+      (window as unknown).gtag('event', 'table_reset_filters', {
         event_category: 'table_actions',
         event_label: 'reset'
       });
@@ -96,8 +96,8 @@ export default function TableToolbar({
               filter.onChange?.(e.target.value);
               
               // Analytics tracking
-              if (typeof window !== 'undefined' && (window as any).gtag) {
-                (window as any).gtag('event', 'table_filter_change', {
+              if (typeof window !== 'undefined' && (window as unknown).gtag) {
+                (window as unknown).gtag('event', 'table_filter_change', {
                   event_category: 'table_actions',
                   event_label: 'filter',
                   custom_parameter: {

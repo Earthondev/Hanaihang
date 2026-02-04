@@ -6,7 +6,7 @@ export interface StoreRow {
   id: string;
   mallId: string;
   _path?: string;           // จะเติมให้เสมอในฟังก์ชัน ensure/dedupe
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /** Format: malls/{mallId}/stores/{storeId} */

@@ -1,4 +1,17 @@
-export const promotionsByMall = {
+type MallPromotion = {
+  id: string;
+  title: string;
+  subtitle: string;
+  _mallId: string;
+  scope: 'mall' | 'store' | 'floor';
+  startDate: string;
+  endDate: string;
+  timeNote: string;
+  status: 'scheduled' | 'active' | 'expired';
+  hashtags: string[];
+};
+
+export const promotionsByMall: Record<string, MallPromotion[]> = {
   "central-rama-3": [
     {
       id: "my-mom-my-shopping-mate-2025",
@@ -20,4 +33,4 @@ export const promotionsByMall = {
       ]
     }
   ]
-} as Record<string, any[]>;
+};

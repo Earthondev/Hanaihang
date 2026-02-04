@@ -6,6 +6,7 @@ import { updateStore } from '@/services/firebase/firestore';
 import { getMall } from '@/lib/malls';
 import { listFloors } from '@/services/firebase/firestore';
 import { toast } from '@/ui/feedback/Toast';
+import { Floor, Mall, Store, StoreCategory, StoreStatus } from '@/types/mall-system';
 
 interface StoreEditDrawerProps {
   isOpen: boolean;
@@ -30,8 +31,8 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
     status: 'Active' as StoreStatus,
   });
   const [loading, setLoading] = useState(false);
-  const [floors, setFloors] = useState<any[]>([]);
-  const [mall, setMall] = useState<any>(null);
+  const [floors, setFloors] = useState<Floor[]>([]);
+  const [mall, setMall] = useState<Mall | null>(null);
 
   // Load store data and related info when drawer opens
   useEffect(() => {
@@ -94,13 +95,13 @@ const StoreEditDrawer: React.FC<StoreEditDrawerProps> = ({
         selectedFloor?.name ?? selectedFloor?.label ?? formData.floorId;
 
       // Prepare update data with denormalized fields
-      const updateData = {
+      const updateData: Partial<Store> = {
         ...formData,
         category: formData.category as StoreCategory,
         mallCoords,
         floorLabel,
         updatedAt: new Date(),
-      } as any;
+      };
 
       // Update store in Firebase
       await updateStore(store.mallId, store.id, updateData);

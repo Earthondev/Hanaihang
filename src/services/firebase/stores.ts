@@ -13,9 +13,7 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
   limit,
-  writeBatch,
   serverTimestamp
 } from 'firebase/firestore';
 
@@ -30,7 +28,7 @@ import {
 } from './paths';
 
 // Helper to convert Firestore document to typed object
-function convertTimestamps<T extends { createdAt?: any; updatedAt?: any }>(data: T): T {
+function convertTimestamps<T extends { createdAt?: unknown; updatedAt?: unknown }>(data: T): T {
   const converted = { ...data };
   if (converted.createdAt?.toDate) {
     converted.createdAt = converted.createdAt.toDate();

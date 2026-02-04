@@ -5,7 +5,7 @@ import { firebaseAuth } from '@/legacy/services/firebaseAuth';
 
 const AuthDebug: React.FC = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const [debugInfo, setDebugInfo] = useState<any>({});
+  const [debugInfo, setDebugInfo] = useState<unknown>({});
 
   useEffect(() => {
     const gatherDebugInfo = async () => {

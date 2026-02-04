@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   MapPin, Clock, Phone, Navigation, Share2, Star, Info, Store as StoreIcon, Building,
-  ChevronLeft, ChevronRight, Heart, Globe, Search, MessageSquare, Wifi, CheckCircle
+  ChevronLeft, ChevronRight, Heart, Globe, MessageSquare, Wifi, CheckCircle
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 import FadeIn from '../components/ui/FadeIn';
 
@@ -36,7 +35,7 @@ const StoreDetail: React.FC = () => {
 
   useEffect(() => {
     if (store) {
-      resolveStoreComputed(store as any).then(setResolvedStore);
+      resolveStoreComputed(store as unknown).then(setResolvedStore);
     }
   }, [store]);
 
@@ -336,10 +335,7 @@ const StoreDetail: React.FC = () => {
                 <div className="flex-1">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
                     <div>
-                      <h1
-                        data-testid="store-name"
-                        className="text-4xl font-bold text-gray-900 mb-3"
-                      >
+                      <h1 className="text-4xl font-bold text-gray-900 mb-3">
                         {store.name}
                       </h1>
                       <p className="text-xl text-gray-700 mb-4 leading-relaxed">
@@ -370,7 +366,7 @@ const StoreDetail: React.FC = () => {
 
                       {/* Tags */}
                       <div className="flex flex-wrap gap-2">
-                        {(store as any).tags?.map(
+                        {(store as unknown).tags?.map(
                           (tag: string, index: number) => (
                             <span
                               key={index}
@@ -380,7 +376,7 @@ const StoreDetail: React.FC = () => {
                             </span>
                           ),
                         )}
-                        {(store as any).features?.map(
+                        {(store as unknown).features?.map(
                           (feature: string, index: number) => (
                             <span
                               key={index}
@@ -403,16 +399,9 @@ const StoreDetail: React.FC = () => {
                     }`}>
                     {store.status === 'Active' ? 'เปิดอยู่' : 'ปิดชั่วคราว'}
                   </span>
-                  {(resolvedStore?.floorLabel || store.floorId) && (
-                    <span
-                      data-testid="store-floor"
-                      className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium"
-                    >
-                      {resolvedStore?.floorLabel
-                        ? ['G', 'M'].includes(resolvedStore.floorLabel)
-                          ? `ชั้น ${resolvedStore.floorLabel}`
-                          : resolvedStore.floorLabel
-                        : `ชั้น ${store.floorId}`}
+                  {resolvedStore?.floorLabel && (
+                    <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium">
+                      {['G', 'M'].includes(resolvedStore.floorLabel) ? `ชั้น ${resolvedStore.floorLabel}` : resolvedStore.floorLabel}
                     </span>
                   )}
                 </div>
@@ -485,7 +474,7 @@ const StoreDetail: React.FC = () => {
                   </div>
                 </div>
 
-                {(store as any).website && (
+                {(store as unknown).website && (
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                       <Globe className="w-5 h-5 text-purple-600" />
@@ -493,12 +482,12 @@ const StoreDetail: React.FC = () => {
                     <div>
                       <p className="text-sm text-gray-600">เว็บไซต์</p>
                       <a
-                        href={(store as any).website}
+                        href={(store as unknown).website}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-medium text-primary-600 hover:text-primary-700"
                       >
-                        {(store as any).website.replace(/^https?:\/\//, '')}
+                        {(store as unknown).website.replace(/^https?:\/\//, '')}
                       </a>
                     </div>
                   </div>
@@ -526,13 +515,13 @@ const StoreDetail: React.FC = () => {
             </div>
 
             {/* Social Links */}
-            {((store as any).facebook || (store as any).instagram) && (
+            {((store as unknown).facebook || (store as unknown).instagram) && (
               <div className="mt-6 pt-6 border-t">
                 <p className="text-sm text-gray-600 mb-3">ติดตามเรา</p>
                 <div className="flex space-x-3">
-                  {(store as any).facebook && (
+                  {(store as unknown).facebook && (
                     <a
-                      href={(store as any).facebook}
+                      href={(store as unknown).facebook}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-10 h-10 bg-blue-100 hover:bg-blue-200 rounded-lg flex items-center justify-center transition-colors"
@@ -546,9 +535,9 @@ const StoreDetail: React.FC = () => {
                       </svg>
                     </a>
                   )}
-                  {(store as any).instagram && (
+                  {(store as unknown).instagram && (
                     <a
-                      href={(store as any).instagram}
+                      href={(store as unknown).instagram}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-10 h-10 bg-pink-100 hover:bg-pink-200 rounded-lg flex items-center justify-center transition-colors"

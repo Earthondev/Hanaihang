@@ -6,7 +6,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Store as StoreIcon,
-  MapPin,
   X,
   Check
 } from 'lucide-react';

@@ -1,16 +1,15 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MapPin, Clock, Building, Navigation, Store } from 'lucide-react';
 
 import { UnifiedSearchResult } from '@/lib/enhanced-search';
-import { isE2E } from '@/lib/e2e';
 
 interface UnifiedSearchResultsProps {
   results: UnifiedSearchResult[];
   query: string;
   loading: boolean;
   error?: string | null;
-  forceEmptyState?: boolean;
+  onResultClick?: (result: UnifiedSearchResult) => void;
 }
 
 export default function UnifiedSearchResults({
@@ -18,9 +17,9 @@ export default function UnifiedSearchResults({
   query,
   loading,
   error,
-  forceEmptyState = false,
+  onResultClick
 }: UnifiedSearchResultsProps) {
-  if (loading && results.length === 0) {
+  if (loading) {
     return <SearchResultsSkeleton />;
   }
 
@@ -37,17 +36,7 @@ export default function UnifiedSearchResults({
   }
 
   return (
-    <div aria-live="polite" className="mt-8">
-      {forceEmptyState && <SearchEmptyState query={query} />}
-      {loading && (
-        <div className="mb-3 flex items-center gap-2 text-sm text-gray-500 font-prompt">
-          <span
-            data-testid="search-loading"
-            className="inline-flex h-2 w-2 rounded-full bg-primary animate-pulse"
-          ></span>
-          กำลังอัปเดตผลลัพธ์...
-        </div>
-      )}
+    <section id="search-results" aria-live="polite" className="mt-8">
       <div className="mb-4 flex items-center gap-3">
         <h2 className="text-lg font-semibold text-gray-900 font-kanit">
           ผลการค้นหา
@@ -64,10 +53,11 @@ export default function UnifiedSearchResults({
             result={result}
             rank={index + 1}
             query={query}
+            onClick={() => onResultClick?.(result)}
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -76,13 +66,12 @@ interface SearchResultCardProps {
   result: UnifiedSearchResult;
   rank: number;
   query: string;
+  onClick?: () => void;
 }
 
-function SearchResultCard({ result, rank, query }: SearchResultCardProps) {
-  const navigate = useNavigate();
+function SearchResultCard({ result, rank, query, onClick }: SearchResultCardProps) {
   const isNearby = result.distanceKm !== undefined && result.distanceKm < 1;
   const isTopResult = rank <= 3;
-  const isUnknownDistance = result.distanceKm === undefined;
 
   const getResultIcon = () => {
     if (result.kind === 'mall') {
@@ -164,21 +153,11 @@ function SearchResultCard({ result, rank, query }: SearchResultCardProps) {
                 ใกล้สุด
               </span>
             )}
-            {result.openNow ? (
-              <span
-                data-testid="open-now-badge"
-                className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700"
-              >
+            {result.openNow && (
+              <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
                 เปิดอยู่ตอนนี้
               </span>
-            ) : result.hours ? (
-              <span
-                data-testid="closed-badge"
-                className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600"
-              >
-                ปิดแล้ว
-              </span>
-            ) : null}
+            )}
           </div>
         </div>
 
@@ -187,10 +166,7 @@ function SearchResultCard({ result, rank, query }: SearchResultCardProps) {
           {/* Distance */}
           <div className="flex items-center space-x-2">
             <Navigation className="w-4 h-4 text-gray-500" />
-            <span
-              data-testid={isUnknownDistance ? 'unknown-distance' : 'distance'}
-              className="text-sm font-medium text-gray-900 font-prompt"
-            >
+            <span className="text-sm font-medium text-gray-900 font-prompt">
               {formatDistance(result.distanceKm)}
             </span>
           </div>
@@ -199,10 +175,7 @@ function SearchResultCard({ result, rank, query }: SearchResultCardProps) {
           {result.hours && (
             <div className="flex items-center space-x-2">
               <Clock className="w-4 h-4 text-gray-500" />
-              <span
-                data-testid="hours"
-                className={`text-sm ${result.openNow ? 'text-green-600 font-medium' : 'text-gray-600'}`}
-              >
+              <span className={`text-sm ${result.openNow ? 'text-green-600 font-medium' : 'text-gray-600'}`}>
                 {formatHours(result.hours)}
                 {!result.openNow && (
                   <span className="ml-1 text-red-500 text-xs">(ปิดแล้ว)</span>
@@ -245,30 +218,21 @@ function SearchResultCard({ result, rank, query }: SearchResultCardProps) {
     </div>
   );
 
-  const href = (() => {
-    if (result.kind === 'mall') {
-      return `/malls/${result.id || result.name}`;
-    }
-    const mallKey = result.mallId || result.mallSlug;
-    if (isE2E && mallKey) {
-      return `/malls/${mallKey}`;
-    }
-    if (mallKey) {
-      return `/malls/${mallKey}/stores/${result.id}`;
-    }
-    return `/stores/${result.id}`;
-  })();
+  if (onClick) {
+    return (
+      <button onClick={onClick} className="w-full text-left" data-testid="search-result-card">
+        <CardContent />
+      </button>
+    );
+  }
+
+  // Default navigation
+  const href = result.kind === 'mall'
+    ? `/malls/${result.id}`
+    : `/stores/${result.id}`;
 
   return (
-    <Link
-      to={href}
-      className="block"
-      data-testid="search-result-card"
-      onClick={event => {
-        event.preventDefault();
-        navigate(href, { flushSync: isE2E });
-      }}
-    >
+    <Link to={href} className="block" data-testid="search-result-card">
       <CardContent />
     </Link>
   );
@@ -277,7 +241,7 @@ function SearchResultCard({ result, rank, query }: SearchResultCardProps) {
 // Loading Skeleton
 function SearchResultsSkeleton() {
   return (
-    <div className="mt-8" data-testid="search-loading">
+    <section id="search-results" className="mt-8">
       <div className="mb-4 flex items-center gap-3">
         <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
         <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
@@ -307,14 +271,14 @@ function SearchResultsSkeleton() {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
 // Error State
 function SearchErrorState({ error }: { error: string }) {
   return (
-    <div className="mt-8" data-testid="empty-state">
+    <section id="search-results" className="mt-8">
       <div className="text-center py-8">
         <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -330,7 +294,7 @@ function SearchErrorState({ error }: { error: string }) {
           ลองใหม่
         </button>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -345,7 +309,7 @@ function SearchEmptyState({ query }: { query: string }) {
   ];
 
   return (
-    <div className="mt-8" data-testid="empty-state">
+    <section id="search-results" className="mt-8">
       <div className="text-center py-12">
         <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -359,7 +323,7 @@ function SearchEmptyState({ query }: { query: string }) {
           ไม่พบผลลัพธ์สำหรับ <span className="font-medium">"{query}"</span>
         </p>
 
-        <div className="max-w-md mx-auto" data-testid="search-suggestions">
+        <div className="max-w-md mx-auto">
           <p className="text-sm text-gray-500 mb-4 font-prompt">ลองค้นหาด้วยคำเหล่านี้:</p>
           <div className="flex flex-wrap gap-2 justify-center">
             {suggestions.map((suggestion) => (
@@ -381,6 +345,6 @@ function SearchEmptyState({ query }: { query: string }) {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

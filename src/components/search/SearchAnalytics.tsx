@@ -5,7 +5,7 @@ interface SearchAnalyticsProps {
   searchQuery: string;
   resultsCount: number;
   searchTime: number;
-  filters?: any;
+  filters?: unknown;
 }
 
 interface AnalyticsData {
@@ -66,8 +66,8 @@ const SearchAnalytics: React.FC<SearchAnalyticsProps> = ({
 
   const trackSearch = () => {
     // Track search analytics
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'search', {
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
+      (window as unknown).gtag('event', 'search', {
         event_category: 'search_analytics',
         event_label: searchQuery,
         custom_parameter: {

@@ -12,7 +12,6 @@ interface TextFieldProps {
   autoComplete?: string;
   type?: string;
   className?: string;
-  dataTestId?: string;
 }
 
 export default function TextField({
@@ -24,13 +23,12 @@ export default function TextField({
   autoComplete = 'off',
   type = 'text',
   className = '',
-  dataTestId,
 }: TextFieldProps) {
   const {
     register,
     formState: { errors },
   } = useFormContext();
-  const _error = (errors as any)[name]?.message as string | undefined;
+  const _error = (errors as unknown)[name]?.message as string | undefined;
   const id = `f-${name}`;
   const helpId = helper ? `${id}-help` : undefined;
   const errorId = _error ? `${id}-error` : undefined;
@@ -41,8 +39,8 @@ export default function TextField({
 
   // Analytics tracking for field changes
   const handleFieldChange = (_e: React.ChangeEvent<HTMLInputElement>) => {
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'form_field_change', {
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
+      (window as unknown).gtag('event', 'form_field_change', {
         event_category: 'form_actions',
         event_label: 'field_change',
         custom_parameter: {
@@ -75,7 +73,6 @@ export default function TextField({
             ? 'border-red-300 bg-red-50'
             : 'border-gray-300 bg-white hover:border-gray-400'
         }`}
-        data-testid={dataTestId}
         {...register(name, {
           onBlur: handleFieldChange,
         })}

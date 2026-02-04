@@ -41,6 +41,6 @@ export function clearCacheForTesting(): void {
 
 // Make functions available globally for debugging
 if (typeof window !== 'undefined') {
-  (window as any).clearAllCaches = clearAllCaches;
-  (window as any).clearCacheForTesting = clearCacheForTesting;
+  (window as unknown).clearAllCaches = clearAllCaches;
+  (window as unknown).clearCacheForTesting = clearCacheForTesting;
 }

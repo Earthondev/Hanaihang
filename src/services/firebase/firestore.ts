@@ -30,9 +30,6 @@ import {
 
 import { db } from './firebase';
 
-import { isE2E } from '@/lib/e2e';
-import { E2E_MALLS, getE2EFloorsByMall } from '@/lib/e2e-fixtures';
-
 // Helper to create slug from display name
 export function toSlug(displayName: string): string {
   return displayName
@@ -134,10 +131,6 @@ export async function createMall(data: MallFormData): Promise<string> {
   const now = serverTimestamp();
   const slug = data.name || toSlug(data.displayName);
 
-  if (isE2E) {
-    return slug;
-  }
-
   // ตรวจสอบชื่อห้างซ้ำก่อนสร้าง
   const duplicateCheck = await checkMallExists(data.displayName, slug);
   if (duplicateCheck.exists) {
@@ -213,10 +206,6 @@ export async function createMall(data: MallFormData): Promise<string> {
  * ดึงรายการห้างทั้งหมด
  */
 export async function listMalls(limitCount?: number): Promise<Mall[]> {
-  if (isE2E) {
-    return limitCount ? E2E_MALLS.slice(0, limitCount) : E2E_MALLS;
-  }
-
   const constraints: Parameters<typeof query>[1][] = [orderBy('displayName')];
   if (limitCount) {
     constraints.push(limit(limitCount));
@@ -355,7 +344,7 @@ export async function updateMall(
     console.log('📍 Lat/Lng data:', { lat: data.lat, lng: data.lng });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await updateDoc(mallRef, finalUpdateData as any);
+    await updateDoc(mallRef, finalUpdateData as unknown);
 
     // Clear cache after updating mall
     try {
@@ -474,10 +463,6 @@ async function updateMallFloorCount(
  * ดึงรายการ floors ของห้าง
  */
 export async function listFloors(_mallId: string): Promise<Floor[]> {
-  if (isE2E) {
-    return getE2EFloorsByMall(_mallId);
-  }
-
   const q = query(collection(db, 'malls', _mallId, 'floors'), orderBy('order'));
   const snapshot = await getDocs(q);
 

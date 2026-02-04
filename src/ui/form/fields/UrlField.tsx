@@ -24,7 +24,7 @@ export default function UrlField({
     register,
     formState: { errors },
   } = useFormContext();
-  const _error = (errors as any)[name]?.message as string | undefined;
+  const _error = (errors as unknown)[name]?.message as string | undefined;
   const id = `f-${name}`;
   const helpId = helper ? `${id}-help` : undefined;
   const errorId = _error ? `${id}-error` : undefined;
@@ -47,8 +47,8 @@ export default function UrlField({
 
   // Analytics tracking for field changes
   const handleFieldChange = (_e: React.ChangeEvent<HTMLInputElement>) => {
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'form_field_change', {
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
+      (window as unknown).gtag('event', 'form_field_change', {
         event_category: 'form_actions',
         event_label: 'field_change',
         custom_parameter: {

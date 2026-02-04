@@ -28,8 +28,8 @@ export default function Pagination({
     onPageChange(newPage);
     
     // Analytics tracking
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'table_pagination', {
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
+      (window as unknown).gtag('event', 'table_pagination', {
         event_category: 'table_actions',
         event_label: 'page_change',
         custom_parameter: {
@@ -44,8 +44,8 @@ export default function Pagination({
     onPageSizeChange?.(newPageSize);
     
     // Analytics tracking
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'table_pagination', {
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
+      (window as unknown).gtag('event', 'table_pagination', {
         event_category: 'table_actions',
         event_label: 'page_size_change',
         custom_parameter: {

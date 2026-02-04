@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Search, MapPin, Store as StoreIcon, Trash2, ArrowRight } from 'lucide-react';
+import { Heart, MapPin, Store as StoreIcon, Trash2, ArrowRight } from 'lucide-react';
 
 import { getMall, getStore } from '@/services/firebase/firestore';
 import { Store, Mall } from '@/types/mall-system';
@@ -64,7 +64,7 @@ const Favorites: React.FC = () => {
     e.stopPropagation(); // Prevent card click
     const favoriteIds = JSON.parse(localStorage.getItem('favorites') || '[]');
     const updatedFavorites = favoriteIds.filter(
-      (fav: any) => !(fav.mallId === mallId && fav.storeId === storeId)
+      (fav: unknown) => !(fav.mallId === mallId && fav.storeId === storeId)
     );
     localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
     setFavorites(prev => prev.filter(fav =>

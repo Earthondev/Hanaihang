@@ -201,7 +201,7 @@ export function SimplePagination({
 // Pagination info component
 export function PaginationInfo({
   currentPage,
-  totalPages,
+  totalPages: _totalPages,
   totalItems,
   itemsPerPage,
   className

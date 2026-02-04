@@ -7,17 +7,10 @@ import { Mall } from '../../types/mall-system';
 
 import { db } from './firebase';
 
-import { isE2E } from '@/lib/e2e';
-import { E2E_MALLS } from '@/lib/e2e-fixtures';
-
 const mallsCol = collection(db, 'malls');
 const mallDoc = (mallId: string) => doc(db, 'malls', mallId);
 
 export async function createMall(payload: Omit<Mall, 'id' | 'createdAt' | 'updatedAt'>) {
-    if (isE2E) {
-        return payload.name || 'e2e-mall';
-    }
-
     // Use a random ID or maybe name based ID if user prefers (random is safer for now)
     const ref = doc(mallsCol);
     const data = {
@@ -53,10 +46,6 @@ export async function deleteMall(mallId: string) {
 }
 
 export async function listAllMalls() {
-    if (isE2E) {
-        return E2E_MALLS;
-    }
-
     const q = query(mallsCol, orderBy('displayName'));
     const snaps = await getDocs(q);
     return snaps.docs.map(d => ({ id: d.id, ...(d.data() as Mall) }));

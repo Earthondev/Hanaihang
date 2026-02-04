@@ -29,7 +29,7 @@ export default function TextAreaField({
     formState: { errors },
     watch,
   } = useFormContext();
-  const _error = (errors as any)[name]?.message as string | undefined;
+  const _error = (errors as unknown)[name]?.message as string | undefined;
   const value = watch(name);
   const id = `f-${name}`;
   const helpId = helper ? `${id}-help` : undefined;
@@ -43,8 +43,8 @@ export default function TextAreaField({
 
   // Analytics tracking for field changes
   const handleFieldChange = (_e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'form_field_change', {
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
+      (window as unknown).gtag('event', 'form_field_change', {
         event_category: 'form_actions',
         event_label: 'field_change',
         custom_parameter: {

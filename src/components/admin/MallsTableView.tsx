@@ -5,80 +5,26 @@ import { Link } from 'react-router-dom';
 import DataTable, { Column } from '../table/DataTable';
 import TableToolbar from '../table/TableToolbar';
 import Pagination from '../table/Pagination';
-import { listMalls, deleteMall, listAllStores, listFloors } from '../../lib/firestore';
+import { deleteMall, listFloors } from '../../lib/firestore';
 import { listMallsOptimized, clearStoresCache, clearMallsCache } from '../../lib/optimized-firestore';
 import { Mall } from '../../types/mall-system';
 
 import { DeleteButton } from './DeleteButton';
 
-import { isE2E } from '@/lib/e2e';
-
 interface MallsTableViewProps {
-  stores?: { store: any; _mallId: string }[];
+  stores?: { store: unknown; _mallId: string }[];
   onRefresh?: () => void;
 }
-
-// Helper function to format date safely
-const _formatDate = (date: any): string => {
-  if (!date) return '—';
-  
-  try {
-    let dateObj: Date;
-    
-    // Handle Firestore Timestamp
-    if (date.toDate && typeof date.toDate === 'function') {
-      dateObj = date.toDate();
-    }
-    // Handle timestamp with seconds
-    else if (date.seconds) {
-      dateObj = new Date(date.seconds * 1000);
-    }
-    // Handle Date object or ISO string
-    else if (date instanceof Date) {
-      dateObj = date;
-    }
-    // Handle ISO string
-    else if (typeof date === 'string') {
-      dateObj = new Date(date);
-    }
-    // Handle number (timestamp)
-    else if (typeof date === 'number') {
-      dateObj = new Date(date);
-    }
-    else {
-      return '—';
-    }
-    
-    // Check if date is valid
-    if (isNaN(dateObj.getTime())) {
-      return '—';
-    }
-    
-    return dateObj.toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return '—';
-  }
-};
 
 export default function MallsTableView({ stores: propsStores, onRefresh }: MallsTableViewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [malls, setMalls] = useState<Mall[]>([]);
-  const [stores, setStores] = useState<{ store: any; _mallId: string }[]>([]);
+  const [stores, setStores] = useState<{ store: unknown; _mallId: string }[]>([]);
   const [mallFloors, setMallFloors] = useState<Record<string, number>>({});
   const [filteredMalls, setFilteredMalls] = useState<Mall[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [districtFilter, setDistrictFilter] = useState('');
-  const [isStoreEditOpen, setIsStoreEditOpen] = useState(false);
-  const [storeName, setStoreName] = useState('');
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" | null }>({ 
     key: "updatedAt", 
     dir: "desc" 
@@ -173,8 +119,8 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
 
     // Apply sorting
     filtered.sort((a, b) => {
-      const aValue = (a as any)[sort.key];
-      const bValue = (b as any)[sort.key];
+      const aValue = (a as unknown)[sort.key];
+      const bValue = (b as unknown)[sort.key];
       
       if (aValue === bValue) return 0;
       if (aValue === null || aValue === undefined) return 1;
@@ -292,31 +238,15 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
       width: "200px",
       render: (mall) => (
         <div className="flex items-center gap-2">
-          {isE2E ? (
-            <button
-              type="button"
-              onClick={() => {
-                setStoreName(mall.displayName || mall.name || 'Store');
-                setIsStoreEditOpen(true);
-              }}
-              className="inline-flex items-center space-x-1 px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm"
-              aria-label={`แก้ไขร้านในห้าง: ${mall.displayName}`}
-              data-testid="edit-store-button"
-            >
-              <Edit className="h-4 w-4" />
-              <span>แก้ไข</span>
-            </button>
-          ) : (
-            <Link
-              to={`/admin/malls/${mall.id}/edit`}
-              className="inline-flex items-center space-x-1 px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm"
-              aria-label={`แก้ไขห้าง: ${mall.displayName}`}
-              data-testid="edit-store-button"
-            >
-              <Edit className="h-4 w-4" />
-              <span>แก้ไข</span>
-            </Link>
-          )}
+          <Link
+            to={`/admin/malls/${mall.id}/edit`}
+            className="inline-flex items-center space-x-1 px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm"
+            aria-label={`แก้ไขห้าง: ${mall.displayName}`}
+            data-testid="edit-store-button"
+          >
+            <Edit className="h-4 w-4" />
+            <span>แก้ไข</span>
+          </Link>
           <DeleteButton
             id={mall.id}
             name={mall.displayName || mall.name}
@@ -329,7 +259,7 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
         </div>
       )
     }
-  ], [handleDelete, mallFloors, isE2E]);
+  ], [handleDelete, mallFloors]);
 
   const handleReset = () => {
     setSearchQuery('');
@@ -377,58 +307,6 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
           />
         }
       />
-
-      {isE2E && isStoreEditOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div
-            data-testid="store-edit-drawer"
-            className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
-          >
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              แก้ไขร้านค้า
-            </h3>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              ชื่อร้านค้า
-            </label>
-            <input
-              value={storeName}
-              onChange={e => setStoreName(e.target.value)}
-              data-testid="store-name-input"
-              className="w-full rounded-xl border border-gray-300 px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setIsStoreEditOpen(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
-              >
-                ยกเลิก
-              </button>
-              <button
-                type="button"
-                data-testid="save-store-button"
-                onClick={() => {
-                  setIsStoreEditOpen(false);
-                  setShowSuccessToast(true);
-                  setTimeout(() => setShowSuccessToast(false), 2000);
-                }}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                บันทึก
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isE2E && showSuccessToast && (
-        <div
-          data-testid="success-toast"
-          className="fixed top-4 right-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl shadow-lg z-50"
-        >
-          บันทึกสำเร็จ
-        </div>
-      )}
     </div>
   );
 }

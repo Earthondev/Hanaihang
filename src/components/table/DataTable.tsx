@@ -80,8 +80,8 @@ export default function DataTable<T>({
     onSortChange(columnKey, nextDir);
     
     // Analytics tracking
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'table_sort', {
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
+      (window as unknown).gtag('event', 'table_sort', {
         event_category: 'table_actions',
         event_label: 'sort',
         custom_parameter: {
@@ -145,7 +145,7 @@ export default function DataTable<T>({
                     key={String(column.key)} 
                     className="px-4 py-3 align-middle"
                   >
-                    {column.render ? column.render(row) : (row as any)[column.key]}
+                    {column.render ? column.render(row) : (row as unknown)[column.key]}
                   </td>
                 ))}
               </tr>

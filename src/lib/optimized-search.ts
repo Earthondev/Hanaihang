@@ -3,7 +3,7 @@ import { collection, query, where, orderBy, limit, getDocs } from 'firebase/fire
 import { db } from '../config/firebase';
 import { Mall, Store } from '../types/mall-system';
 
-import { cache, CACHE_KEYS } from './cache';
+import { cache } from './cache';
 
 // Helper to calculate distance between two coordinates
 export function calculateDistance(
@@ -70,16 +70,16 @@ export async function searchMallsWithDistance(
       malls = fallbackSnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(mall => 
-          (mall as any).displayName?.toLowerCase().includes(searchTerm) ||
-          (mall as any).name?.toLowerCase().includes(searchTerm)
-        ) as (Mall & { displayName?: string; name?: string; location?: any; coords?: any })[];
+          (mall as unknown).displayName?.toLowerCase().includes(searchTerm) ||
+          (mall as unknown).name?.toLowerCase().includes(searchTerm)
+        ) as (Mall & { displayName?: string; name?: string; location?: unknown; coords?: unknown })[];
     }
 
     // Calculate distances if user coordinates provided
     let results = malls;
     if (userCoords) {
       results = malls.map(mall => {
-        const mallCoords = (mall as any).location || (mall as any).coords;
+        const mallCoords = (mall as unknown).location || (mall as unknown).coords;
         const distanceKm = mallCoords ? 
           calculateDistance(
             userCoords.lat, 
@@ -96,8 +96,8 @@ export async function searchMallsWithDistance(
 
       // Sort by distance (closest first)
       results.sort((a, b) => {
-        const aDist = (a as any).distanceKm;
-        const bDist = (b as any).distanceKm;
+        const aDist = (a as unknown).distanceKm;
+        const bDist = (b as unknown).distanceKm;
         if (aDist === null && bDist === null) return 0;
         if (aDist === null) return 1;
         if (bDist === null) return -1;
@@ -144,7 +144,7 @@ export async function searchStoresWithDistance(
     const malls = mallsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    })) as (Mall & { displayName?: string; name?: string; location?: any; coords?: any })[];
+    })) as (Mall & { displayName?: string; name?: string; location?: unknown; coords?: unknown })[];
 
     const results: (Store & { distanceKm?: number; mallName?: string })[] = [];
 
@@ -160,15 +160,15 @@ export async function searchStoresWithDistance(
         const stores = storesSnapshot.docs
           .map(doc => ({ id: doc.id, ...doc.data() }))
           .filter(store => 
-            (store as any).nameLower?.includes(searchTerm) ||
-            (store as any).name?.toLowerCase().includes(searchTerm) ||
-            (store as any).brandSlug?.toLowerCase().includes(searchTerm) ||
-            (store as any).category?.toLowerCase().includes(searchTerm)
+            (store as unknown).nameLower?.includes(searchTerm) ||
+            (store as unknown).name?.toLowerCase().includes(searchTerm) ||
+            (store as unknown).brandSlug?.toLowerCase().includes(searchTerm) ||
+            (store as unknown).category?.toLowerCase().includes(searchTerm)
           ) as Store[];
 
         // Add mall name and calculate distance
         const storesWithMall = stores.map(store => {
-          const mallCoords = (mall as any).location || (mall as any).coords;
+          const mallCoords = (mall as unknown).location || (mall as unknown).coords;
           const distanceKm = userCoords && mallCoords ? 
             calculateDistance(
               userCoords.lat, 
@@ -180,7 +180,7 @@ export async function searchStoresWithDistance(
           return {
             ...store,
             distanceKm,
-            mallName: (mall as any).displayName || (mall as any).name
+            mallName: (mall as unknown).displayName || (mall as unknown).name
           };
         });
 

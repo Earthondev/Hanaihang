@@ -1,6 +1,14 @@
 import { Timestamp } from 'firebase/firestore';
 
 // Core Types for Mall System
+export interface SourceAttribution {
+  name: string;
+  url?: string;
+  retrievedAt?: string;
+  license?: string;
+  note?: string;
+}
+
 export interface Mall {
   id?: string;
   name: string; // slug เช่น "central-rama-3"
@@ -31,6 +39,13 @@ export interface Mall {
     close: string;
   };
   district?: string;
+  province?: string;
+  brandGroup?: string;
+  sources?: SourceAttribution[];
+  osm?: {
+    id: number;
+    type: string;
+  };
   // หมวดหมู่ห้างสรรพสินค้า
   category?:
   | 'shopping-center'
@@ -90,6 +105,7 @@ export interface Store {
   // Search optimization
   searchKeywords?: string[]; // คีย์เวิร์ดสำหรับค้นหา
   tags?: string[]; // แท็กเพิ่มเติม
+  sources?: SourceAttribution[];
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }

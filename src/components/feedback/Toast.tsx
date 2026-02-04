@@ -111,11 +111,11 @@ export function ToastProvider({ children }: ToastProviderProps) {
 // Utility functions for quick toast calls
 export const toast = {
   success: (message: string, duration?: number) => 
-    (window as any).toastContext?.push(message, 'success', duration),
+    (window as unknown).toastContext?.push(message, 'success', duration),
   error: (message: string, duration?: number) => 
-    (window as any).toastContext?.push(message, 'error', duration),
+    (window as unknown).toastContext?.push(message, 'error', duration),
   info: (message: string, duration?: number) => 
-    (window as any).toastContext?.push(message, 'info', duration),
+    (window as unknown).toastContext?.push(message, 'info', duration),
   warning: (message: string, duration?: number) => 
-    (window as any).toastContext?.push(message, 'warning', duration),
+    (window as unknown).toastContext?.push(message, 'warning', duration),
 };

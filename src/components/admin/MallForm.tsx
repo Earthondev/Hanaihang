@@ -5,7 +5,7 @@ import { BaseButton } from '../ui/BaseButton';
 
 interface MallFormProps {
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: unknown) => void;
 }
 
 const MallForm: React.FC<MallFormProps> = ({ onClose, onSubmit }) => {
@@ -24,7 +24,7 @@ const MallForm: React.FC<MallFormProps> = ({ onClose, onSubmit }) => {
     contact: { phone: '', website: '' }
   });
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: unknown) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Search, Menu } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
 
 import { useAuth } from '@/config/contexts/AuthContext';
 

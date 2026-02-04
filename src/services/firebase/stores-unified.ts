@@ -25,8 +25,8 @@ export type Store = {
     lng?: number;
     geohash?: string;
   };
-  createdAt?: any;
-  updatedAt?: any;
+  createdAt?: unknown;
+  updatedAt?: unknown;
 };
 
 const storesCol = (mallId: string) => collection(db, 'malls', mallId, 'stores');
@@ -52,7 +52,7 @@ export async function getStore(mallId: string, storeId: string): Promise<Store |
 }
 
 export async function updateStore(mallId: string, storeId: string, patch: Partial<Store>) {
-  const norm: any = { ...patch, updatedAt: serverTimestamp() };
+  const norm: unknown = { ...patch, updatedAt: serverTimestamp() };
   if (norm.name && !norm.nameLower) norm.nameLower = norm.name.toLowerCase();
   await updateDoc(storeDoc(mallId, storeId), norm);
 }
@@ -62,8 +62,8 @@ export async function deleteStore(mallId: string, storeId: string) {
 }
 
 export async function listStoresInMall(mallId: string, filters?: { category?: string; status?: Store['status']; q?: string; }) {
-  let qRef: any = storesCol(mallId);
-  const qs: any[] = [];
+  let qRef: unknown = storesCol(mallId);
+  const qs: unknown[] = [];
   if (filters?.category) qs.push(where('category', '==', filters.category));
   if (filters?.status) qs.push(where('status', '==', filters.status));
   // ไม่ filter by q ที่นี่ (ต้องใช้ nameLower startsWith → ทำ client-side หรือ add index)

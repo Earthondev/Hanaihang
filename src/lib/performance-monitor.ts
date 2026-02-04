@@ -7,7 +7,7 @@ interface PerformanceMetric {
   name: string;
   value: number;
   timestamp: number;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
 }
 
 interface SLAMetrics {
@@ -50,7 +50,7 @@ class PerformanceMonitor {
   };
 
   // Record performance metric
-  recordMetric(name: string, value: number, context: Record<string, any> = {}) {
+  recordMetric(name: string, value: number, context: Record<string, unknown> = {}) {
     const metric: PerformanceMetric = {
       name,
       value,
@@ -280,7 +280,7 @@ class PerformanceMonitor {
 
   // Get connection information
   private getConnectionInfo() {
-    const connection = (navigator as any).connection;
+    const connection = (navigator as unknown).connection;
     if (connection) {
       return {
         effectiveType: connection.effectiveType,
@@ -295,8 +295,8 @@ class PerformanceMonitor {
   // Send metric to analytics
   private sendToAnalytics(metric: PerformanceMetric) {
     // Send to Google Analytics
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'performance_metric', {
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
+      (window as unknown).gtag('event', 'performance_metric', {
         metric_name: metric.name,
         metric_value: metric.value,
         custom_parameter: metric.context

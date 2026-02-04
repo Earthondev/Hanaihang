@@ -56,13 +56,13 @@ const StoreCreatePage: React.FC = () => {
     defaultValues: {
       _mallId: defaultMallId,
       name: "",
-      category: "Fashion" as any,
+      category: "Fashion" as unknown,
       floorId: "",
       unit: "",
       phone: "",
       openTime: "10:00",
       closeTime: "22:00",
-      status: "Active" as any,
+      status: "Active" as unknown,
     },
     mode: "onSubmit"
   });
@@ -87,13 +87,13 @@ const StoreCreatePage: React.FC = () => {
             form.reset({
               _mallId: result._mallId,
               name: result.store.name,
-              category: result.store.category as any,
+              category: result.store.category as unknown,
               floorId: result.store.floorId,
               unit: result.store.unit || '',
               phone: result.store.phone || '',
               openTime: result.store.hours?.split('-')[0] || '10:00',
               closeTime: result.store.hours?.split('-')[1] || '22:00',
-              status: result.store.status as any,
+              status: result.store.status as unknown,
             });
           }
         } catch (error) {

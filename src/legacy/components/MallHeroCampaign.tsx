@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface CampaignProps {
-  campaign: any;
+  campaign: unknown;
 }
 
 const MallHeroCampaign: React.FC<CampaignProps> = ({ campaign }) => {

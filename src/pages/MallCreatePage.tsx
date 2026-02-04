@@ -48,21 +48,12 @@ const MallCreatePage: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div
-        className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
-        data-testid="mall-form-drawer"
-      >
-        <MallForm mode="create" onSuccess={handleSubmit} />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <MallForm
+          mode="create"
+          onSuccess={handleSubmit}
+        />
       </div>
-
-      {showSuccessModal && (
-        <div
-          data-testid="success-toast"
-          className="fixed top-4 right-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl shadow-lg z-50"
-        >
-          สร้างห้างสำเร็จ
-        </div>
-      )}
 
       {/* Success Modal */}
       <AnimatedSuccessModal

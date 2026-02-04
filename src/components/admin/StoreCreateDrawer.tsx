@@ -5,10 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { SlideOver } from '../ui/SlideOver';
 import TextField from '../ui/form/fields/TextField';
 import PhoneField from '../ui/form/fields/PhoneField';
-import { storeSchemaInput } from '../../validation/store.schema';
+import SelectField from '../ui/form/fields/SelectField';
+import { storeSchema, StoreInput } from '../../validation/store.schema';
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { createStore, listMalls, listFloors } from '../../lib/firestore';
-import { Mall } from '../../types/mall-system';
+import { Floor, Mall } from '../../types/mall-system';
 
 interface StoreCreateDrawerProps {
   open: boolean;
@@ -51,12 +52,12 @@ export function StoreCreateDrawer({
     defaultValues: {
       _mallId: defaultMallId || "",
       name: "",
-      category: "Fashion" as any,
+      category: "Fashion" as unknown,
       floorId: "",
       unit: "",
       phone: "",
       hours: "",
-      status: "Active" as any,
+      status: "Active" as unknown,
     },
     mode: "onSubmit"
   });
@@ -93,7 +94,7 @@ export function StoreCreateDrawer({
   }, [open, defaultMallId]);
 
   // Load floors when mall changes
-  const selectedMallId = form.watch("mallId");
+  const selectedMallId = form.watch("_mallId");
   React.useEffect(() => {
     const loadFloors = async () => {
       if (selectedMallId) {
@@ -119,13 +120,13 @@ export function StoreCreateDrawer({
   // Set default mall when prop changes
   React.useEffect(() => {
     if (defaultMallId && open) {
-      form.setValue("mallId", defaultMallId);
+      form.setValue("_mallId", defaultMallId);
     }
   }, [defaultMallId, form, open]);
 
   const handleSubmit = async (values: StoreInput) => {
     await run(async () => {
-      await createStore(values.mallId, values);
+      await createStore(values._mallId, values);
       onCreated?.();
       onOpenChange(false);
     });
@@ -165,7 +166,7 @@ export function StoreCreateDrawer({
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <SelectField
-          name="mallId"
+          name="_mallId"
           label="ห้างสรรพสินค้า"
           options={malls.map(mall => ({ label: mall.displayName || mall.name, value: mall.id }))}
           required

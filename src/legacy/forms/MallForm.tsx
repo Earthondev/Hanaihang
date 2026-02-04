@@ -38,7 +38,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
   });
 
   const form = useForm({
-    resolver: zodResolver(mallSchema) as any,
+    resolver: zodResolver(mallSchema) as unknown,
     defaultValues: {
       displayName: mall?.displayName || '',
       name: mall?.name || '',
@@ -48,8 +48,8 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
       phone: mall?.contact?.phone || '',
       website: mall?.contact?.website || '',
       social: mall?.contact?.social || '',
-      facebook: (mall?.contact as any)?.facebook || '',
-      line: (mall?.contact as any)?.line || '',
+      facebook: (mall?.contact as unknown)?.facebook || '',
+      line: (mall?.contact as unknown)?.line || '',
       // ไม่ default เป็น 0 - ปล่อย undefined ถ้าไม่มีค่าจริง
       lat: (() => {
         const lat0 = mall?.lat ?? mall?.coords?.lat;
@@ -67,8 +67,8 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
           : undefined;
       })(),
       // v2 schema: อ่านจาก openTime/closeTime
-      openTime: (mall as any)?.openTime || mall?.hours?.open || '10:00',
-      closeTime: (mall as any)?.closeTime || mall?.hours?.close || '22:00',
+      openTime: (mall as unknown)?.openTime || mall?.hours?.open || '10:00',
+      closeTime: (mall as unknown)?.closeTime || mall?.hours?.close || '22:00',
       // Individual day hours
       'hours.mon': '',
       'hours.tue': '',
@@ -87,7 +87,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
     }
   }, [mall?.id]);
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: unknown) => {
     console.log('🚀 MallForm handleSubmit called with values:', values);
     console.log('🔍 Form errors:', form.formState.errors);
     console.log('🔍 Form is valid:', form.formState.isValid);
@@ -128,7 +128,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
           loc && typeof loc.lat === 'number' && typeof loc.lng === 'number'
             ? loc
             : undefined,
-      } as any;
+      } as unknown;
 
       console.log('🔄 Submitting mall data (v2 schema):', payload);
 
@@ -166,7 +166,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
   // const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
   //   const value = e.target.value.trim();
   //   if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
-  //     form.setValue('website' as any, `https://${value}`, { shouldDirty: true, shouldValidate: true });
+  //     form.setValue('website' as unknown, `https://${value}`, { shouldDirty: true, shouldValidate: true });
   //   }
   // };
 
@@ -196,7 +196,6 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                   placeholder="เช่น Central Embassy, MBK Center, Terminal 21, Siam Paragon"
                   helper="ชื่อที่แสดงในแอปพลิเคชัน"
                   required
-                  dataTestId="mall-name-input"
                 />
 
                 <TextField
@@ -214,7 +213,6 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                   placeholder="79 Sathupradit Rd, Chong Nonsi, Yan Nawa, Bangkok"
                   helper="ที่อยู่เต็มของห้าง"
                   required
-                  dataTestId="mall-address-input"
                 />
 
                 <TextField
@@ -391,7 +389,6 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                   disabled={isLoading || isSubmitting}
                   className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors flex items-center space-x-2"
                   aria-busy={isLoading || isSubmitting}
-                  data-testid="submit-mall-button"
                 >
                   {isLoading || isSubmitting ? (
                     <>

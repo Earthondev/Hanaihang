@@ -9,7 +9,6 @@ import {
   query,
   where,
   orderBy,
-  limit,
   serverTimestamp,
   Timestamp
 } from 'firebase/firestore';
@@ -51,7 +50,7 @@ export interface FirestoreFloor {
   description: string;
   imageUrl: string;
   storeCount: number;
-  anchors?: any[];
+  anchors?: unknown[];
   published: boolean;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
@@ -169,7 +168,7 @@ export const firebaseFirestore = {
       console.log('📊 Firestore response:', querySnapshot.docs.length, 'documents');
       
       const malls = querySnapshot.docs.map(doc => {
-        const data = doc.data() as any;
+        const data = doc.data() as unknown;
         return Object.assign({ id: doc.id }, data) as FirestoreMall;
       });
       
@@ -212,7 +211,7 @@ export const firebaseFirestore = {
   // Stores
   async getStores(mallId?: string): Promise<FirestoreStore[]> {
     try {
-      let q: any = collection(db, 'stores');
+      let q: unknown = collection(db, 'stores');
       
       if (mallId) {
         q = query(q, where('mallId', '==', mallId));
@@ -220,7 +219,7 @@ export const firebaseFirestore = {
       
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => {
-        const data = doc.data() as any;
+        const data = doc.data() as unknown;
         return Object.assign({ id: doc.id }, data) as FirestoreStore;
       });
     } catch (error) {
@@ -232,11 +231,11 @@ export const firebaseFirestore = {
   // Search stores by brand name
   async searchStoresByBrand(brandName: string): Promise<FirestoreStore[]> {
     try {
-      const q: any = collection(db, 'stores');
+      const q: unknown = collection(db, 'stores');
       const querySnapshot = await getDocs(q);
       
       const stores = querySnapshot.docs.map(doc => {
-        const data = doc.data() as any;
+        const data = doc.data() as unknown;
         return Object.assign({ id: doc.id }, data) as FirestoreStore;
       });
       
@@ -252,7 +251,17 @@ export const firebaseFirestore = {
   },
 
   // Get stores with mall information
-  async getStoresWithMallInfo(mallId?: string): Promise<any[]> {
+  async getStoresWithMallInfo(
+    mallId?: string
+  ): Promise<
+    Array<
+      FirestoreStore & {
+        mallName: string;
+        mallAddress: string;
+        mallCoords: FirestoreMall['coords'] | null;
+      }
+    >
+  > {
     try {
       const stores = await this.getStores(mallId);
       const malls = await this.getMalls();
@@ -326,7 +335,7 @@ export const firebaseFirestore = {
   // Floors
   async getFloors(mallId?: string): Promise<FirestoreFloor[]> {
     try {
-      let q: any = collection(db, 'floors');
+      let q: unknown = collection(db, 'floors');
       
       if (mallId) {
         q = query(q, where('mallId', '==', mallId), where('published', '==', true));
@@ -337,7 +346,7 @@ export const firebaseFirestore = {
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...(doc.data() as any)
+        ...(doc.data() as unknown)
       })) as FirestoreFloor[];
     } catch (error) {
       console.error('Error getting floors:', error);
@@ -385,7 +394,7 @@ export const firebaseFirestore = {
   // Promotions
   async getPromotions(mallId?: string): Promise<FirestorePromotion[]> {
     try {
-      let q: any = collection(db, 'promotions');
+      let q: unknown = collection(db, 'promotions');
       
       if (mallId) {
         q = query(q, where('mallId', '==', mallId), where('published', '==', true));
@@ -396,7 +405,7 @@ export const firebaseFirestore = {
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...(doc.data() as any)
+        ...(doc.data() as unknown)
       })) as FirestorePromotion[];
     } catch (error) {
       console.error('Error getting promotions:', error);
@@ -444,7 +453,7 @@ export const firebaseFirestore = {
   // Events
   async getEvents(mallId?: string): Promise<FirestoreEvent[]> {
     try {
-      let q: any = collection(db, 'events');
+      let q: unknown = collection(db, 'events');
       
       if (mallId) {
         q = query(q, where('mallId', '==', mallId), where('published', '==', true));
@@ -455,7 +464,7 @@ export const firebaseFirestore = {
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...(doc.data() as any)
+        ...(doc.data() as unknown)
       })) as FirestoreEvent[];
     } catch (error) {
       console.error('Error getting events:', error);
@@ -464,7 +473,7 @@ export const firebaseFirestore = {
   },
 
   // Analytics
-  async getAnalytics(): Promise<any> {
+  async getAnalytics(): Promise<unknown> {
     try {
       // This would typically connect to Firebase Analytics
       // For now, return mock data

@@ -7,9 +7,6 @@ import { useRealtimeStores } from '../hooks/useRealtimeStores';
 import { listFloors } from '../services/firebase/firestore';
 import { Store, Floor } from '../types/mall-system';
 
-import { isE2E } from '@/lib/e2e';
-import { getE2EStoresByMall } from '@/lib/e2e-fixtures';
-
 interface FilterState {
   categories: string[];
   floors: string[];
@@ -17,25 +14,8 @@ interface FilterState {
   search: string;
 }
 
-interface FiltersContentProps {
-  categories: string[];
-  floors: Floor[];
-  filters: FilterState;
-  onCategoryChange: (category: string, checked: boolean) => void;
-  onFloorSelect: (floor: string) => void;
-  onOpenNowChange: (value: boolean) => void;
-  onClear: () => void;
-  showTestIds?: boolean;
-  showClearButton?: boolean;
-}
-
 export default function MallDetail() {
   const { mallId } = useParams<{ mallId: string }>();
-  const resolvedMallId =
-    mallId ||
-    (typeof window !== 'undefined'
-      ? window.location.pathname.split('/')[2] || ''
-      : '');
   const navigate = useNavigate();
   // const { push } = useToast();
 
@@ -49,24 +29,18 @@ export default function MallDetail() {
     openNow: false,
     search: '',
   });
-  const isMobileViewport =
-    typeof window !== 'undefined' && window.innerWidth < 1024;
-  const showInlineMobileFilters = isE2E && isMobileViewport;
 
   // ใช้ real-time data สำหรับห้างและร้าน
   const {
     mall,
     loading: mallLoading,
     error: mallError,
-  } = useRealtimeMall(resolvedMallId || '');
+  } = useRealtimeMall(mallId || '');
   const {
     stores,
     loading: storesLoading,
     error: storesError,
-  } = useRealtimeStores(mall?.id || resolvedMallId || '');
-  const e2eMallId = mall?.id || resolvedMallId || '';
-  const effectiveStores =
-    isE2E && e2eMallId ? getE2EStoresByMall(e2eMallId) : stores;
+  } = useRealtimeStores(mall?.id || '');
 
   // Load floors data
   useEffect(() => {
@@ -92,9 +66,9 @@ export default function MallDetail() {
 
   // Filter stores based on current filters
   const filteredStores = useMemo(() => {
-    if (!effectiveStores.length) return [];
+    if (!stores.length) return [];
 
-    return effectiveStores.filter(store => {
+    return stores.filter(store => {
       // Category filter
       if (
         !filters.categories.includes('all') &&
@@ -126,7 +100,7 @@ export default function MallDetail() {
 
       return true;
     });
-  }, [effectiveStores, filters]);
+  }, [stores, filters]);
 
   // Get floor label by ID
   const getFloorLabel = (floorId: string) => {
@@ -161,13 +135,6 @@ export default function MallDetail() {
     });
   };
 
-  const handleOpenNowChange = (value: boolean) => {
-    setFilters(prev => ({
-      ...prev,
-      openNow: value,
-    }));
-  };
-
   // Clear all filters
   const clearFilters = () => {
     setFilters({
@@ -181,9 +148,9 @@ export default function MallDetail() {
 
   // Get unique categories from stores
   const categories = useMemo(() => {
-    const cats = effectiveStores.map(s => s.category).filter(Boolean) as string[];
+    const cats = stores.map(s => s.category).filter(Boolean) as string[];
     return [...new Set(cats)];
-  }, [effectiveStores]);
+  }, [stores]);
 
   if (loading) {
     return (
@@ -292,16 +259,108 @@ export default function MallDetail() {
           <aside className="hidden lg:block w-80 flex-shrink-0">
             <div className="bg-white rounded-2xl shadow-sm border p-6 sticky top-24">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">ตัวกรอง</h2>
-              <FiltersContent
-                categories={categories}
-                floors={floors}
-                filters={filters}
-                onCategoryChange={handleCategoryChange}
-                onFloorSelect={handleFloorSelect}
-                onOpenNowChange={handleOpenNowChange}
-                onClear={clearFilters}
-                showTestIds={!showInlineMobileFilters}
-              />
+
+              {/* Category Filter */}
+              <div className="mb-8">
+                <h3 className="font-semibold text-gray-900 mb-4 text-lg">
+                  หมวดหมู่
+                </h3>
+                <div className="space-y-3">
+                  <label className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-200"
+                      checked={filters.categories.includes('all')}
+                      onChange={e =>
+                        handleCategoryChange('all', e.target.checked)
+                      }
+                    />
+                    <span className="text-gray-600">ทั้งหมด</span>
+                  </label>
+                  {categories.map(category => (
+                    <label
+                      key={category}
+                      className="flex items-center space-x-3 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-200"
+                        checked={filters.categories.includes(category)}
+                        onChange={e =>
+                          handleCategoryChange(category, e.target.checked)
+                        }
+                      />
+                      <span className="text-gray-600">{category}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Floor Filter */}
+              <div className="mb-8">
+                <h3 className="font-medium text-gray-900 mb-4">ชั้น</h3>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      filters.floors.includes('all')
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
+                    }`}
+                    onClick={() =>
+                      setFilters(prev => ({ ...prev, floors: ['all'] }))
+                    }
+                  >
+                    ทั้งหมด
+                  </button>
+                  {floors.map(floor => (
+                    <button
+                      key={floor.id || floor.label}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        filters.floors.includes(floor.id || floor.label)
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
+                      }`}
+                      onClick={() =>
+                        setFilters(prev => ({
+                          ...prev,
+                          floors: [floor.id || floor.label],
+                        }))
+                      }
+                    >
+                      {floor.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Open Now Toggle */}
+              <div className="mb-8">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium text-gray-900">เปิดตอนนี้</h3>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={filters.openNow}
+                      onChange={e =>
+                        setFilters(prev => ({
+                          ...prev,
+                          openNow: e.target.checked,
+                        }))
+                      }
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Clear Filters */}
+              <button
+                onClick={clearFilters}
+                className="w-full px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl font-medium transition-colors"
+              >
+                ล้างตัวกรอง
+              </button>
             </div>
           </aside>
 
@@ -315,22 +374,6 @@ export default function MallDetail() {
               <span className="font-medium text-gray-600">ตัวกรอง</span>
             </button>
           </div>
-
-          {showInlineMobileFilters && (
-            <div className="lg:hidden bg-white rounded-2xl shadow-sm border p-4 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">ตัวกรอง</h2>
-              <FiltersContent
-                categories={categories}
-                floors={floors}
-                filters={filters}
-                onCategoryChange={handleCategoryChange}
-                onFloorSelect={handleFloorSelect}
-                onOpenNowChange={handleOpenNowChange}
-                onClear={clearFilters}
-                showTestIds
-              />
-            </div>
-          )}
 
           {/* Main Content Area */}
           <div className="flex-1">
@@ -405,16 +448,17 @@ export default function MallDetail() {
 
                   {/* Directions Button */}
                   {mall.coords && (
-                    <a
-                      href={`https://maps.google.com/?daddr=${mall.coords.lat},${mall.coords.lng}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      data-testid="navigate-button"
+                    <button
+                      onClick={() => {
+                        const { lat, lng } = mall.coords!;
+                        const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                        window.open(directionsUrl, '_blank');
+                      }}
                       className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-xl font-medium transition-colors flex items-center justify-center space-x-2"
                     >
                       <span>🧭</span>
                       <span>เส้นทางไปยังห้าง</span>
-                    </a>
+                    </button>
                   )}
 
                   {/* Share Button */}
@@ -483,11 +527,6 @@ export default function MallDetail() {
                   key={store.id}
                   store={store}
                   floorLabel={getFloorLabel(store.floorId || '')}
-                  onNavigate={() =>
-                    navigate(
-                      `/malls/${mall.id || resolvedMallId}/stores/${store.id}`,
-                    )
-                  }
                 />
               ))}
             </div>
@@ -531,16 +570,99 @@ export default function MallDetail() {
             </div>
 
             {/* Mobile filter content */}
-            <FiltersContent
-              categories={categories}
-              floors={floors}
-              filters={filters}
-              onCategoryChange={handleCategoryChange}
-              onFloorSelect={handleFloorSelect}
-              onOpenNowChange={handleOpenNowChange}
-              onClear={clearFilters}
-              showClearButton={false}
-            />
+            <div className="space-y-6">
+              {/* Category Filter */}
+              <div>
+                <h3 className="font-medium text-gray-900 mb-4">หมวดหมู่</h3>
+                <div className="space-y-3">
+                  <label className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-200"
+                      checked={filters.categories.includes('all')}
+                      onChange={e =>
+                        handleCategoryChange('all', e.target.checked)
+                      }
+                    />
+                    <span className="text-gray-600">ทั้งหมด</span>
+                  </label>
+                  {categories.map(category => (
+                    <label
+                      key={category}
+                      className="flex items-center space-x-3 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-200"
+                        checked={filters.categories.includes(category)}
+                        onChange={e =>
+                          handleCategoryChange(category, e.target.checked)
+                        }
+                      />
+                      <span className="text-gray-600">{category}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Floor Filter */}
+              <div>
+                <h3 className="font-medium text-gray-900 mb-4">ชั้น</h3>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      filters.floors.includes('all')
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
+                    }`}
+                    onClick={() =>
+                      setFilters(prev => ({ ...prev, floors: ['all'] }))
+                    }
+                  >
+                    ทั้งหมด
+                  </button>
+                  {floors.map(floor => (
+                    <button
+                      key={floor.id || floor.label}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        filters.floors.includes(floor.id || floor.label)
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
+                      }`}
+                      onClick={() =>
+                        setFilters(prev => ({
+                          ...prev,
+                          floors: [floor.id || floor.label],
+                        }))
+                      }
+                    >
+                      {floor.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Open Now Toggle */}
+              <div>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium text-gray-900">เปิดตอนนี้</h3>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={filters.openNow}
+                      onChange={e =>
+                        setFilters(prev => ({
+                          ...prev,
+                          openNow: e.target.checked,
+                        }))
+                      }
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
 
             {/* Apply Filters Button */}
             <div className="flex space-x-3 mt-8">
@@ -564,121 +686,13 @@ export default function MallDetail() {
   );
 }
 
-function FiltersContent({
-  categories,
-  floors,
-  filters,
-  onCategoryChange,
-  onFloorSelect,
-  onOpenNowChange,
-  onClear,
-  showTestIds = false,
-  showClearButton = true,
-}: FiltersContentProps) {
-  return (
-    <>
-      {/* Category Filter */}
-      <div className="mb-8" data-testid={showTestIds ? 'category-filter' : undefined}>
-        <h3 className="font-semibold text-gray-900 mb-4 text-lg">หมวดหมู่</h3>
-        <div className="space-y-3">
-          <label className="flex items-center space-x-3 cursor-pointer">
-            <input
-              type="checkbox"
-              className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-200"
-              checked={filters.categories.includes('all')}
-              onChange={e => onCategoryChange('all', e.target.checked)}
-            />
-            <span className="text-gray-600">ทั้งหมด</span>
-          </label>
-          {categories.map(category => (
-            <label
-              key={category}
-              className="flex items-center space-x-3 cursor-pointer"
-              data-testid={
-                showTestIds && category === 'Fashion'
-                  ? 'fashion-category'
-                  : undefined
-              }
-            >
-              <input
-                type="checkbox"
-                className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-200"
-                checked={filters.categories.includes(category)}
-                onChange={e => onCategoryChange(category, e.target.checked)}
-              />
-              <span className="text-gray-600">{category}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* Floor Filter */}
-      <div className="mb-8" data-testid={showTestIds ? 'floor-filter' : undefined}>
-        <h3 className="font-medium text-gray-900 mb-4">ชั้น</h3>
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-              filters.floors.includes('all')
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
-            }`}
-            onClick={() => onFloorSelect('all')}
-          >
-            ทั้งหมด
-          </button>
-          {floors.map(floor => (
-            <button
-              key={floor.id || floor.label}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                filters.floors.includes(floor.id || floor.label)
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
-              }`}
-              onClick={() => onFloorSelect(floor.id || floor.label)}
-            >
-              {floor.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Open Now Toggle */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <h3 className="font-medium text-gray-900">เปิดตอนนี้</h3>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={filters.openNow}
-              onChange={e => onOpenNowChange(e.target.checked)}
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-          </label>
-        </div>
-      </div>
-
-      {showClearButton && (
-        <button
-          onClick={onClear}
-          className="w-full px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl font-medium transition-colors"
-        >
-          ล้างตัวกรอง
-        </button>
-      )}
-    </>
-  );
-}
-
 // Store Card Component
 function StoreCard({
   store,
   floorLabel,
-  onNavigate,
 }: {
   store: Store;
   floorLabel: string;
-  onNavigate: () => void;
 }) {
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -702,19 +716,7 @@ function StoreCard({
   };
 
   return (
-    <div
-      data-testid="store-card"
-      className="bg-white rounded-2xl shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-200 overflow-hidden cursor-pointer"
-      role="button"
-      tabIndex={0}
-      onClick={onNavigate}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onNavigate();
-        }
-      }}
-    >
+    <div className="bg-white rounded-2xl shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-200 overflow-hidden">
       <div
         className={`aspect-video bg-gradient-to-br ${getCategoryColor(store.category || '')} flex items-center justify-center`}
       >
@@ -727,14 +729,11 @@ function StoreCard({
       <div className="p-6">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
-            <h3
-              className="font-semibold text-gray-900 text-lg mb-1"
-            >
+            <h3 className="font-semibold text-gray-900 text-lg mb-1">
               {store.name}
             </h3>
             <p className="text-gray-600 text-sm mb-2">
-              <span>{store.category}</span> • ชั้น {floorLabel}, ยูนิต{' '}
-              {store.unit || 'N/A'}
+              {store.category} • ชั้น {floorLabel}, ยูนิต {store.unit || 'N/A'}
             </p>
             <div className="flex items-center space-x-2 mb-3">
               <span
@@ -758,17 +757,13 @@ function StoreCard({
               )}
             </div>
           </div>
-          <button
-            className="p-2 hover:bg-green-50 rounded-lg transition-colors"
-            onClick={e => e.stopPropagation()}
-          >
+          <button className="p-2 hover:bg-green-50 rounded-lg transition-colors">
             <Heart className="w-5 h-5 text-gray-400 hover:text-green-600" />
           </button>
         </div>
         <div className="flex space-x-2">
           <button
-            onClick={e => {
-              e.stopPropagation();
+            onClick={() => {
               // You can add store-specific location logic here
               // For now, we'll use the mall's coordinates
               if (store.location) {
@@ -781,10 +776,7 @@ function StoreCard({
           >
             ดูตำแหน่งบนแผนที่
           </button>
-          <button
-            className="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors"
-            onClick={e => e.stopPropagation()}
-          >
+          <button className="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
             รายละเอียด
           </button>
         </div>

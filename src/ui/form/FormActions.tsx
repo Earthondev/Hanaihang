@@ -27,8 +27,8 @@ export default function FormActions({
     reset();
     
     // Analytics tracking
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'form_reset', {
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
+      (window as unknown).gtag('event', 'form_reset', {
         event_category: 'form_actions',
         event_label: 'reset'
       });

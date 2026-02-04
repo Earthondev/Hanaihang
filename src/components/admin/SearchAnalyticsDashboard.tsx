@@ -4,17 +4,15 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Clock, 
-  Target, 
-  Users, 
+import {
+  TrendingUp,
+  Clock,
+  Target,
   MapPin,
   AlertTriangle,
   CheckCircle,
   XCircle,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 
 import { useSearchAnalytics } from '@/lib/search-analytics';

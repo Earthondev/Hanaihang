@@ -25,8 +25,6 @@ import {
 import { MallInput } from '../validation/mall.schema';
 
 import { normalizeThai } from './thai-normalize';
-import { isE2E } from './e2e';
-import { getE2EFloorsByMall } from './e2e-fixtures';
 
 // Helper to create slug from display name
 export function toSlug(displayName: string): string {
@@ -39,7 +37,7 @@ export function toSlug(displayName: string): string {
 }
 
 // Helper to convert Firestore document to typed object
-function convertTimestamps<T extends { createdAt?: any; updatedAt?: any }>(
+function convertTimestamps<T extends { createdAt?: unknown; updatedAt?: unknown }>(
   data: T,
 ): T {
   const converted = { ...data };
@@ -103,7 +101,7 @@ export async function createMall(data: MallFormData): Promise<string> {
  * ดึงรายการห้างทั้งหมด
  */
 export async function listMalls(limitCount?: number): Promise<Mall[]> {
-  const constraints: any[] = [orderBy('displayName')];
+  const constraints: unknown[] = [orderBy('displayName')];
   if (limitCount) {
     constraints.push(limit(limitCount));
   }
@@ -159,7 +157,7 @@ export async function updateMall(
   id: string,
   data: Partial<MallInput>,
 ): Promise<void> {
-  const updateData: any = {
+  const updateData: unknown = {
     updatedAt: serverTimestamp(),
   };
 
@@ -266,10 +264,6 @@ export async function createFloor(
  * ดึงรายการ floors ของห้าง
  */
 export async function listFloors(_mallId: string): Promise<Floor[]> {
-  if (isE2E) {
-    return getE2EFloorsByMall(_mallId);
-  }
-
   const q = query(collection(db, 'malls', _mallId, 'floors'), orderBy('order'));
   const snapshot = await getDocs(q);
 
@@ -303,8 +297,8 @@ export async function createStore(
     hours: data.hours,
     status: data.status,
     _mallId: _mallId, // Add mallId reference
-    mallCoords: (data as any).mallCoords, // Add mall coordinates for distance calculation
-    floorLabel: (data as any).floorLabel, // Add floor label for display
+    mallCoords: (data as unknown).mallCoords, // Add mall coordinates for distance calculation
+    floorLabel: (data as unknown).floorLabel, // Add floor label for display
     createdAt: now,
     updatedAt: now,
   };
@@ -442,7 +436,7 @@ export async function updateStore(
   storeId: string,
   data: Partial<StoreFormData>,
 ): Promise<void> {
-  const updateData: any = {
+  const updateData: unknown = {
     ...data,
     updatedAt: serverTimestamp(),
   };

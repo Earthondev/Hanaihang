@@ -3,7 +3,7 @@ import { Filter, X, MapPin, Building, Tag, Clock } from 'lucide-react';
 
 interface SearchFiltersProps {
   onFiltersChange: (filters: SearchFilters) => void;
-  malls: any[];
+  malls: unknown[];
   categories: string[];
 }
 
@@ -31,7 +31,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
     sortOrder: 'asc'
   });
 
-  const handleFilterChange = (key: keyof SearchFilters, value: any) => {
+  const handleFilterChange = (key: keyof SearchFilters, value: unknown) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     onFiltersChange(newFilters);

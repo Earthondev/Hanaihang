@@ -2,12 +2,24 @@ import React, { useState, useEffect } from 'react';
 
 import { useSafeSubmit } from '../../hooks/useSafeSubmit';
 import { BaseButton } from '../ui/BaseButton';
+import {
+  Floor,
+  Mall,
+  StoreCategory,
+  StoreFormData,
+  StoreStatus,
+  STORE_CATEGORIES,
+  STORE_STATUS,
+} from '../../types/mall-system';
 
 interface StoreFormProps {
-  malls: any[];
+  malls: Mall[];
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: StoreFormPayload) => void;
 }
+
+type StoreFormState = StoreFormData & { _mallId: string };
+type StoreFormPayload = StoreFormState & { createdAt: Date; updatedAt: Date };
 
 const StoreForm: React.FC<StoreFormProps> = ({ malls, onClose, onSubmit }) => {
   const { isLoading, run } = useSafeSubmit({
@@ -16,56 +28,43 @@ const StoreForm: React.FC<StoreFormProps> = ({ malls, onClose, onSubmit }) => {
     errorMessage: 'ไม่สามารถเพิ่มร้านค้าได้'
   });
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<StoreFormState>({
     name: '',
-    category: '',
+    category: STORE_CATEGORIES[0],
     _mallId: '',
     floorId: '',
     unit: '',
     phone: '',
     hours: '',
-    status: 'Active'
+    status: STORE_STATUS[0],
   });
 
-  const [floors, setFloors] = useState<any[]>([]);
+  const [floors, setFloors] = useState<Floor[]>([]);
   const [loadingFloors, setLoadingFloors] = useState(false);
 
-  const categories = [
-    'Fashion',
-    'Beauty & Cosmetics',
-    'Electronics',
-    'Food & Beverage',
-    'Sports & Outdoor',
-    'Books & Stationery',
-    'Home & Garden',
-    'Health & Wellness',
-    'Jewelry & Accessories',
-    'Toys & Games',
-    'Automotive',
-    'Services'
-  ];
+  const categories: StoreCategory[] = [...STORE_CATEGORIES];
 
-  const statusOptions = [
+  const statusOptions: Array<{ value: StoreStatus; label: string }> = [
     { value: 'Active', label: 'เปิดใช้งาน' },
     { value: 'Maintenance', label: 'ปิดปรับปรุง' },
-    { value: 'Closed', label: 'ปิด' }
+    { value: 'Closed', label: 'ปิด' },
   ];
 
   // Load floors when mall is selected
   useEffect(() => {
-    if (formData.mallId) {
-      loadFloors(formData.mallId);
+    if (formData._mallId) {
+      loadFloors(formData._mallId);
     } else {
       setFloors([]);
     }
-  }, [formData.mallId]);
+  }, [formData._mallId]);
 
   const loadFloors = async (_mallId: string) => {
     try {
       setLoadingFloors(true);
       // This would call the actual API to get floors for the selected mall
       // For now, we'll create default floors
-      const defaultFloors = [
+      const defaultFloors: Floor[] = [
         { id: 'G', label: 'G' },
         { id: '1', label: '1' },
         { id: '2', label: '2' },
@@ -81,7 +80,10 @@ const StoreForm: React.FC<StoreFormProps> = ({ malls, onClose, onSubmit }) => {
     }
   };
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = <K extends keyof StoreFormState>(
+    field: K,
+    value: StoreFormState[K]
+  ) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -92,7 +94,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ malls, onClose, onSubmit }) => {
     e.preventDefault();
     
     run(async () => {
-      const storeData = {
+      const storeData: StoreFormPayload = {
         ...formData,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -155,8 +157,8 @@ const StoreForm: React.FC<StoreFormProps> = ({ malls, onClose, onSubmit }) => {
               ห้างสรรพสินค้า *
             </label>
             <select
-              value={formData.mallId}
-              onChange={(e) => handleChange('mallId', e.target.value)}
+              value={formData._mallId}
+              onChange={(e) => handleChange('_mallId', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
               required
             >
@@ -177,7 +179,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ malls, onClose, onSubmit }) => {
                 onChange={(e) => handleChange('floorId', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                 required
-                disabled={!formData.mallId || loadingFloors}
+                disabled={!formData._mallId || loadingFloors}
               >
                 <option value="">
                   {loadingFloors ? 'กำลังโหลด...' : 'เลือกชั้น'}

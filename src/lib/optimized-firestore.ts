@@ -1,27 +1,18 @@
 import {
   collection,
   collectionGroup,
-  doc,
   getDocs,
-  getDoc,
   query,
-  where,
-  orderBy,
-  limit,
-  startAfter,
-  DocumentSnapshot,
-  QueryDocumentSnapshot
+  orderBy
 } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
 import { Mall, Store } from '../types/mall-system';
 
 import { cache, CACHE_KEYS } from './cache';
-import { isE2E } from './e2e';
-import { E2E_ALL_STORES, E2E_MALLS } from './e2e-fixtures';
 
 // Helper to convert Firestore document to typed object
-function convertTimestamps<T extends { createdAt?: any; updatedAt?: any }>(data: T): T {
+function convertTimestamps<T extends { createdAt?: unknown; updatedAt?: unknown }>(data: T): T {
   const result = { ...data };
   
   if (result.createdAt && result.createdAt.toDate) {
@@ -38,10 +29,6 @@ function convertTimestamps<T extends { createdAt?: any; updatedAt?: any }>(data:
  * ดึงรายการห้างทั้งหมด (with caching)
  */
 export async function listMallsOptimized(): Promise<Mall[]> {
-  if (isE2E) {
-    return E2E_MALLS;
-  }
-
   // Check cache first
   const cached = cache.get<Mall[]>(CACHE_KEYS.MALLS);
   if (cached) {
@@ -73,14 +60,6 @@ export async function listMallsOptimized(): Promise<Mall[]> {
  * ดึงรายการห้างพร้อมสถิติ (ใช้ storeCount/floorCount แทนการ fetch stores)
  */
 export async function listMallsWithStats(): Promise<Mall[]> {
-  if (isE2E) {
-    return E2E_MALLS.map(mall => ({
-      ...mall,
-      storeCount: mall.storeCount || 0,
-      floorCount: mall.floorCount || 0,
-    }));
-  }
-
   // Check cache first
   const cached = cache.get<Mall[]>(CACHE_KEYS.MALLS_STATS);
   if (cached) {
@@ -115,10 +94,6 @@ export async function listMallsWithStats(): Promise<Mall[]> {
  * ดึงรายการร้านของห้าง (with caching)
  */
 export async function listStoresOptimized(mallId: string): Promise<Store[]> {
-  if (isE2E) {
-    return E2E_ALL_STORES.filter(store => store._mallId === mallId || store.mallId === mallId);
-  }
-
   // Check cache first
   const cached = cache.get<Store[]>(CACHE_KEYS.STORES(mallId));
   if (cached) {
@@ -150,13 +125,6 @@ export async function listStoresOptimized(mallId: string): Promise<Store[]> {
  * ดึงร้านทั้งหมดจากทุกห้าง (optimized with caching)
  */
 export async function listAllStoresOptimized(): Promise<{ store: Store; _mallId: string }[]> {
-  if (isE2E) {
-    return E2E_ALL_STORES.map(store => ({
-      store,
-      _mallId: store._mallId || store.mallId || 'unknown',
-    }));
-  }
-
   // Check cache first
   const cached = cache.get<{ store: Store; _mallId: string }[]>(CACHE_KEYS.STORES_ALL);
   if (cached) {
@@ -199,13 +167,6 @@ export async function listAllStoresOptimized(): Promise<{ store: Store; _mallId:
  * ดึงร้านทั้งหมดจากทุกห้าง (batch optimized - แนะนำ)
  */
 export async function listAllStoresBatchOptimized(): Promise<{ store: Store; _mallId: string }[]> {
-  if (isE2E) {
-    return E2E_ALL_STORES.map(store => ({
-      store,
-      _mallId: store._mallId || store.mallId || 'unknown',
-    }));
-  }
-
   // Check cache first
   const cached = cache.get<{ store: Store; _mallId: string }[]>(CACHE_KEYS.STORES_ALL);
   if (cached) {

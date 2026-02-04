@@ -6,8 +6,8 @@ import { deleteMall } from '../../lib/firestore';
 import { DeleteButton } from './DeleteButton';
 
 interface MallsTableProps {
-  malls: any[];
-  stores: any[];
+  malls: unknown[];
+  stores: unknown[];
   onRefresh: () => void;
 }
 

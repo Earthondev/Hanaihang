@@ -8,7 +8,7 @@ interface SearchEvent {
   timestamp: number;
   sessionId: string;
   userId?: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
 }
 
 interface SearchMetrics {
@@ -200,7 +200,7 @@ class SearchAnalytics {
   }
 
   // Generic Event Tracking
-  trackEvent(eventName: string, data: Record<string, any>) {
+  trackEvent(eventName: string, data: Record<string, unknown>) {
     const event: SearchEvent = {
       event: eventName,
       timestamp: Date.now(),
@@ -224,8 +224,8 @@ class SearchAnalytics {
   }
 
   private sendToGoogleAnalytics(event: SearchEvent) {
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      const gtag = (window as any).gtag;
+    if (typeof window !== 'undefined' && (window as unknown).gtag) {
+      const gtag = (window as unknown).gtag;
       
       switch (event.event) {
         case 'search_complete':
