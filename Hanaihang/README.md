@@ -1,92 +1,106 @@
-# HaaNaiHang - หาห้างใกล้คุณ
+# HaaNaiHang - หาห้างใกล้คุณ (HaaNaiHang)
 
-แอปพลิเคชันค้นหาห้างสรรพสินค้าและร้านค้าใกล้คุณ พร้อมการคำนวณระยะทางและข้อมูลครบถ้วน
+แอปพลิเคชันค้นหาห้างสรรพสินค้าและร้านค้าในกรุงเทพฯ และปริมณฑล ช่วยให้คุณวางแผนการช้อปปิ้งได้อย่างมีประสิทธิภาพ ด้วยข้อมูลแผนที่ภายในห้าง (Indoor Maps) และตำแหน่งร้านค้าที่แม่นยำ
 
-## 🚀 Quick Start
+## ✨ ฟีเจอร์หลัก (Key Features)
 
-```bash
-# Clone repository
-git clone https://github.com/your-username/hanaihang.git
-cd hanaihang
+-   **🔍 Enhanced Search System**:
+    -   ค้นหาห้างสรรพสินค้า ร้านค้า และบริการต่างๆ ได้อย่างรวดเร็ว
+    -   รองรับคำค้นหาภาษาไทยและอังกฤษ
+    -   ระบบแนะนำคำค้นหา (Search Suggestions)
+    -   กรองผลลัพธ์ตามระยะทางและสถานะเปิด-ปิด
 
-# Install dependencies
-npm install
+-   **🏢 Mall Directory**:
+    -   ข้อมูลห้างสรรพสินค้าชั้นนำ (Siam Paragon, ICONSIAM, Central, The Mall ฯลฯ)
+    -   รายละเอียดเวลาทำการ สิ่งอำนวยความสะดวก และการเดินทาง
+    -   **Interactive Floor Plans**: เลือกร้านค้าตามชั้น (Floor Filtering)
 
-# Start development server
-npm run dev
-```
+-   **📍 Store Locations**:
+    -   ระบุตำแหน่งร้านค้าภายในห้าง (Floor & Zone)
+    -   บอกจุดสังเกต (Landmarks) เช่น "ใกล้ลิฟต์", "ตรงข้าม Uniqlo"
+    -   เบอร์โทรศัพท์และข้อมูลติดต่อร้านค้า
 
-## 🔧 Environment Variables
+-   **⚡ Real-time Updates**:
+    -   ข้อมูลสถานะร้านค้าและเวลาทำการที่อัปเดตตามจริง
+    -   ระบบ Sync ข้อมูลจาก Google Maps และแหล่งข้อมูลอื่นๆ
 
-สร้างไฟล์ `.env.local` และเพิ่ม:
-
-```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-```
-
-## 📋 คำสั่งหลัก
-
-```bash
-# Development
-npm run dev          # Start dev server
-npm run build        # Build for production
-npm run preview      # Preview build
-
-# Code Quality
-npm run lint         # Check code style
-npm run fix          # Fix code style automatically
-npm run depcheck     # Check unused dependencies
-npm run tsprune      # Check unused TypeScript exports
-npm run cleanup      # Run all checks
-
-# Testing
-npm run test         # Run unit tests
-npm run test:e2e     # Run E2E tests
-npm run test:ui      # Run tests with UI
-
-# Data Management
-npm run enhance-search-data  # Enhance Firestore data for search
-npm run seed                 # Seed initial data
-```
-
-## 🏗️ โครงสร้างโปรเจค
-
-```
-src/
-├── features/           # Feature-based modules
-│   ├── search/        # Search functionality
-│   ├── malls/         # Mall management
-│   └── stores/        # Store management
-├── services/          # External services
-│   ├── firebase/      # Firebase configuration
-│   └── geoutils/      # Geolocation utilities
-├── ui/                # Reusable UI components
-├── config/            # App configuration
-├── types/             # Global type definitions
-├── test/              # Test files and fixtures
-└── legacy/            # Deprecated code (to be removed)
-```
-
-## 📚 เอกสารเพิ่มเติม
-
-- [Schema Documentation](./docs/schema.md) - โครงสร้างข้อมูล Firestore
-- [Contributing Guide](./CONTRIBUTING.md) - แนวทางการพัฒนา
-- [Search System](./SEARCH_SYSTEM_README.md) - ระบบค้นหา
+-   **🗺️ Maps & Navigation**:
+    -   ค้นหาห้างที่ใกล้ที่สุดจากตำแหน่งของคุณ (Geolocation)
+    -   นำทางด้วย Google Maps / Apple Maps
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS
-- **Backend**: Firebase Firestore
-- **Testing**: Vitest + Playwright
-- **Code Quality**: ESLint + Prettier + Husky
+-   **Frontend**: React 18, TypeScript, Vite
+-   **Styling**: Tailwind CSS, Lucide React (Icons), Framer Motion (Animations)
+-   **Backend/Database**: Firebase (Firestore, Auth, Hosting)
+-   **State Management**: React Query, React Context
+-   **Maps**: Leaflet / React-Leaflet
+-   **Testing**: Vitest, Playwright
+
+## 🚀 Quick Start
+
+### Prerequisites
+-   Node.js (v20+)
+-   npm or yarn
+
+### Installation
+
+1.  **Clone repository**
+    ```bash
+    git clone https://github.com/earthondev/hanaihang.git
+    cd hanaihang
+    ```
+
+2.  **Install dependencies**
+    ```bash
+    npm install
+    # สำหรับ macOS (Apple Silicon) อาจต้องติดตั้ง optional dependency เพิ่มเติม
+    # npm install -D @rollup/rollup-darwin-arm64
+    ```
+
+3.  **Environment Setup**
+    สร้างไฟล์ `.env` หรือ `.env.local` โดยคัดลอกค่าจาก Firebase Console ของคุณ:
+    ```env
+    VITE_FIREBASE_API_KEY=your_api_key
+    VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+    VITE_FIREBASE_PROJECT_ID=your_project_id
+    VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+    VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+    VITE_FIREBASE_APP_ID=your_app_id
+    ```
+
+4.  **Start Development Server**
+    ```bash
+    npm run dev
+    ```
+
+## 📦 Scripts & Tools
+
+คำสั่งที่มีประโยชน์สำหรับการพัฒนาและจัดการข้อมูล:
+
+### Development
+-   `npm run dev`: เริ่มต้น dev server
+-   `npm run build`: สร้าง production build
+-   `npm run preview`: ดูตัวอย่าง production build
+
+### Data Management (Scripts)
+-   `npm run import:malls`: นำเข้าข้อมูลห้างพื้นฐาน
+-   `npm run scrape:siamparagon`: ดึงข้อมูล Directory ของ Siam Paragon
+-   `npm run scrape:iconsiam`: ดึงข้อมูล Directory ของ ICONSIAM
+-   `npm run clean-firestore`: ล้างข้อมูลและจัดการโครงสร้าง Firestore
+-   `npm run seed`: ลงข้อมูลตัวอย่าง (Mock Data)
+
+### Code Quality
+-   `npm run lint`: ตรวจสอบ Code Style
+-   `npm run format`: จัดรูปแบบโค้ด (Prettier)
+-   `npm run bloat-check`: ตรวจสอบขนาด Bundle
+
+## 🤝 Contributing
+
+ยินดีต้อนรับทุกการสนับสนุน! หากคุณพบปัญหาหรือมีข้อเสนอแนะ:
+1.  Open Issue เพื่อแจ้งปัญหา
+2.  Submit Pull Request เพื่อแก้ไขหรือเพิ่มฟีเจอร์
 
 ## 📄 License
 
-MIT License - ดูรายละเอียดใน [LICENSE](./LICENSE) file
-# Force deployment Sun Sep  7 09:26:47 +07 2025
+MIT License
