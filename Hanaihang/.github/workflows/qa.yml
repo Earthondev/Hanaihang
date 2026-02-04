@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --omit=optional
 
   e2e:
     needs: setup
@@ -37,7 +37,7 @@ jobs:
         with: 
           node-version: 20
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --omit=optional
       - run: npx playwright install --with-deps
       
       # Resolve BASE_URL
@@ -115,7 +115,7 @@ jobs:
         with: 
           node-version: 20
           cache: 'npm'
-      - run: npm ci
+      - run: npm ci --omit=optional
       - name: Ensure artifacts directory
         run: mkdir -p artifacts/pa11y artifacts/lh
       
@@ -341,4 +341,3 @@ jobs:
             |---------|------|------|----|-----|
             | Mobile  | ${{ needs.audits.outputs.mobile_perf }} | ${{ needs.audits.outputs.mobile_a11y }} | ${{ needs.audits.outputs.mobile_bp }} | ${{ needs.audits.outputs.mobile_seo }} |
             | Desktop | ${{ needs.audits.outputs.desktop_perf }} | ${{ needs.audits.outputs.desktop_a11y }} | ${{ needs.audits.outputs.desktop_bp }} | ${{ needs.audits.outputs.desktop_seo }} |
-
