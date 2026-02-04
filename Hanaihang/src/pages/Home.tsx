@@ -573,7 +573,7 @@ const Home: React.FC = () => {
               <MapView malls={mapFilteredMalls} userLocation={userLoc} onMallClick={handleMallSelect} className="w-full h-full" />
               <MapControls onCenterUserLocation={handleCenterUserLocation} onShowAllMalls={handleShowAllMalls} onToggleFilters={handleToggleMapFilters} onToggleLayers={handleToggleLayers} onToggleFullscreen={handleToggleFullscreen} isFullscreen={isMapFullscreen} userLocation={userLoc} mallsCount={mapFilteredMalls.length} />
               <AnimatePresence>
-                {showMapFilters && <MapFilters malls={malls} onFiltersChange={handleMapFiltersChange} onClose={handleToggleMapFilters} />}
+                {showMapFilters && <MapFilters malls={malls} onFiltersChange={handleMapFiltersChange} onClose={handleToggleMapFilters} isVisible={true} />}
               </AnimatePresence>
             </div>
           )
