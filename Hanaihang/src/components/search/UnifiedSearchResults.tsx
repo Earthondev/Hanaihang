@@ -79,18 +79,22 @@ function SearchResultCard({ result, rank, query, onClick }: SearchResultCardProp
     return `${distanceKm.toFixed(1)} กม.`;
   };
 
-  const highlightText = (text: string, q: string) => {
+  const highlightText = (text: string, q: string): React.ReactNode => {
     if (!q.trim()) return text;
     const regex = new RegExp(`(${q})`, 'gi');
     const parts = text.split(regex);
-    return parts.map((part, index) =>
-      regex.test(part) ? (
-        <mark key={index} className="bg-primary/10 text-primary px-0.5 rounded font-semibold">
-          {part}
-        </mark>
-      ) : (
-        part
-      )
+    return (
+      <>
+        {parts.map((part, index) =>
+          regex.test(part) ? (
+            <mark key={index} className="bg-primary/10 text-primary px-0.5 rounded font-semibold">
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </>
     );
   };
 

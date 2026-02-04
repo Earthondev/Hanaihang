@@ -259,6 +259,10 @@ const StoreDetail: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEO
+        title={store.name}
+        description={`${store.name} - ${store.category} ที่ ${resolvedStore?.mallName || 'HaaNaiHang'}: ดูเวลาเปิด-ปิด รีวิว และแผนที่`}
+      />
       {/* Header */}
       <header className="bg-white shadow-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3">
@@ -586,44 +590,20 @@ const StoreDetail: React.FC = () => {
                 className="flex transition-transform duration-500 ease-out h-[400px]"
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
-                {/* Image 1: Fashion Storefront */}
-                <div className="w-full flex-shrink-0 relative">
-                  <img
-                    src="/assets/images/fashion_storefront_1768103588363.png"
-                    alt="หน้าร้าน Fashion"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 text-white">
-                    <h3 className="text-lg font-bold">หน้าร้านทันสมัย</h3>
-                    <p className="text-sm opacity-90">ตกแต่งสไตล์มินิมอล พร้อมคอลเลกชันใหม่ล่าสุด</p>
-                  </div>
-                </div>
-
-                {/* Image 2: Interior/Display */}
-                <div className="w-full flex-shrink-0 relative">
-                  <img
-                    src="/assets/images/electronic_store_display_1768103629626.png"
-                    alt="ภายในร้าน"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 text-white">
-                    <h3 className="text-lg font-bold">บรรยากาศภายใน</h3>
-                    <p className="text-sm opacity-90">กว้างขวาง เดินสบาย พร้อมพนักงานคอยบริการ</p>
-                  </div>
-                </div>
-
-                {/* Image 3: Products */}
-                <div className="w-full flex-shrink-0 relative">
-                  <img
-                    src="/assets/images/cosmetics_counter_luxury_1768103651433.png"
-                    alt="สินค้าแนะนำ"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 text-white">
-                    <h3 className="text-lg font-bold">โซนสินค้าไฮไลท์</h3>
-                    <p className="text-sm opacity-90">พบกับสินค้าขายดีและสินค้าลิมิเต็ด</p>
-                  </div>
-                </div>
+                {carouselImages.map((image) => {
+                  const Icon = image.icon;
+                  return (
+                    <div key={image.id} className="w-full flex-shrink-0 relative bg-gray-100">
+                      <div className={`w-full h-full bg-gradient-to-br ${image.color} flex items-center justify-center`}>
+                        <Icon className={`w-32 h-32 ${image.iconColor.replace('bg-', 'text-').replace('300', '600')} opacity-20`} />
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-8 text-white">
+                        <h3 className="text-2xl font-bold mb-1">{image.title}</h3>
+                        <p className="text-base opacity-90 font-light">{image.subtitle}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Carousel Controls */}

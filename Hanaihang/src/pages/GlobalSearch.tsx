@@ -5,6 +5,7 @@ import { Search, Building, X, TrendingUp, Coffee, ShoppingBag, Utensils, Smartph
 import { useDebouncedSearch } from '@/lib/enhanced-search';
 import UnifiedSearchResults from '@/components/search/UnifiedSearchResults';
 import FadeIn from '@/components/ui/FadeIn';
+import SEO from '@/components/SEO';
 
 const POPULAR_CATEGORIES = [
   { id: 'fashion', name: 'แฟชั่น', icon: ShoppingBag, color: 'bg-pink-100 text-pink-600' },
@@ -44,6 +45,10 @@ const GlobalSearch: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEO
+        title="ค้นหา"
+        description="ค้นหาร้านค้า แบรนด์ และห้างสรรพสินค้าที่คุณต้องการ พร้อมข้อมูลครบถ้วนจบในที่เดียว"
+      />
       {/* Header section with gradient background */}
       <div className="bg-white border-b sticky top-0 z-30 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">

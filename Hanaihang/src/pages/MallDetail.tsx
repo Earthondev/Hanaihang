@@ -117,6 +117,11 @@ export default function MallDetail() {
 
   return (
     <div className="min-h-screen bg-[#fcfdfd]">
+      <SEO
+        title={mall.displayName}
+        description={`ค้นหาร้านค้าและข้อมูลเวลาเปิด-ปิดของ ${mall.displayName} ที่ HaaNaiHang`}
+        image={mall.logoUrl}
+      />
       {/* Premium Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">

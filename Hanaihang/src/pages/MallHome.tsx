@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Search, MapPin, Building, Store, ChevronRight } from 'lucide-react';
+import { Search, MapPin, Building, Store as StoreIcon, ChevronRight } from 'lucide-react';
 
 import { useRealtimeMall } from '@/hooks/useRealtimeMalls';
 import { useRealtimeStores } from '@/hooks/useRealtimeStores';
 import { listFloors } from '@/services/firebase/firestore';
-import { Floor } from '@/types/mall-system';
+import { Floor, Store } from '@/types/mall-system';
 import FadeIn from '@/components/ui/FadeIn';
+import SEO from '@/components/SEO';
 
 const MallHome: React.FC = () => {
   const { mallId } = useParams<{ mallId: string }>();
@@ -71,7 +72,7 @@ const MallHome: React.FC = () => {
   }
 
   // Filter stores
-  const filteredStores = stores.filter(store => {
+  const filteredStores = stores.filter((store: Store) => {
     const matchesFloor = selectedFloor === 'all' || store.floorId === selectedFloor;
     const matchesSearch = !searchQuery ||
       store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -107,19 +108,19 @@ const MallHome: React.FC = () => {
                 <button
                   onClick={() => setSelectedFloor('all')}
                   className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap font-prompt ${selectedFloor === 'all'
-                      ? 'bg-white text-primary-700 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white text-primary-700 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
                     }`}
                 >
                   ทั้งหมด
                 </button>
-                {floors.map(floor => (
+                {floors.map((floor: Floor) => (
                   <button
                     key={floor.id}
                     onClick={() => setSelectedFloor(floor.label)}
                     className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap font-prompt ${selectedFloor === floor.label
-                        ? 'bg-white text-primary-700 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
+                      ? 'bg-white text-primary-700 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
                       }`}
                   >
                     {getFloorTitle(floor.label)}
@@ -180,7 +181,7 @@ const MallHome: React.FC = () => {
                   <span>{floors.length} ชั้น</span>
                 </div>
                 <div className="flex items-center">
-                  <Store className="w-4 h-4 mr-1.5" />
+                  <StoreIcon className="w-4 h-4 mr-1.5" />
                   <span>{stores.length} ร้านค้า</span>
                 </div>
                 <div className="flex items-center text-green-600 font-medium">
@@ -201,7 +202,7 @@ const MallHome: React.FC = () => {
             <div className="mb-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 font-kanit">หมวดหมู่ในห้าง</h2>
               <div className="flex flex-wrap gap-2">
-                {Array.from(new Set(stores.map(s => s.category).filter(Boolean))).slice(0, 8).map((cat, idx) => (
+                {Array.from(new Set(stores.map((s: Store) => s.category).filter(Boolean))).slice(0, 8).map((cat, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSearchQuery(cat!)}
@@ -226,7 +227,7 @@ const MallHome: React.FC = () => {
 
           {filteredStores.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredStores.map((store) => (
+              {filteredStores.map((store: Store) => (
                 <div
                   key={store.id}
                   onClick={() => navigate(`/mall/${mallId}/stores/${store.id}`)}
@@ -287,19 +288,19 @@ const MallHome: React.FC = () => {
           <button
             onClick={() => setSelectedFloor('all')}
             className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-colors whitespace-nowrap font-prompt ${selectedFloor === 'all'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 bg-transparent'
+              ? 'bg-gray-900 text-white'
+              : 'text-gray-600 bg-transparent'
               }`}
           >
             ทั้งหมด
           </button>
-          {floors.map(floor => (
+          {floors.map((floor: Floor) => (
             <button
               key={floor.id}
               onClick={() => setSelectedFloor(floor.label)}
               className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-colors whitespace-nowrap font-prompt ${selectedFloor === floor.label
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-600 bg-transparent'
+                ? 'bg-gray-900 text-white'
+                : 'text-gray-600 bg-transparent'
                 }`}
             >
               {getFloorTitle(floor.label)}

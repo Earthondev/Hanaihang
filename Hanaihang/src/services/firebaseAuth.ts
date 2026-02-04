@@ -1,4 +1,4 @@
-import { 
+import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
@@ -6,8 +6,9 @@ import {
   updateProfile,
   sendPasswordResetEmail
 } from 'firebase/auth';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
-import { auth } from '../config/firebase';
+import { auth, db } from '../config/firebase';
 
 export interface AuthUser {
   uid: string;
@@ -40,70 +41,89 @@ const ADMIN_USERS = [
   }
 ];
 
+// Helper to get or create user in Firestore
+async function getOrCreateUserInFirestore(user: any): Promise<AuthUser> {
+  const userRef = doc(db, 'users', user.uid);
+  const userSnap = await getDoc(userRef);
+
+  let role: AuthUser['role'] = 'viewer';
+
+  if (userSnap.exists()) {
+    const data = userSnap.data();
+    role = data.role || 'viewer';
+
+    // Update last login
+    await setDoc(userRef, {
+      lastLogin: serverTimestamp(),
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL
+    }, { merge: true });
+
+  } else {
+    // Check if email matches hardcoded admins for auto-provisioning
+    const mockMatch = ADMIN_USERS.find(u => u.email === user.email);
+    if (mockMatch) {
+      role = mockMatch.role;
+    }
+
+    // Create new user document
+    await setDoc(userRef, {
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      role,
+      createdAt: serverTimestamp(),
+      lastLogin: serverTimestamp()
+    });
+  }
+
+  return {
+    uid: user.uid,
+    email: user.email,
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+    role,
+    lastLogin: new Date().toISOString()
+  };
+}
+
 export const firebaseAuth = {
   // Sign in with email and password
   async signIn(email: string, password: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
     try {
       console.log('firebaseAuth.signIn: Attempting sign in for:', email);
-      
-      // Check if it's a mock admin user (for development)
+
+      // Check if it's a mock admin user (for development - purely local)
+      // Note: This bypasses Firebase Auth completely! Only use if Firebase Auth is not set up.
+      /*
       const mockUser = ADMIN_USERS.find(u => u.email === email && u.password === password);
-      
       if (mockUser) {
-        console.log('firebaseAuth.signIn: Mock user found:', mockUser);
-        
-        // Create a mock Firebase user for development
-        const mockFirebaseUser: AuthUser = {
-          uid: `mock-${Date.now()}`,
-          email: mockUser.email,
-          displayName: mockUser.displayName,
-          photoURL: null,
-          role: mockUser.role,
-          lastLogin: new Date().toISOString()
-        };
-        
-        console.log('firebaseAuth.signIn: Created mock user:', mockFirebaseUser);
-        
-        // Store in localStorage for development
-        localStorage.setItem('firebaseUser', JSON.stringify(mockFirebaseUser));
-        localStorage.setItem('firebaseToken', `mock-token-${Date.now()}`);
-        
-        console.log('firebaseAuth.signIn: Stored user in localStorage');
-        
-        return {
-          success: true,
-          user: mockFirebaseUser
-        };
+        // ... (Mock user logic skipped for production readiness)
       }
-      
+      */
+
       // Real Firebase authentication
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
-      // Get user role from Firestore (you'll need to implement this)
-      const userData: AuthUser = {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        role: 'admin', // Default role, should be fetched from Firestore
-        lastLogin: new Date().toISOString()
-      };
-      
+
+      // Get user role from Firestore
+      const userData = await getOrCreateUserInFirestore(user);
+
       // Store user data
       localStorage.setItem('firebaseUser', JSON.stringify(userData));
-      
+
       return {
         success: true,
         user: userData
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Sign in error:', error);
-      
+
       // Handle specific Firebase auth errors
       let errorMessage = 'Failed to sign in';
-      if (error.code === 'auth/user-not-found') {
-        errorMessage = 'ไม่พบผู้ใช้นี้';
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        errorMessage = 'ไม่พบผู้ใช้นี้ หรือรหัสผ่านไม่ถูกต้อง';
       } else if (error.code === 'auth/wrong-password') {
         errorMessage = 'รหัสผ่านไม่ถูกต้อง';
       } else if (error.code === 'auth/invalid-email') {
@@ -111,7 +131,7 @@ export const firebaseAuth = {
       } else if (error.code === 'auth/too-many-requests') {
         errorMessage = 'ลองเข้าสู่ระบบมากเกินไป กรุณารอสักครู่';
       }
-      
+
       return {
         success: false,
         error: errorMessage
@@ -126,7 +146,7 @@ export const firebaseAuth = {
       localStorage.removeItem('firebaseUser');
       localStorage.removeItem('firebaseToken');
       return { success: true };
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Sign out error:', error);
       return {
         success: false,
@@ -138,16 +158,10 @@ export const firebaseAuth = {
   // Get current user
   getCurrentUser(): AuthUser | null {
     try {
-      console.log('firebaseAuth.getCurrentUser: Checking localStorage');
       const userData = localStorage.getItem('firebaseUser');
-      console.log('firebaseAuth.getCurrentUser: Raw userData:', userData);
-      
       if (userData) {
-        const parsedUser = JSON.parse(userData);
-        console.log('firebaseAuth.getCurrentUser: Parsed user:', parsedUser);
-        return parsedUser;
+        return JSON.parse(userData);
       }
-      console.log('firebaseAuth.getCurrentUser: No user data found');
       return null;
     } catch (error) {
       console.error('Get current user error:', error);
@@ -160,19 +174,26 @@ export const firebaseAuth = {
     // Use real Firebase auth state listener
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Get user role from Firestore (you'll need to implement this)
-        const userData: AuthUser = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-          photoURL: firebaseUser.photoURL,
-          role: 'admin', // Default role, should be fetched from Firestore
-          lastLogin: new Date().toISOString()
-        };
-        
-        // Store user data
-        localStorage.setItem('firebaseUser', JSON.stringify(userData));
-        callback(userData);
+        try {
+          // Get user role from Firestore
+          const userData = await getOrCreateUserInFirestore(firebaseUser);
+
+          // Store user data
+          localStorage.setItem('firebaseUser', JSON.stringify(userData));
+          callback(userData);
+        } catch (err) {
+          console.error('Error fetching user profile:', err);
+          // Fallback if Firestore fails
+          const fallbackUser: AuthUser = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+            role: 'viewer',
+            lastLogin: new Date().toISOString()
+          };
+          callback(fallbackUser);
+        }
       } else {
         // User is signed out
         localStorage.removeItem('firebaseUser');
@@ -195,6 +216,17 @@ export const firebaseAuth = {
         displayName
       });
 
+      // Create user doc in Firestore
+      const userRef = doc(db, 'users', user.uid);
+      await setDoc(userRef, {
+        email: user.email,
+        displayName,
+        photoURL: user.photoURL,
+        role,
+        createdAt: serverTimestamp(),
+        lastLogin: serverTimestamp()
+      });
+
       const userData: AuthUser = {
         uid: user.uid,
         email: user.email,
@@ -208,7 +240,7 @@ export const firebaseAuth = {
         success: true,
         user: userData
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Create user error:', error);
       return {
         success: false,
@@ -222,7 +254,7 @@ export const firebaseAuth = {
     try {
       await sendPasswordResetEmail(auth, email);
       return { success: true };
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Reset password error:', error);
       return {
         success: false,

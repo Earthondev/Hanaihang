@@ -71,6 +71,38 @@ export class SuggestionEngine {
         return suggestions;
     }
 
+    static getFilteredSuggestions(query: string): SearchSuggestion[] {
+        if (!query) return this.getSuggestions();
+
+        const normalizedQuery = normalizeThai(query.toLowerCase());
+        const suggestions: SearchSuggestion[] = [];
+        const seen = new Set<string>();
+
+        // 1. Filter History
+        const history = this.getHistory();
+        history.forEach(text => {
+            if (normalizeThai(text.toLowerCase()).includes(normalizedQuery)) {
+                suggestions.push({ type: 'history', text, label: '🕒 จากประวัติของคุณ' });
+                seen.add(normalizeThai(text));
+            }
+        });
+
+        // 2. Filter Popular
+        POPULAR_SEARCHES.forEach(text => {
+            const normText = normalizeThai(text);
+            if (
+                normalizeThai(text.toLowerCase()).includes(normalizedQuery) &&
+                !seen.has(normText) &&
+                suggestions.length < 8
+            ) {
+                suggestions.push({ type: 'trending', text, label: '🔥 ยอดนิยม' });
+                seen.add(normText);
+            }
+        });
+
+        return suggestions;
+    }
+
     static getHistory(): string[] {
         try {
             const stored = localStorage.getItem(STORAGE_KEY);

@@ -36,9 +36,14 @@ export default function EnhancedSearchBox({
   const { results, loading, error } = useDebouncedSearch(query, userLocation);
 
   // Load suggestions when focused
+  // Load suggestions when focused or query changes
   useEffect(() => {
-    if (focused && !query) {
-      setSuggestions(SuggestionEngine.getSuggestions());
+    if (focused) {
+      if (!query) {
+        setSuggestions(SuggestionEngine.getSuggestions());
+      } else {
+        setSuggestions(SuggestionEngine.getFilteredSuggestions(query));
+      }
     }
   }, [focused, query]);
 
@@ -154,10 +159,10 @@ export default function EnhancedSearchBox({
                   key={`${suggestion.type}-${suggestion.text}-${idx}`}
                   onClick={() => handleSuggestionClick(suggestion)}
                   className={`flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 text-left ${isHistory
-                      ? 'bg-gray-50 hover:bg-gray-100 text-gray-600'
-                      : suggestion.type === 'time-based'
-                        ? 'bg-primary/5 hover:bg-primary/10 text-primary-700'
-                        : 'hover:bg-gray-50 text-gray-700'
+                    ? 'bg-gray-50 hover:bg-gray-100 text-gray-600'
+                    : suggestion.type === 'time-based'
+                      ? 'bg-primary/5 hover:bg-primary/10 text-primary-700'
+                      : 'hover:bg-gray-50 text-gray-700'
                     }`}
                 >
                   <div className={`p-2 rounded-lg ${isHistory ? 'bg-white text-gray-400' : 'bg-white shadow-sm'
