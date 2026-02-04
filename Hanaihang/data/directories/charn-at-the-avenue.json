@@ -1,0 +1,849 @@
+{
+  "mallSlug": "charn-at-the-avenue",
+  "source": {
+    "name": "Charn at the Avenue Directory (official)",
+    "url": "https://www.charnattheavenue.com/directory",
+    "retrievedAt": "2026-02-04T10:21:42.155536Z"
+  },
+  "retrievedAt": "2026-02-04T10:21:42.155536Z",
+  "floorCount": 4,
+  "storeCount": 73,
+  "floors": [
+    {
+      "id": "Unknown",
+      "label": "Unknown",
+      "name": "Unknown",
+      "order": 0,
+      "stores": [
+        {
+          "name": "Potato Corner โปเตโต้ คอร์นเนอร์",
+          "category": "Services",
+          "floorId": "Unknown",
+          "floorLabel": "Unknown",
+          "unit": "O103.3",
+          "status": "Active",
+          "landmarks": [
+            "Building"
+          ]
+        },
+        {
+          "name": "BHC Chicken บีเอชซี ชิคเก้น",
+          "category": "Services",
+          "floorId": "Unknown",
+          "floorLabel": "Unknown",
+          "unit": "A105.1",
+          "status": "Active",
+          "landmarks": [
+            "Building"
+          ]
+        },
+        {
+          "name": "S48 Clinic",
+          "category": "Services",
+          "floorId": "Unknown",
+          "floorLabel": "Unknown",
+          "unit": "",
+          "status": "Active",
+          "landmarks": [],
+          "nameLocal": "เอส 48 คลีนิค"
+        }
+      ]
+    },
+    {
+      "id": "1",
+      "label": "1",
+      "name": "Floor 1",
+      "order": 1,
+      "stores": [
+        {
+          "name": "EVEANDBOY อีฟแอนด์บอย",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "A110",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Starbucks สตาร์บัค",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "B113",
+          "status": "Active",
+          "landmarks": [
+            "Building B"
+          ]
+        },
+        {
+          "name": "Jib Jib จิ๊บทูโก",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "O105.2",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "After You อาฟเตอร์ยู",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "O110",
+          "status": "Active",
+          "landmarks": [
+            "Building C"
+          ]
+        },
+        {
+          "name": "Rolling Roaster โรลลิ่ง โรสเตอร์",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "C114",
+          "status": "Active",
+          "landmarks": [
+            "Building C"
+          ]
+        },
+        {
+          "name": "Katei Shabu คาเทอิ ชาบู",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "A108",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Swensen’s สเวนเซ่นส์",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "A109",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Jones Salad โจนส์สลัด",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "E121",
+          "status": "Active",
+          "landmarks": [
+            "Building E"
+          ]
+        },
+        {
+          "name": "Pet Lovers Center เพ็ท เลิฟเวอร์ เซ็นเตอร์",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "F125-6",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        },
+        {
+          "name": "Sin Chai Hua ซิน ไฉ ฮั้ว",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "F124.3",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        },
+        {
+          "name": "Belle Tokyo เบลล์ โตเกียว",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Seven Days Optic เซเว่น เดส์ ออพติค",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "A107",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Premium Gold พรีเมี่ยมโกลด์",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "E120",
+          "status": "Active",
+          "landmarks": [
+            "Building E"
+          ]
+        },
+        {
+          "name": "Q Galleria คิวแกลอรี่",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "A102",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Villa Market วิลล่า มาร์เก็ท",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "G129",
+          "status": "Active",
+          "landmarks": [
+            "Building G"
+          ]
+        },
+        {
+          "name": "Jae Dang เจ๊แดงสามย่าน",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "F124.2",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        },
+        {
+          "name": "Saemaeul แซมาอึล",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "A105.2",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Eat Am Are อีท แอม อา",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "E122-3",
+          "status": "Active",
+          "landmarks": [
+            "Building E"
+          ]
+        },
+        {
+          "name": "Shinkanzen Sushi ชินคันเซ็น ซูชิ",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "B112",
+          "status": "Active",
+          "landmarks": [
+            "Building B"
+          ]
+        },
+        {
+          "name": "Pata Plantation พาทาแพลนเทชั่น",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "O106-7",
+          "status": "Active",
+          "landmarks": [
+            "Building C & D"
+          ]
+        },
+        {
+          "name": "K Bank ATM เอทีเอ็มธนาคารกสิกร -",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "",
+          "status": "Active",
+          "landmarks": [
+            "Building A&E"
+          ]
+        },
+        {
+          "name": "SCB ATM เอทีเอ็มธนาคารไทยพาณิชย์ -",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "",
+          "status": "Active",
+          "landmarks": [
+            "Building A&E"
+          ]
+        },
+        {
+          "name": "Finizenn ฟินิเซน",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "A101",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Moshi moshi โมชิ โมชิ",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "A104",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Lemon Farm เลม่อนฟาร์ม",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "G128",
+          "status": "Active",
+          "landmarks": [
+            "Building G"
+          ]
+        },
+        {
+          "name": "Boost บูสท์",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "",
+          "status": "Active",
+          "landmarks": [
+            "Building C & D"
+          ]
+        },
+        {
+          "name": "Yamachan ยามะจั",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "F124.1",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        },
+        {
+          "name": "White story ไวท์สตอรี่",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "O111",
+          "status": "Active",
+          "landmarks": [
+            "Building E"
+          ]
+        },
+        {
+          "name": "Sol Coffee โซล คอฟฟี่",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "O108",
+          "status": "Active",
+          "landmarks": [
+            "Building C & D"
+          ]
+        },
+        {
+          "name": "Nak-La MooKata นักล่าหมูกระทะ",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "B111.1",
+          "status": "Active",
+          "landmarks": [
+            "Building B"
+          ]
+        },
+        {
+          "name": "Ootoya โอโตยะ",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "B111",
+          "status": "Active",
+          "landmarks": [
+            "Building B"
+          ]
+        },
+        {
+          "name": "Secret Chamber ซีเคร็ตแชมเบอร์",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "C115",
+          "status": "Active",
+          "landmarks": [
+            "Building C"
+          ]
+        },
+        {
+          "name": "Korling Noodles ก๋วยเตี๋ยวโกวหลิง",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "A103",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Porsche E-Volt Chargers สถานีชาร์จรถยนต์ไฟฟ้า -",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "",
+          "status": "Active",
+          "landmarks": [
+            "Building B"
+          ]
+        },
+        {
+          "name": "NEVERSAYCUTZ เนเวอร์ เซย์ คัท",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "O105.1",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Rabbit Nail Room แรบบิทเนลซาลูน",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Moshi Optic โมชิ ออปติค",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "A103",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Pharmax ฟาร์แมกซ์",
+          "category": "Services",
+          "floorId": "1",
+          "floorLabel": "1",
+          "unit": "A106",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "label": "2",
+      "name": "Floor 2",
+      "order": 2,
+      "stores": [
+        {
+          "name": "The Hansik Korean bbq ฮันซิก",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "A212",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Lucky Suki ลัคกี้ สุกี้",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "B213-4",
+          "status": "Active",
+          "landmarks": [
+            "Building B"
+          ]
+        },
+        {
+          "name": "Boon Tong Kee บุญตงกี่",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "A208",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Aunna Express Hotpot Buffet อ้วนนะ หมูกรอบชาชู",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "D219",
+          "status": "Active",
+          "landmarks": [
+            "Building D"
+          ]
+        },
+        {
+          "name": "Tonsakpakkai ต้นสักพักกาย",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "E224.1",
+          "status": "Active",
+          "landmarks": [
+            "Building E"
+          ]
+        },
+        {
+          "name": "Phad Phad Khode Poo ผัดผัดโคตรปู",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "A209",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Ramen Desu ราเมงเดส",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "A203",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Mr.Mala Hotpot มิสเตอร์หมาล่า",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "A206-7",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Red Panda Yakiniku เร้ดแพนด้า ยากินิกุ",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "A201",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Kiki Cheesecake กิ๊กิ ชีสเค้ก",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "D220",
+          "status": "Active",
+          "landmarks": [
+            "Building D"
+          ]
+        },
+        {
+          "name": "Lash Concept แลช คอนเสป",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "F228.2",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        },
+        {
+          "name": "Lux Salon ลักซ์ซาลอน",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "F227",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        },
+        {
+          "name": "Siam Yamaha สยามยามาฮ่า",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "G230",
+          "status": "Active",
+          "landmarks": [
+            "Building G"
+          ]
+        },
+        {
+          "name": "Majia Clinic มาเจ\u0000ียคลินิก",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "E224",
+          "status": "Active",
+          "landmarks": [
+            "Building E"
+          ]
+        },
+        {
+          "name": "Noble Show Room โชว์รูมโนเบิล",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "B215",
+          "status": "Active",
+          "landmarks": [
+            "Building B"
+          ]
+        },
+        {
+          "name": "Sushiro ซูชิโร่",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "C216.8",
+          "status": "Active",
+          "landmarks": [
+            "Building C"
+          ]
+        },
+        {
+          "name": "Li Yang ลี่หยาง",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "A212",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Onsen Kawa สุกี้ออนเซ็น",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "D221",
+          "status": "Active",
+          "landmarks": [
+            "Building D"
+          ]
+        },
+        {
+          "name": "APEX เอเพ็กซ์",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "F226",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        },
+        {
+          "name": "Denta-joy เดนต้าจอย",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "F228.0",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        },
+        {
+          "name": "Saladmaster สลัดมาสเตอร์",
+          "category": "Services",
+          "floorId": "2",
+          "floorLabel": "2",
+          "unit": "F228.1",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "label": "3",
+      "name": "Floor 3",
+      "order": 3,
+      "stores": [
+        {
+          "name": "ร้านค้า",
+          "category": "Services",
+          "floorId": "3",
+          "floorLabel": "3",
+          "unit": "A303",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ],
+          "nameLocal": "FLOOR"
+        },
+        {
+          "name": "SLC Clinic สยามเลเซอร์ คลินิก",
+          "category": "Services",
+          "floorId": "3",
+          "floorLabel": "3",
+          "unit": "E312.2",
+          "status": "Active",
+          "landmarks": [
+            "Building E"
+          ],
+          "nameLocal": "Now open"
+        },
+        {
+          "name": "Champ Engrich แชมป์อิงริช",
+          "category": "Services",
+          "floorId": "3",
+          "floorLabel": "3",
+          "unit": "E311",
+          "status": "Active",
+          "landmarks": [
+            "Building E"
+          ]
+        },
+        {
+          "name": "Flex Wellness เฟล็กซ์ เวลเนส คลินิก",
+          "category": "Services",
+          "floorId": "3",
+          "floorLabel": "3",
+          "unit": "F315",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        },
+        {
+          "name": "Too Fast To Sleep ทูฟาส ทูสลีพ",
+          "category": "Services",
+          "floorId": "3",
+          "floorLabel": "3",
+          "unit": "A301",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Fukuroe ฟุคูโร่",
+          "category": "Services",
+          "floorId": "3",
+          "floorLabel": "3",
+          "unit": "E312.3",
+          "status": "Active",
+          "landmarks": [
+            "Building E"
+          ]
+        },
+        {
+          "name": "Morning Mind มอร์นิ่งมายด์",
+          "category": "Services",
+          "floorId": "3",
+          "floorLabel": "3",
+          "unit": "F314",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        },
+        {
+          "name": "Gym Monkey ยิมมังกี้",
+          "category": "Services",
+          "floorId": "3",
+          "floorLabel": "3",
+          "unit": "A302",
+          "status": "Active",
+          "landmarks": [
+            "Building A"
+          ]
+        },
+        {
+          "name": "Phonic 1st โฟนิกส์เฟิร์ส",
+          "category": "Services",
+          "floorId": "3",
+          "floorLabel": "3",
+          "unit": "F317-8",
+          "status": "Active",
+          "landmarks": [
+            "Building F"
+          ]
+        },
+        {
+          "name": "Math Lab Studio แมท แลป",
+          "category": "Services",
+          "floorId": "3",
+          "floorLabel": "3",
+          "unit": "E312.1",
+          "status": "Active",
+          "landmarks": [
+            "Building E"
+          ]
+        },
+        {
+          "name": "CoreMe Studio คอร์ มี สตูดิโ\u0000อ",
+          "category": "Services",
+          "floorId": "3",
+          "floorLabel": "3",
+          "unit": "C310",
+          "status": "Active",
+          "landmarks": [
+            "Building C"
+          ]
+        }
+      ]
+    }
+  ]
+}
