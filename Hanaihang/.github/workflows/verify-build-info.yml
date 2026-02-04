@@ -16,7 +16,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+      - name: Guard lockfile against android binaries
+        run: |
+          if grep -q "rollup-android" package-lock.json; then
+            echo "❌ Android-only rollup binary detected in lockfile"
+            exit 1
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -25,13 +31,6 @@ jobs:
           
       - name: Install dependencies
         run: npm ci
-
-      - name: Guard lockfile against android binaries
-        run: |
-          if grep -q "rollup-android" package-lock.json; then
-            echo "❌ Android-only rollup binary detected in lockfile"
-            exit 1
-          fi
         
       - name: Generate build info
         run: npm run prebuild
