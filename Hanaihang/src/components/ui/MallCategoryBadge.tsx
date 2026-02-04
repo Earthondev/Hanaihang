@@ -4,6 +4,7 @@ interface MallCategoryBadgeProps {
   category?: 'shopping-center' | 'community-mall' | 'high-end' | 'outlet' | 'department-store';
   categoryLabel?: string;
   size?: 'sm' | 'md' | 'lg';
+  className?: string;
 }
 
 const categoryConfig = {
@@ -34,7 +35,7 @@ const categoryConfig = {
   }
 };
 
-export function MallCategoryBadge({ category, categoryLabel, size = 'md' }: MallCategoryBadgeProps) {
+export function MallCategoryBadge({ category, categoryLabel, size = 'md', className = '' }: MallCategoryBadgeProps) {
   if (!category && !categoryLabel) {
     return null;
   }
@@ -51,7 +52,7 @@ export function MallCategoryBadge({ category, categoryLabel, size = 'md' }: Mall
   };
 
   return (
-    <div className={`inline-flex items-center space-x-1 rounded-full font-medium ${sizeClasses[size]} ${colorClass}`}>
+    <div className={`inline-flex items-center space-x-1 rounded-full font-medium ${sizeClasses[size]} ${colorClass} ${className}`}>
       <span className={size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-base' : 'text-sm'}>
         {icon}
       </span>

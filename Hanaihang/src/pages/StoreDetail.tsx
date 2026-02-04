@@ -10,6 +10,7 @@ import FadeIn from '../components/ui/FadeIn';
 import { useRealtimeMall } from '@/hooks/useRealtimeMalls';
 import { useRealtimeStores } from '@/hooks/useRealtimeStores';
 import { resolveStoreComputed, ResolvedStore } from '@/lib/store-resolver';
+import SEO from '@/components/SEO';
 
 const StoreDetail: React.FC = () => {
   const { mallId, storeId } = useParams<{ mallId?: string; storeId: string }>();

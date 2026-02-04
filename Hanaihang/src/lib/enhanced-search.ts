@@ -4,7 +4,7 @@ import { listMalls } from '../services/firebase/firestore';
 import { Mall } from '../types/mall-system';
 import { searchStoresGlobally } from '../services/firebase/stores';
 
-import { normalizeThai } from './thai-normalize';
+import { normalizeThai, getSearchScore } from './thai-normalize';
 
 // Cache system with stale-while-revalidate
 class SearchCache {
@@ -62,16 +62,18 @@ export interface UnifiedSearchResult {
   openNow?: boolean;
   distanceKm?: number;
   score?: number;
+  textScore?: number; // Score from text matching (0-100)
 }
 
 // Search configuration
 const SEARCH_CONFIG = {
-  DEBOUNCE_MS: 120,
+  DEBOUNCE_MS: 150,
   MAX_RESULTS_PER_TYPE: 50,
   RANKING_WEIGHTS: {
-    DISTANCE: 1.0,
-    OPEN_STATUS: 1.0,
-    TYPE_BONUS: 0.1,
+    TEXT_MATCH: 1.5,   // Higher weight for text relevance
+    DISTANCE: 0.8,
+    OPEN_STATUS: 0.5,
+    TYPE_BONUS: 0.2,   // Small bonus for malls to show them first if text match is equal
   },
 };
 
@@ -81,7 +83,9 @@ export async function searchMallsAndStores(
   userLocation?: { lat: number; lng: number },
   signal?: AbortSignal,
 ): Promise<UnifiedSearchResult[]> {
-  const normalizedQuery = normalizeThai(query.trim());
+  const rawQuery = query.trim();
+  const normalizedQuery = normalizeThai(rawQuery);
+
   if (!normalizedQuery || normalizedQuery.length < 1) {
     return [];
   }
@@ -90,15 +94,18 @@ export async function searchMallsAndStores(
   const cacheKey = `${normalizedQuery}_${userLocation ? `${userLocation.lat},${userLocation.lng}` : 'no-location'}`;
   const cached = searchCache.get(cacheKey);
   if (cached) {
-    // Emit cached results immediately (stale-while-revalidate)
-    return cached;
+    return cached as UnifiedSearchResult[];
   }
 
   try {
+    // Determine search strategies
+    const queryParts = normalizedQuery.split(' ').filter(p => p.length > 0);
+    const storeSearchToken = queryParts[0]; // Use first word for store prefix search
+
     // Parallel queries
     const [mallsRaw, storesRaw] = await Promise.all([
       searchMalls(normalizedQuery, signal),
-      searchStores(normalizedQuery, signal),
+      searchStores(storeSearchToken, signal), // Use first token for better recall
     ]);
 
     // เติม meta ของห้างให้ร้าน
@@ -107,18 +114,63 @@ export async function searchMallsAndStores(
     // รวมผล
     let unified = unifySearchResults(mallsRaw, storesEnriched);
 
-    // คำนวณระยะทาง
-    if (userLocation) {
-      unified = unified.map(item => {
+    // คำนวณ Score และกรองความเร็ว
+    unified = unified.map(item => {
+      // คำนวณ Text Match Score
+      // ตรวจสอบทั้งชื่อ และถ้าเป็นร้าน ให้ตรวจชื่อห้างด้วย
+      const queryParts = normalizedQuery.split(' ').filter(p => p.length > 0);
+
+      // Base score from full query match
+      let nameScore = getSearchScore(item.displayName, normalizedQuery);
+      let contextScore = 0;
+
+      if (item.kind === 'store' && item.mallName) {
+        contextScore = getSearchScore(item.mallName, normalizedQuery);
+      } else if (item.kind === 'mall' && (item as any).address) {
+        contextScore = getSearchScore((item as any).address, normalizedQuery) * 0.5;
+      }
+
+      // If full match is low, try partial matches for multi-word queries
+      if (queryParts.length > 1 && Math.max(nameScore, contextScore) < 40) {
+        let partialScore = 0;
+        for (const part of queryParts) {
+          if (part.length < 2) continue;
+
+          const s1 = getSearchScore(item.displayName, part);
+          let s2 = 0;
+          if (item.kind === 'store' && item.mallName) {
+            s2 = getSearchScore(item.mallName, part);
+          }
+
+          // If a word matches the store and another word matches the mall, that's a strong signal
+          partialScore += Math.max(s1, s2);
+        }
+        // Normalize partial score
+        nameScore = Math.max(nameScore, partialScore / queryParts.length);
+      }
+
+      const textScore = Math.max(nameScore, contextScore);
+
+      // คำนวณระยะทาง
+      let distanceKm: number | undefined;
+      if (userLocation) {
         const point =
           item.kind === 'mall'
             ? (item.coords ?? item.mallCoords)
             : (item.mallCoords ?? item.coords);
-        return {
-          ...item,
-          distanceKm: point ? haversineKm(userLocation, point) : undefined,
-        };
-      });
+        distanceKm = point ? haversineKm(userLocation, point) : undefined;
+      }
+
+      return {
+        ...item,
+        textScore,
+        distanceKm,
+      };
+    });
+
+    // กรองพวกที่ไม่เกี่ยวเลยออก (score = 0) ถ้าคำค้นหามีความหมาย
+    if (normalizedQuery.length > 1) {
+      unified = unified.filter(item => (item.textScore || 0) > 0);
     }
 
     // จัดเรียงด้วย score
@@ -129,7 +181,7 @@ export async function searchMallsAndStores(
 
     return unified;
   } catch (error: unknown) {
-    if (error.name === 'AbortError') {
+    if (error instanceof Error && error.message === 'AbortError') {
       return [];
     }
     console.error('Search error:', error);
@@ -147,10 +199,13 @@ async function searchMalls(
   try {
     const malls = await listMalls();
 
-    // Filter by normalized name
+    // Filter by normalized name, district, or address
     const filtered = malls.filter((mall) => {
-      const normalizedName = normalizeThai(mall.displayName || mall.name || '');
-      return normalizedName.includes(query);
+      const name = normalizeThai(mall.displayName || mall.name || '');
+      const district = normalizeThai(mall.district || '');
+      const address = normalizeThai(mall.address || '');
+
+      return name.includes(query) || district.includes(query) || address.includes(query);
     });
 
     return filtered.slice(0, SEARCH_CONFIG.MAX_RESULTS_PER_TYPE).map((mall) => {
@@ -159,7 +214,7 @@ async function searchMalls(
         : (mall.coords || undefined);
       const hours = mall.openTime && mall.closeTime
         ? { open: mall.openTime, close: mall.closeTime }
-        : mall.hours; // เผื่อ legacy
+        : mall.hours;
 
       return {
         ...mall,
@@ -176,14 +231,14 @@ async function searchMalls(
 }
 
 // Enrich stores with mall metadata
-async function enrichStoresWithMallMeta(stores: unknown[]) {
+async function enrichStoresWithMallMeta(stores: any[]) {
   // ดึง mall ids ที่ต้องใช้
   const ids = Array.from(new Set(stores.map(s => s.mallId).filter(Boolean)));
   if (ids.length === 0) return stores;
 
   // ใช้ listMalls() แล้ว map เป็น lookup โดย id
   const allMalls = await listMalls();
-  const mallById = new Map(allMalls.map((m: unknown) => [m.id, m]));
+  const mallById = new Map(allMalls.map((m: any) => [m.id, m]));
 
   return stores.map(s => {
     const mall = mallById.get(s.mallId);
@@ -194,8 +249,8 @@ async function enrichStoresWithMallMeta(stores: unknown[]) {
       : (mall.coords || undefined);
 
     // ใช้เวลาเปิด/ปิดจากร้านก่อน ถ้าไม่มีค่อย fallback เป็นของห้าง
-    const openTime = s.hours?.open || (mall as unknown).openTime || mall?.hours?.open;
-    const closeTime = s.hours?.close || (mall as unknown).closeTime || mall?.hours?.close;
+    const openTime = s.hours?.open || (mall as any).openTime || mall?.hours?.open;
+    const closeTime = s.hours?.close || (mall as any).closeTime || mall?.hours?.close;
 
     return {
       ...s,
@@ -225,18 +280,18 @@ async function searchStores(
       kind: 'store' as const,
       name: store.name,
       displayName: store.name,
-      mallId: _mallId,                 // ✅ ใช้ mallId ที่ถูกต้อง
+      mallId: _mallId,
       mallSlug: store.mallSlug || _mallId,
-      coords: store.location,          // ถ้าร้านไม่มีพิกัดจริง เดี๋ยว enrich จากห้าง
-      mallCoords: undefined,           // จะเติมทีหลัง
+      coords: store.location,
+      mallCoords: undefined,
       floorLabel: store.floorLabel || store.floorId,
       category: store.category,
       hours: store.hours
         ? { open: store.hours.split('-')[0], close: store.hours.split('-')[1] }
         : undefined,
-      openNow: false,                  // จะคำนวณทีหลัง
-      distanceKm: undefined,           // จะคำนวณทีหลัง
-      score: undefined,                // จะคำนวณทีหลัง
+      openNow: false,
+      distanceKm: undefined,
+      score: undefined,
     }));
   } catch (error) {
     if (signal?.aborted) throw new Error('AbortError');
@@ -247,13 +302,13 @@ async function searchStores(
 
 // Unify search results
 function unifySearchResults(
-  malls: unknown[],
-  stores: unknown[],
+  malls: any[],
+  stores: any[],
 ): UnifiedSearchResult[] {
   const unified: UnifiedSearchResult[] = [];
 
   // Add malls
-  malls.forEach((mall: unknown) => {
+  malls.forEach((mall: any) => {
     const hours = mall.hours || ((mall.openTime && mall.closeTime) ? { open: mall.openTime, close: mall.closeTime } : undefined);
     const coords = mall.coords || ((mall.lat != null && mall.lng != null) ? { lat: mall.lat, lng: mall.lng } : undefined);
     unified.push({
@@ -268,7 +323,7 @@ function unifySearchResults(
   });
 
   // Add stores
-  stores.forEach((s: unknown) => {
+  stores.forEach((s: any) => {
     unified.push({
       id: s.id,
       kind: 'store',
@@ -289,7 +344,7 @@ function unifySearchResults(
   return unified;
 }
 
-// Calculate ranking score
+// Calculate ranking score (Higher is BETTER match)
 export function calculateSearchScore(
   result: UnifiedSearchResult,
   userLocation?: { lat: number; lng: number },
@@ -297,27 +352,35 @@ export function calculateSearchScore(
   const weights = SEARCH_CONFIG.RANKING_WEIGHTS;
   let score = 0;
 
-  // Distance score (lower is better)
+  // 1. Text match score (0-100) -> Major factor
+  score += (result.textScore || 0) * weights.TEXT_MATCH;
+
+  // 2. Distance score (Nearby gets bonus)
   if (result.distanceKm !== undefined && userLocation) {
-    score += weights.DISTANCE * result.distanceKm;
-  } else {
-    score += weights.DISTANCE * 10; // Default distance penalty
+    // Distance penalty: -1 point for every 2km, up to -10 points
+    const distancePenalty = Math.min(10, result.distanceKm / 2);
+    score -= distancePenalty * weights.DISTANCE;
+
+    // Proximity bonus for very close locations (< 1km)
+    if (result.distanceKm < 1) {
+      score += 5 * weights.DISTANCE;
+    }
   }
 
-  // Open status bonus
+  // 3. Open status bonus
   if (result.openNow) {
-    score -= weights.OPEN_STATUS * 5; // Bonus for being open
+    score += 5 * weights.OPEN_STATUS;
   }
 
-  // Type bonus (malls get slight preference)
+  // 4. Type bonus (malls get slight preference if text matches equally)
   if (result.kind === 'mall') {
-    score -= weights.TYPE_BONUS;
+    score += weights.TYPE_BONUS;
   }
 
   return score;
 }
 
-// Sort results by score
+// Sort results by score (Descending - Highest score first)
 export function sortSearchResults(
   results: UnifiedSearchResult[],
   userLocation?: { lat: number; lng: number },
@@ -327,7 +390,7 @@ export function sortSearchResults(
       ...result,
       score: calculateSearchScore(result, userLocation),
     }))
-    .sort((a, b) => a.score - b.score);
+    .sort((a, b) => (b.score || 0) - (a.score || 0));
 }
 
 // Haversine distance calculation
@@ -408,7 +471,7 @@ export function useDebouncedSearch(
         if (!controller.signal.aborted) {
           setResults(searchResults);
         }
-      } catch (err) {
+      } catch (err: any) {
         if (err.name !== 'AbortError') {
           setError(err.message);
           setResults([]);
