@@ -42,7 +42,7 @@ jobs:
             echo "❌ Android-only rollup binary detected in lockfile"
             exit 1
           fi
-      - run: npm ci
+      - run: npm install --no-optional
 
   e2e:
     needs: setup
@@ -63,7 +63,7 @@ jobs:
             echo "❌ Android-only rollup binary detected in lockfile"
             exit 1
           fi
-      - run: npm ci
+      - run: npm install --no-optional
       - run: npx playwright install --with-deps
       
       # Resolve BASE_URL
@@ -150,7 +150,7 @@ jobs:
             echo "❌ Android-only rollup binary detected in lockfile"
             exit 1
           fi
-      - run: npm ci
+      - run: npm install --no-optional
       - name: Ensure artifacts directory
         run: mkdir -p artifacts/pa11y artifacts/lh
       
@@ -234,7 +234,7 @@ jobs:
             echo "❌ Android-only rollup binary detected in lockfile"
             exit 1
           fi
-      - run: npm ci
+      - run: npm install --no-optional
 
       - name: Ensure artifacts directory
         run: mkdir -p artifacts/pa11y artifacts/lh
