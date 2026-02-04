@@ -1,0 +1,15 @@
+{
+  "version": "0.0.0",
+  "sha": "eee838d",
+  "branch": "main",
+  "timestamp": "2025-09-11T12:31:33.508Z",
+  "buildId": "1757593893508",
+  "context": "local",
+  "repo": "https://github.com/Earthondev/Hanaihang",
+  "runtime": {
+    "node": "v22.16.0",
+    "netlify": false,
+    "platform": "darwin",
+    "arch": "arm64"
+  }
+}

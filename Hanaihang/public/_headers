@@ -1,0 +1,44 @@
+/*
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# cache assets 1 ปี
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/javascript
+/*.mjs
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/javascript
+/*.ts
+  Content-Type: application/javascript
+/*.tsx
+  Content-Type: application/javascript
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: text/css
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: font/woff2
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: image/png
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: image/webp
+
+# Vite assets - สำคัญมาก!
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+# Build info - ห้ามแคช!
+/build.json
+  Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0
+  Content-Type: application/json; charset=utf-8

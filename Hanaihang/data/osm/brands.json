@@ -1,0 +1,63 @@
+{
+  "brands": [
+    {
+      "id": "bigc",
+      "label": "Big C",
+      "category": "department-store",
+      "categoryLabel": "Hypermarket",
+      "include": ["Big C", "BigC", "Big C Supercenter", "Big C Extra", "บิ๊กซี"],
+      "exclude": ["Mini", "mini", "Go Fresh", "Express", "Big C Mini", "Mini Big C"],
+      "shopAllow": ["supermarket", "department_store"],
+      "amenityAllow": ["shopping_mall"]
+    },
+    {
+      "id": "lotus",
+      "label": "Lotus's",
+      "category": "department-store",
+      "categoryLabel": "Hypermarket",
+      "include": ["Lotus's", "Lotus", "Tesco Lotus", "เทสโก้โลตัส", "โลตัส"],
+      "exclude": ["Go Fresh", "GoFresh", "Express", "Lotus's Express", "Lotus's Go Fresh"],
+      "shopAllow": ["supermarket", "department_store"],
+      "amenityAllow": ["shopping_mall"]
+    },
+    {
+      "id": "makro",
+      "label": "Makro",
+      "category": "department-store",
+      "categoryLabel": "Wholesale",
+      "include": ["Makro", "แม็คโคร"],
+      "exclude": ["Pro"],
+      "shopAllow": ["supermarket", "department_store"],
+      "amenityAllow": ["shopping_mall"]
+    },
+    {
+      "id": "central-dept",
+      "label": "Central Department Store",
+      "category": "department-store",
+      "categoryLabel": "Department Store",
+      "include": ["Central Department Store", "Central", "เซ็นทรัล"],
+      "exclude": ["CentralWorld", "Central World", "Central Plaza", "Central Festival", "Central Embassy", "Central Village", "Central Pattana", "Central Park"],
+      "shopAllow": ["department_store"]
+    },
+    {
+      "id": "central-malls",
+      "label": "Central Mall",
+      "category": "shopping-center",
+      "categoryLabel": "Shopping Center",
+      "include": ["Central"],
+      "exclude": ["Central Department Store"],
+      "shopAllow": ["mall"],
+      "amenityAllow": ["shopping_mall"]
+    },
+    {
+      "id": "the-avenue",
+      "label": "The Avenue",
+      "category": "community-mall",
+      "categoryLabel": "Community Mall",
+      "include": ["The Avenue"],
+      "exclude": ["Charn"],
+      "shopAllow": ["mall"],
+      "amenityAllow": ["shopping_mall"]
+    }
+  ]
+}

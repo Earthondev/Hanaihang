@@ -1,0 +1,241 @@
+mallId	mallName	storeId	storeName	category	floorId	floorLabel	unit	landmarks	directions	nearbyStores	notes
+central-world	CentralWorld	adidas-central-world-6-1	Adidas #1	Fashion	6	6th Floor	6-101				
+central-world	CentralWorld	adidas-central-world-G-7	Adidas #7	Fashion	G	Ground Floor	G-107				
+central-world	CentralWorld	adidas-central-world-M-1	Adidas #1	Fashion	M	Main Floor	M-101				
+central-world	CentralWorld	after-you-central-world-1-5	After You #5	Food & Beverage	1	1st Floor	1-105				
+central-world	CentralWorld	after-you-central-world-3-3	After You #3	Food & Beverage	3	3rd Floor	3-103				
+central-world	CentralWorld	after-you-central-world-4-2	After You #2	Food & Beverage	4	4th Floor	4-102				
+central-world	CentralWorld	after-you-central-world-5-4	After You #4	Food & Beverage	5	5th Floor	5-104				
+central-world	CentralWorld	after-you-central-world-M-6	After You #6	Food & Beverage	M	Main Floor	M-106				
+central-world	CentralWorld	banana-it-central-world-1-0	Banana IT 	Electronics	1	1st Floor	1-100				
+central-world	CentralWorld	banana-it-central-world-4-5	Banana IT #5	Electronics	4	4th Floor	4-105				
+central-world	CentralWorld	banana-it-central-world-5-2	Banana IT #2	Electronics	5	5th Floor	5-102				
+central-world	CentralWorld	banana-it-central-world-5-5	Banana IT #5	Electronics	5	5th Floor	5-105				
+central-world	CentralWorld	banana-it-central-world-6-3	Banana IT #3	Electronics	6	6th Floor	6-103				
+central-world	CentralWorld	banana-it-central-world-6-4	Banana IT #4	Electronics	6	6th Floor	6-104				
+central-world	CentralWorld	banana-it-central-world-G-9	Banana IT #9	Electronics	G	Ground Floor	G-109				
+central-world	CentralWorld	banana-it-central-world-M-0	Banana IT 	Electronics	M	Main Floor	M-100				
+central-world	CentralWorld	big-camera-central-world-3-5	Big Camera #5	Electronics	3	3rd Floor	3-105				
+central-world	CentralWorld	big-camera-central-world-G-4	Big Camera #4	Electronics	G	Ground Floor	G-104				
+central-world	CentralWorld	big-camera-central-world-G-6	Big Camera #6	Electronics	G	Ground Floor	G-106				
+central-world	CentralWorld	big-camera-central-world-M-8	Big Camera #8	Electronics	M	Main Floor	M-108				
+central-world	CentralWorld	bonchon-central-world-5-1	Bonchon #1	Food & Beverage	5	5th Floor	5-101				
+central-world	CentralWorld	boots-central-world-2-4	Boots #4	Beauty	2	2nd Floor	2-104				
+central-world	CentralWorld	boots-central-world-G-0	Boots 	Beauty	G	Ground Floor	G-100				
+central-world	CentralWorld	burger-king-central-world-5-3	Burger King #3	Food & Beverage	5	5th Floor	5-103				
+central-world	CentralWorld	burger-king-central-world-G-3	Burger King #3	Food & Beverage	G	Ground Floor	G-103				
+central-world	CentralWorld	dior-beauty-central-world-2-2	Dior Beauty #2	Beauty	2	2nd Floor	2-102				
+central-world	CentralWorld	dior-beauty-central-world-3-2	Dior Beauty #2	Beauty	3	3rd Floor	3-102				
+central-world	CentralWorld	dior-beauty-central-world-4-0	Dior Beauty 	Beauty	4	4th Floor	4-100				
+central-world	CentralWorld	dior-beauty-central-world-G-5	Dior Beauty #5	Beauty	G	Ground Floor	G-105				
+central-world	CentralWorld	dior-beauty-central-world-M-3	Dior Beauty #3	Beauty	M	Main Floor	M-103				
+central-world	CentralWorld	eveandboy-central-world-2-5	Eveandboy #5	Beauty	2	2nd Floor	2-105				
+central-world	CentralWorld	eveandboy-central-world-M-5	Eveandboy #5	Beauty	M	Main Floor	M-105				
+central-world	CentralWorld	fuji-central-world-1-4	Fuji #4	Food & Beverage	1	1st Floor	1-104				
+central-world	CentralWorld	gentlewoman-central-world-2-3	Gentlewoman #3	Fashion	2	2nd Floor	2-103				
+central-world	CentralWorld	gucci-central-world-6-5	Gucci #5	Fashion	6	6th Floor	6-105				
+central-world	CentralWorld	gucci-central-world-6-6	Gucci #6	Fashion	6	6th Floor	6-106				
+central-world	CentralWorld	istudio-central-world-1-7	iStudio #7	Electronics	1	1st Floor	1-107				
+central-world	CentralWorld	istudio-central-world-3-4	iStudio #4	Electronics	3	3rd Floor	3-104				
+central-world	CentralWorld	istudio-central-world-5-8	iStudio #8	Electronics	5	5th Floor	5-108				
+central-world	CentralWorld	istudio-central-world-M-2	iStudio #2	Electronics	M	Main Floor	M-102				
+central-world	CentralWorld	jib-central-world-1-9	JIB #9	Electronics	1	1st Floor	1-109				
+central-world	CentralWorld	m.a.c-central-world-1-2	M.A.C #2	Beauty	1	1st Floor	1-102				
+central-world	CentralWorld	m.a.c-central-world-1-6	M.A.C #6	Beauty	1	1st Floor	1-106				
+central-world	CentralWorld	m.a.c-central-world-3-1	M.A.C #1	Beauty	3	3rd Floor	3-101				
+central-world	CentralWorld	m.a.c-central-world-G-8	M.A.C #8	Beauty	G	Ground Floor	G-108				
+central-world	CentralWorld	mk-restaurants-central-world-1-10	MK Restaurants #10	Food & Beverage	1	1st Floor	1-110				
+central-world	CentralWorld	mk-restaurants-central-world-5-9	MK Restaurants #9	Food & Beverage	5	5th Floor	5-109				
+central-world	CentralWorld	mk-restaurants-central-world-G-2	MK Restaurants #2	Food & Beverage	G	Ground Floor	G-102				
+central-world	CentralWorld	nike-central-world-6-8	Nike #8	Fashion	6	6th Floor	6-108				
+central-world	CentralWorld	pomelo-central-world-6-9	Pomelo #9	Fashion	6	6th Floor	6-109				
+central-world	CentralWorld	prada-central-world-2-0	Prada 	Fashion	2	2nd Floor	2-100				
+central-world	CentralWorld	prada-central-world-5-6	Prada #6	Fashion	5	5th Floor	5-106				
+central-world	CentralWorld	samsung-central-world-4-1	Samsung #1	Electronics	4	4th Floor	4-101				
+central-world	CentralWorld	samsung-central-world-6-0	Samsung 	Electronics	6	6th Floor	6-100				
+central-world	CentralWorld	sephora-central-world-2-1	Sephora #1	Beauty	2	2nd Floor	2-101				
+central-world	CentralWorld	sephora-central-world-3-0	Sephora 	Beauty	3	3rd Floor	3-100				
+central-world	CentralWorld	sephora-central-world-5-0	Sephora 	Beauty	5	5th Floor	5-100				
+central-world	CentralWorld	sephora-central-world-5-7	Sephora #7	Beauty	5	5th Floor	5-107				
+central-world	CentralWorld	sephora-central-world-6-10	Sephora #10	Beauty	6	6th Floor	6-110				
+central-world	CentralWorld	sephora-central-world-G-10	Sephora #10	Beauty	G	Ground Floor	G-110				
+central-world	CentralWorld	sephora-central-world-M-4	Sephora #4	Beauty	M	Main Floor	M-104				
+central-world	CentralWorld	sony-central-world-G-1	Sony #1	Electronics	G	Ground Floor	G-101				
+central-world	CentralWorld	starbucks-central-world-M-9	Starbucks #9	Food & Beverage	M	Main Floor	M-109				
+central-world	CentralWorld	uniqlo-central-world-6-11	Uniqlo #11	Fashion	6	6th Floor	6-111				
+central-world	CentralWorld	uniqlo-central-world-6-7	Uniqlo #7	Fashion	6	6th Floor	6-107				
+central-world	CentralWorld	watsons-central-world-1-3	Watsons #3	Beauty	1	1st Floor	1-103				
+central-world	CentralWorld	watsons-central-world-4-3	Watsons #3	Beauty	4	4th Floor	4-103				
+central-world	CentralWorld	watsons-central-world-4-4	Watsons #4	Beauty	4	4th Floor	4-104				
+central-world	CentralWorld	yayoi-central-world-M-7	Yayoi #7	Food & Beverage	M	Main Floor	M-107				
+central-world	CentralWorld	zara-central-world-1-1	Zara #1	Fashion	1	1st Floor	1-101				
+central-world	CentralWorld	zara-central-world-1-8	Zara #8	Fashion	1	1st Floor	1-108				
+central-world	CentralWorld	zara-central-world-6-2	Zara #2	Fashion	6	6th Floor	6-102				
+iconsiam	ICONSIAM	adidas-iconsiam-4-3	Adidas #3	Fashion	4	4th Floor	4-103				
+iconsiam	ICONSIAM	adidas-iconsiam-6-10	Adidas #10	Fashion	6	6th Floor	6-110				
+iconsiam	ICONSIAM	adidas-iconsiam-6-9	Adidas #9	Fashion	6	6th Floor	6-109				
+iconsiam	ICONSIAM	after-you-iconsiam-5-4	After You #4	Food & Beverage	5	5th Floor	5-104				
+iconsiam	ICONSIAM	banana-it-iconsiam-3-5	Banana IT #5	Electronics	3	3rd Floor	3-105				
+iconsiam	ICONSIAM	banana-it-iconsiam-6-0	Banana IT 	Electronics	6	6th Floor	6-100				
+iconsiam	ICONSIAM	banana-it-iconsiam-G-1	Banana IT #1	Electronics	G	Ground Floor	G-101				
+iconsiam	ICONSIAM	big-camera-iconsiam-4-1	Big Camera #1	Electronics	4	4th Floor	4-101				
+iconsiam	ICONSIAM	bonchon-iconsiam-1-6	Bonchon #6	Food & Beverage	1	1st Floor	1-106				
+iconsiam	ICONSIAM	bonchon-iconsiam-5-2	Bonchon #2	Food & Beverage	5	5th Floor	5-102				
+iconsiam	ICONSIAM	bonchon-iconsiam-6-1	Bonchon #1	Food & Beverage	6	6th Floor	6-101				
+iconsiam	ICONSIAM	boots-iconsiam-1-7	Boots #7	Beauty	1	1st Floor	1-107				
+iconsiam	ICONSIAM	boots-iconsiam-2-6	Boots #6	Beauty	2	2nd Floor	2-106				
+iconsiam	ICONSIAM	boots-iconsiam-6-6	Boots #6	Beauty	6	6th Floor	6-106				
+iconsiam	ICONSIAM	burger-king-iconsiam-3-4	Burger King #4	Food & Beverage	3	3rd Floor	3-104				
+iconsiam	ICONSIAM	burger-king-iconsiam-6-3	Burger King #3	Food & Beverage	6	6th Floor	6-103				
+iconsiam	ICONSIAM	dior-beauty-iconsiam-2-0	Dior Beauty 	Beauty	2	2nd Floor	2-100				
+iconsiam	ICONSIAM	dior-beauty-iconsiam-6-5	Dior Beauty #5	Beauty	6	6th Floor	6-105				
+iconsiam	ICONSIAM	dior-beauty-iconsiam-M-4	Dior Beauty #4	Beauty	M	Main Floor	M-104				
+iconsiam	ICONSIAM	dior-beauty-iconsiam-M-5	Dior Beauty #5	Beauty	M	Main Floor	M-105				
+iconsiam	ICONSIAM	eveandboy-iconsiam-1-1	Eveandboy #1	Beauty	1	1st Floor	1-101				
+iconsiam	ICONSIAM	eveandboy-iconsiam-M-0	Eveandboy 	Beauty	M	Main Floor	M-100				
+iconsiam	ICONSIAM	eveandboy-iconsiam-M-3	Eveandboy #3	Beauty	M	Main Floor	M-103				
+iconsiam	ICONSIAM	fuji-iconsiam-1-5	Fuji #5	Food & Beverage	1	1st Floor	1-105				
+iconsiam	ICONSIAM	fuji-iconsiam-3-3	Fuji #3	Food & Beverage	3	3rd Floor	3-103				
+iconsiam	ICONSIAM	fuji-iconsiam-6-8	Fuji #8	Food & Beverage	6	6th Floor	6-108				
+iconsiam	ICONSIAM	fuji-iconsiam-M-2	Fuji #2	Food & Beverage	M	Main Floor	M-102				
+iconsiam	ICONSIAM	gentlewoman-iconsiam-2-5	Gentlewoman #5	Fashion	2	2nd Floor	2-105				
+iconsiam	ICONSIAM	gucci-iconsiam-3-0	Gucci 	Fashion	3	3rd Floor	3-100				
+iconsiam	ICONSIAM	gucci-iconsiam-5-3	Gucci #3	Fashion	5	5th Floor	5-103				
+iconsiam	ICONSIAM	istudio-iconsiam-2-2	iStudio #2	Electronics	2	2nd Floor	2-102				
+iconsiam	ICONSIAM	istudio-iconsiam-5-7	iStudio #7	Electronics	5	5th Floor	5-107				
+iconsiam	ICONSIAM	jib-iconsiam-2-1	JIB #1	Electronics	2	2nd Floor	2-101				
+iconsiam	ICONSIAM	jib-iconsiam-5-6	JIB #6	Electronics	5	5th Floor	5-106				
+iconsiam	ICONSIAM	m.a.c-iconsiam-1-4	M.A.C #4	Beauty	1	1st Floor	1-104				
+iconsiam	ICONSIAM	m.a.c-iconsiam-2-3	M.A.C #3	Beauty	2	2nd Floor	2-103				
+iconsiam	ICONSIAM	m.a.c-iconsiam-5-0	M.A.C 	Beauty	5	5th Floor	5-100				
+iconsiam	ICONSIAM	m.a.c-iconsiam-6-2	M.A.C #2	Beauty	6	6th Floor	6-102				
+iconsiam	ICONSIAM	m.a.c-iconsiam-6-4	M.A.C #4	Beauty	6	6th Floor	6-104				
+iconsiam	ICONSIAM	m.a.c-iconsiam-G-4	M.A.C #4	Beauty	G	Ground Floor	G-104				
+iconsiam	ICONSIAM	mk-restaurants-iconsiam-3-6	MK Restaurants #6	Food & Beverage	3	3rd Floor	3-106				
+iconsiam	ICONSIAM	mk-restaurants-iconsiam-4-4	MK Restaurants #4	Food & Beverage	4	4th Floor	4-104				
+iconsiam	ICONSIAM	mk-restaurants-iconsiam-G-3	MK Restaurants #3	Food & Beverage	G	Ground Floor	G-103				
+iconsiam	ICONSIAM	nike-iconsiam-3-7	Nike #7	Fashion	3	3rd Floor	3-107				
+iconsiam	ICONSIAM	pomelo-iconsiam-2-7	Pomelo #7	Fashion	2	2nd Floor	2-107				
+iconsiam	ICONSIAM	pomelo-iconsiam-6-7	Pomelo #7	Fashion	6	6th Floor	6-107				
+iconsiam	ICONSIAM	prada-iconsiam-1-2	Prada #2	Fashion	1	1st Floor	1-102				
+iconsiam	ICONSIAM	samsung-iconsiam-6-11	Samsung #11	Electronics	6	6th Floor	6-111				
+iconsiam	ICONSIAM	sephora-iconsiam-3-1	Sephora #1	Beauty	3	3rd Floor	3-101				
+iconsiam	ICONSIAM	sephora-iconsiam-4-2	Sephora #2	Beauty	4	4th Floor	4-102				
+iconsiam	ICONSIAM	sony-iconsiam-4-0	Sony 	Electronics	4	4th Floor	4-100				
+iconsiam	ICONSIAM	starbucks-iconsiam-1-0	Starbucks 	Food & Beverage	1	1st Floor	1-100				
+iconsiam	ICONSIAM	starbucks-iconsiam-4-5	Starbucks #5	Food & Beverage	4	4th Floor	4-105				
+iconsiam	ICONSIAM	starbucks-iconsiam-G-2	Starbucks #2	Food & Beverage	G	Ground Floor	G-102				
+iconsiam	ICONSIAM	uniqlo-iconsiam-1-3	Uniqlo #3	Fashion	1	1st Floor	1-103				
+iconsiam	ICONSIAM	uniqlo-iconsiam-M-1	Uniqlo #1	Fashion	M	Main Floor	M-101				
+iconsiam	ICONSIAM	watsons-iconsiam-5-1	Watsons #1	Beauty	5	5th Floor	5-101				
+iconsiam	ICONSIAM	yayoi-iconsiam-3-2	Yayoi #2	Food & Beverage	3	3rd Floor	3-102				
+iconsiam	ICONSIAM	zara-iconsiam-2-4	Zara #4	Fashion	2	2nd Floor	2-104				
+iconsiam	ICONSIAM	zara-iconsiam-5-5	Zara #5	Fashion	5	5th Floor	5-105				
+iconsiam	ICONSIAM	zara-iconsiam-5-8	Zara #8	Fashion	5	5th Floor	5-108				
+iconsiam	ICONSIAM	zara-iconsiam-G-0	Zara 	Fashion	G	Ground Floor	G-100				
+siam-paragon	Siam Paragon	adidas-siam-paragon-4-5	Adidas #5	Fashion	4	4th Floor	4-105				
+siam-paragon	Siam Paragon	adidas-siam-paragon-G-3	Adidas #3	Fashion	G	Ground Floor	G-103				
+siam-paragon	Siam Paragon	adidas-siam-paragon-M-2	Adidas #2	Fashion	M	Main Floor	M-102				
+siam-paragon	Siam Paragon	banana-it-siam-paragon-3-9	Banana IT #9	Electronics	3	3rd Floor	3-109				
+siam-paragon	Siam Paragon	banana-it-siam-paragon-4-2	Banana IT #2	Electronics	4	4th Floor	4-102				
+siam-paragon	Siam Paragon	banana-it-siam-paragon-M-4	Banana IT #4	Electronics	M	Main Floor	M-104				
+siam-paragon	Siam Paragon	big-camera-siam-paragon-1-2	Big Camera #2	Electronics	1	1st Floor	1-102				
+siam-paragon	Siam Paragon	big-camera-siam-paragon-1-3	Big Camera #3	Electronics	1	1st Floor	1-103				
+siam-paragon	Siam Paragon	big-camera-siam-paragon-1-4	Big Camera #4	Electronics	1	1st Floor	1-104				
+siam-paragon	Siam Paragon	big-camera-siam-paragon-1-6	Big Camera #6	Electronics	1	1st Floor	1-106				
+siam-paragon	Siam Paragon	bonchon-siam-paragon-1-1	Bonchon #1	Food & Beverage	1	1st Floor	1-101				
+siam-paragon	Siam Paragon	bonchon-siam-paragon-2-6	Bonchon #6	Food & Beverage	2	2nd Floor	2-106				
+siam-paragon	Siam Paragon	bonchon-siam-paragon-2-9	Bonchon #9	Food & Beverage	2	2nd Floor	2-109				
+siam-paragon	Siam Paragon	bonchon-siam-paragon-3-1	Bonchon #1	Food & Beverage	3	3rd Floor	3-101				
+siam-paragon	Siam Paragon	bonchon-siam-paragon-4-8	Bonchon #8	Food & Beverage	4	4th Floor	4-108				
+siam-paragon	Siam Paragon	bonchon-siam-paragon-M-5	Bonchon #5	Food & Beverage	M	Main Floor	M-105				
+siam-paragon	Siam Paragon	boots-siam-paragon-M-7	Boots #7	Beauty	M	Main Floor	M-107				
+siam-paragon	Siam Paragon	burger-king-siam-paragon-4-4	Burger King #4	Food & Beverage	4	4th Floor	4-104				
+siam-paragon	Siam Paragon	dior-beauty-siam-paragon-3-7	Dior Beauty #7	Beauty	3	3rd Floor	3-107				
+siam-paragon	Siam Paragon	eveandboy-siam-paragon-2-4	Eveandboy #4	Beauty	2	2nd Floor	2-104				
+siam-paragon	Siam Paragon	eveandboy-siam-paragon-3-2	Eveandboy #2	Beauty	3	3rd Floor	3-102				
+siam-paragon	Siam Paragon	eveandboy-siam-paragon-3-3	Eveandboy #3	Beauty	3	3rd Floor	3-103				
+siam-paragon	Siam Paragon	eveandboy-siam-paragon-4-3	Eveandboy #3	Beauty	4	4th Floor	4-103				
+siam-paragon	Siam Paragon	eveandboy-siam-paragon-G-1	Eveandboy #1	Beauty	G	Ground Floor	G-101				
+siam-paragon	Siam Paragon	eveandboy-siam-paragon-G-6	Eveandboy #6	Beauty	G	Ground Floor	G-106				
+siam-paragon	Siam Paragon	fuji-siam-paragon-G-8	Fuji #8	Food & Beverage	G	Ground Floor	G-108				
+siam-paragon	Siam Paragon	gentlewoman-siam-paragon-2-5	Gentlewoman #5	Fashion	2	2nd Floor	2-105				
+siam-paragon	Siam Paragon	gentlewoman-siam-paragon-2-8	Gentlewoman #8	Fashion	2	2nd Floor	2-108				
+siam-paragon	Siam Paragon	gucci-siam-paragon-3-8	Gucci #8	Fashion	3	3rd Floor	3-108				
+siam-paragon	Siam Paragon	h&m-siam-paragon-2-2	H&M #2	Fashion	2	2nd Floor	2-102				
+siam-paragon	Siam Paragon	istudio-siam-paragon-1-0	iStudio 	Electronics	1	1st Floor	1-100				
+siam-paragon	Siam Paragon	istudio-siam-paragon-2-1	iStudio #1	Electronics	2	2nd Floor	2-101				
+siam-paragon	Siam Paragon	istudio-siam-paragon-2-7	iStudio #7	Electronics	2	2nd Floor	2-107				
+siam-paragon	Siam Paragon	jib-siam-paragon-2-11	JIB #11	Electronics	2	2nd Floor	2-111				
+siam-paragon	Siam Paragon	jib-siam-paragon-4-0	JIB 	Electronics	4	4th Floor	4-100				
+siam-paragon	Siam Paragon	jib-siam-paragon-4-9	JIB #9	Electronics	4	4th Floor	4-109				
+siam-paragon	Siam Paragon	koi-thé-siam-paragon-4-7	Koi Thé #7	Food & Beverage	4	4th Floor	4-107				
+siam-paragon	Siam Paragon	m.a.c-siam-paragon-2-10	M.A.C #10	Beauty	2	2nd Floor	2-110				
+siam-paragon	Siam Paragon	m.a.c-siam-paragon-3-4	M.A.C #4	Beauty	3	3rd Floor	3-104				
+siam-paragon	Siam Paragon	m.a.c-siam-paragon-4-6	M.A.C #6	Beauty	4	4th Floor	4-106				
+siam-paragon	Siam Paragon	m.a.c-siam-paragon-M-1	M.A.C #1	Beauty	M	Main Floor	M-101				
+siam-paragon	Siam Paragon	mk-restaurants-siam-paragon-4-1	MK Restaurants #1	Food & Beverage	4	4th Floor	4-101				
+siam-paragon	Siam Paragon	nike-siam-paragon-2-0	Nike 	Fashion	2	2nd Floor	2-100				
+siam-paragon	Siam Paragon	nike-siam-paragon-M-3	Nike #3	Fashion	M	Main Floor	M-103				
+siam-paragon	Siam Paragon	pomelo-siam-paragon-M-0	Pomelo 	Fashion	M	Main Floor	M-100				
+siam-paragon	Siam Paragon	samsung-siam-paragon-1-7	Samsung #7	Electronics	1	1st Floor	1-107				
+siam-paragon	Siam Paragon	samsung-siam-paragon-3-5	Samsung #5	Electronics	3	3rd Floor	3-105				
+siam-paragon	Siam Paragon	samsung-siam-paragon-G-4	Samsung #4	Electronics	G	Ground Floor	G-104				
+siam-paragon	Siam Paragon	sony-siam-paragon-1-5	Sony #5	Electronics	1	1st Floor	1-105				
+siam-paragon	Siam Paragon	sony-siam-paragon-3-0	Sony 	Electronics	3	3rd Floor	3-100				
+siam-paragon	Siam Paragon	sony-siam-paragon-G-11	Sony #11	Electronics	G	Ground Floor	G-111				
+siam-paragon	Siam Paragon	sony-siam-paragon-G-5	Sony #5	Electronics	G	Ground Floor	G-105				
+siam-paragon	Siam Paragon	starbucks-siam-paragon-3-10	Starbucks #10	Food & Beverage	3	3rd Floor	3-110				
+siam-paragon	Siam Paragon	starbucks-siam-paragon-G-7	Starbucks #7	Food & Beverage	G	Ground Floor	G-107				
+siam-paragon	Siam Paragon	starbucks-siam-paragon-M-6	Starbucks #6	Food & Beverage	M	Main Floor	M-106				
+siam-paragon	Siam Paragon	uniqlo-siam-paragon-2-3	Uniqlo #3	Fashion	2	2nd Floor	2-103				
+siam-paragon	Siam Paragon	uniqlo-siam-paragon-G-0	Uniqlo 	Fashion	G	Ground Floor	G-100				
+siam-paragon	Siam Paragon	uniqlo-siam-paragon-G-2	Uniqlo #2	Fashion	G	Ground Floor	G-102				
+siam-paragon	Siam Paragon	watsons-siam-paragon-3-6	Watsons #6	Beauty	3	3rd Floor	3-106				
+siam-paragon	Siam Paragon	watsons-siam-paragon-G-10	Watsons #10	Beauty	G	Ground Floor	G-110				
+siam-paragon	Siam Paragon	yayoi-siam-paragon-G-9	Yayoi #9	Food & Beverage	G	Ground Floor	G-109				
+siam-paragon	Siam Paragon	zara-siam-paragon-1-8	Zara #8	Fashion	1	1st Floor	1-108				
+emquartier	EmQuartier	banana-it-emquartier-G-2	Banana IT #2	Electronics	G	Ground Floor	G-102				
+emquartier	EmQuartier	big-camera-emquartier-G-10	Big Camera #10	Electronics	G	Ground Floor	G-110				
+emquartier	EmQuartier	boots-emquartier-2-2	Boots #2	Beauty	2	2nd Floor	2-102				
+emquartier	EmQuartier	burger-king-emquartier-1-2	Burger King #2	Food & Beverage	1	1st Floor	1-102				
+emquartier	EmQuartier	burger-king-emquartier-G-1	Burger King #1	Food & Beverage	G	Ground Floor	G-101				
+emquartier	EmQuartier	burger-king-emquartier-M-6	Burger King #6	Food & Beverage	M	Main Floor	M-106				
+emquartier	EmQuartier	dior-beauty-emquartier-3-2	Dior Beauty #2	Beauty	3	3rd Floor	3-102				
+emquartier	EmQuartier	eveandboy-emquartier-2-8	Eveandboy #8	Beauty	2	2nd Floor	2-108				
+emquartier	EmQuartier	fuji-emquartier-1-1	Fuji #1	Food & Beverage	1	1st Floor	1-101				
+emquartier	EmQuartier	fuji-emquartier-2-10	Fuji #10	Food & Beverage	2	2nd Floor	2-110				
+emquartier	EmQuartier	fuji-emquartier-M-4	Fuji #4	Food & Beverage	M	Main Floor	M-104				
+emquartier	EmQuartier	gentlewoman-emquartier-3-0	Gentlewoman 	Fashion	3	3rd Floor	3-100				
+emquartier	EmQuartier	gentlewoman-emquartier-3-1	Gentlewoman #1	Fashion	3	3rd Floor	3-101				
+emquartier	EmQuartier	gentlewoman-emquartier-G-3	Gentlewoman #3	Fashion	G	Ground Floor	G-103				
+emquartier	EmQuartier	gucci-emquartier-M-0	Gucci 	Fashion	M	Main Floor	M-100				
+emquartier	EmQuartier	gucci-emquartier-M-5	Gucci #5	Fashion	M	Main Floor	M-105				
+emquartier	EmQuartier	h&m-emquartier-1-0	H&M 	Fashion	1	1st Floor	1-100				
+emquartier	EmQuartier	h&m-emquartier-G-4	H&M #4	Fashion	G	Ground Floor	G-104				
+emquartier	EmQuartier	istudio-emquartier-3-5	iStudio #5	Electronics	3	3rd Floor	3-105				
+emquartier	EmQuartier	jib-emquartier-G-5	JIB #5	Electronics	G	Ground Floor	G-105				
+emquartier	EmQuartier	jib-emquartier-M-1	JIB #1	Electronics	M	Main Floor	M-101				
+emquartier	EmQuartier	kfc-emquartier-M-3	KFC #3	Food & Beverage	M	Main Floor	M-103				
+emquartier	EmQuartier	koi-thé-emquartier-1-3	Koi Thé #3	Food & Beverage	1	1st Floor	1-103				
+emquartier	EmQuartier	koi-thé-emquartier-G-0	Koi Thé 	Food & Beverage	G	Ground Floor	G-100				
+emquartier	EmQuartier	m.a.c-emquartier-G-6	M.A.C #6	Beauty	G	Ground Floor	G-106				
+emquartier	EmQuartier	mk-restaurants-emquartier-1-4	MK Restaurants #4	Food & Beverage	1	1st Floor	1-104				
+emquartier	EmQuartier	nike-emquartier-2-4	Nike #4	Fashion	2	2nd Floor	2-104				
+emquartier	EmQuartier	prada-emquartier-1-6	Prada #6	Fashion	1	1st Floor	1-106				
+emquartier	EmQuartier	sephora-emquartier-1-5	Sephora #5	Beauty	1	1st Floor	1-105				
+emquartier	EmQuartier	sephora-emquartier-2-1	Sephora #1	Beauty	2	2nd Floor	2-101				
+emquartier	EmQuartier	sephora-emquartier-2-5	Sephora #5	Beauty	2	2nd Floor	2-105				
+emquartier	EmQuartier	sephora-emquartier-3-6	Sephora #6	Beauty	3	3rd Floor	3-106				
+emquartier	EmQuartier	sony-emquartier-2-9	Sony #9	Electronics	2	2nd Floor	2-109				
+emquartier	EmQuartier	sony-emquartier-3-3	Sony #3	Electronics	3	3rd Floor	3-103				
+emquartier	EmQuartier	sony-emquartier-3-4	Sony #4	Electronics	3	3rd Floor	3-104				
+emquartier	EmQuartier	sony-emquartier-G-9	Sony #9	Electronics	G	Ground Floor	G-109				
+emquartier	EmQuartier	starbucks-emquartier-2-0	Starbucks 	Food & Beverage	2	2nd Floor	2-100				
+emquartier	EmQuartier	starbucks-emquartier-2-3	Starbucks #3	Food & Beverage	2	2nd Floor	2-103				
+emquartier	EmQuartier	starbucks-emquartier-3-7	Starbucks #7	Food & Beverage	3	3rd Floor	3-107				
+emquartier	EmQuartier	starbucks-emquartier-G-7	Starbucks #7	Food & Beverage	G	Ground Floor	G-107				
+emquartier	EmQuartier	uniqlo-emquartier-2-7	Uniqlo #7	Fashion	2	2nd Floor	2-107				
+emquartier	EmQuartier	watsons-emquartier-2-6	Watsons #6	Beauty	2	2nd Floor	2-106				
+emquartier	EmQuartier	yayoi-emquartier-G-8	Yayoi #8	Food & Beverage	G	Ground Floor	G-108				
+emquartier	EmQuartier	zara-emquartier-M-2	Zara #2	Fashion	M	Main Floor	M-102				

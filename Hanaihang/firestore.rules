@@ -1,0 +1,102 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { return isSignedIn() && request.auth.token.role == 'admin'; }
+    function isDevelopment() { return true; } // อนุญาตให้เขียนได้ในโหมด development
+
+    function isNonEmptyString(value) {
+      return value is string && value.size() > 0;
+    }
+
+    function hasValidCoords(data) {
+      return !('coords' in data) ||
+        (data.coords is map && data.coords.lat is number && data.coords.lng is number);
+    }
+
+    function hasValidLatLng(data) {
+      return (!('lat' in data) || data.lat is number) &&
+        (!('lng' in data) || data.lng is number);
+    }
+
+    function hasValidHours(data) {
+      return !('hours' in data) ||
+        (data.hours is map && isNonEmptyString(data.hours.open) && isNonEmptyString(data.hours.close));
+    }
+
+    function isValidMall(data) {
+      return isNonEmptyString(data.name) &&
+        isNonEmptyString(data.displayName) &&
+        hasValidLatLng(data) &&
+        hasValidCoords(data) &&
+        hasValidHours(data);
+    }
+
+    function isValidFloor(data) {
+      return isNonEmptyString(data.label) &&
+        (data.order is int);
+    }
+
+    function isValidStore(data) {
+      return isNonEmptyString(data.name) &&
+        isNonEmptyString(data.category) &&
+        isNonEmptyString(data.floorId) &&
+        (!('status' in data) || data.status in ['Active', 'Maintenance', 'Closed']);
+    }
+
+    // ข้อมูลห้าง - อ่านได้ทุกคน, เขียนต้องเข้าสู่ระบบ
+    match /malls/{mallId} {
+      allow read: if true;                 // เปิดให้อ่านได้ทุกคน
+      allow write: if isDevelopment() || (isAdmin() && isValidMall(request.resource.data));
+      
+      // ชั้นของห้าง
+      match /floors/{floorId} {
+        allow read: if true;
+        allow write: if isDevelopment() || (isAdmin() && isValidFloor(request.resource.data));
+      }
+      
+      // ร้านค้าในห้าง
+      match /stores/{storeId} {
+        allow read: if true;
+        allow write: if isDevelopment() || (isAdmin() && isValidStore(request.resource.data));
+      }
+    }
+
+    // ร้านค้าทั่วไป
+    match /stores/{storeId} {
+      allow read: if true;
+      allow write: if isDevelopment() || (isAdmin() && isValidStore(request.resource.data));
+    }
+
+    // แบรนด์
+    match /brands/{brandId} {
+      allow read: if true;
+      allow write: if isDevelopment();
+    }
+
+    // โปรโมชั่น
+    match /promotions/{promoId} {
+      allow read: if true;
+      allow write: if isDevelopment();
+    }
+
+    // กิจกรรม
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isDevelopment();
+    }
+
+    // Collection Group Queries - อนุญาตให้อ่าน stores จากทุกห้าง
+    match /{path=**}/stores/{storeId} {
+      allow read: if true;
+      allow write: if isDevelopment();
+    }
+
+    // กันตก - ป้องกันการเข้าถึงเอกสารอื่น ๆ
+    match /{document=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}

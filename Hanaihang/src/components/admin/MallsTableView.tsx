@@ -1,0 +1,312 @@
+import React, { useMemo, useState, useEffect } from 'react';
+import { Edit, Building } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+import DataTable, { Column } from '../table/DataTable';
+import TableToolbar from '../table/TableToolbar';
+import Pagination from '../table/Pagination';
+import { deleteMall, listFloors } from '../../lib/firestore';
+import { listMallsOptimized, clearStoresCache, clearMallsCache } from '../../lib/optimized-firestore';
+import { Mall } from '../../types/mall-system';
+
+import { DeleteButton } from './DeleteButton';
+
+interface MallsTableViewProps {
+  stores?: { store: unknown; _mallId: string }[];
+  onRefresh?: () => void;
+}
+
+export default function MallsTableView({ stores: propsStores, onRefresh }: MallsTableViewProps) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [malls, setMalls] = useState<Mall[]>([]);
+  const [stores, setStores] = useState<{ store: unknown; _mallId: string }[]>([]);
+  const [mallFloors, setMallFloors] = useState<Record<string, number>>({});
+  const [filteredMalls, setFilteredMalls] = useState<Mall[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [districtFilter, setDistrictFilter] = useState('');
+  const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" | null }>({ 
+    key: "updatedAt", 
+    dir: "desc" 
+  });
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Load malls and stores data
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        if (propsStores) {
+          // ใช้ข้อมูล stores ที่ส่งมาจาก props
+          const mallsData = await listMallsOptimized();
+          setMalls(mallsData);
+          setStores(propsStores);
+          
+          // ดึงข้อมูล floors สำหรับแต่ละห้างแบบ parallel (optimized)
+          const floorsData: Record<string, number> = {};
+          const floorPromises = mallsData.map(async (mall) => {
+            try {
+              const floors = await listFloors(mall.id!);
+              return { mallId: mall.id!, count: floors.length };
+            } catch (error) {
+              console.error(`Error loading floors for mall ${mall.id}:`, error);
+              return { mallId: mall.id!, count: 0 };
+            }
+          });
+          
+          const floorResults = await Promise.all(floorPromises);
+          floorResults.forEach(({ mallId, count }) => {
+            floorsData[mallId] = count;
+          });
+          setMallFloors(floorsData);
+        } else {
+          // โหลดข้อมูลเองถ้าไม่มี props (optimized)
+          const mallsData = await listMallsOptimized();
+          setMalls(mallsData);
+          
+          // ดึงข้อมูล floors สำหรับแต่ละห้างแบบ parallel (optimized)
+          const floorsData: Record<string, number> = {};
+          const floorPromises = mallsData.map(async (mall) => {
+            try {
+              const floors = await listFloors(mall.id!);
+              return { mallId: mall.id!, count: floors.length };
+            } catch (error) {
+              console.error(`Error loading floors for mall ${mall.id}:`, error);
+              return { mallId: mall.id!, count: 0 };
+            }
+          });
+          
+          const floorResults = await Promise.all(floorPromises);
+          floorResults.forEach(({ mallId, count }) => {
+            floorsData[mallId] = count;
+          });
+          setMallFloors(floorsData);
+          
+          // ไม่ดึงข้อมูล stores ซ้ำ - ให้ AdminPanel จัดการ
+          setStores([]);
+        }
+      } catch (err) {
+        setError('ไม่สามารถโหลดข้อมูลห้างสรรพสินค้าได้');
+        console.error('Error loading data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [propsStores]);
+
+  // Filter and sort malls
+  useEffect(() => {
+    let filtered = [...malls];
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(mall => 
+        mall.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        mall.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        mall.district?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply district filter
+    if (districtFilter) {
+      filtered = filtered.filter(mall => mall.district === districtFilter);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      const aValue = (a as unknown)[sort.key];
+      const bValue = (b as unknown)[sort.key];
+      
+      if (aValue === bValue) return 0;
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
+      
+      const comparison = aValue < bValue ? -1 : 1;
+      return sort.dir === "desc" ? -comparison : comparison;
+    });
+
+    setFilteredMalls(filtered);
+    setPage(1); // Reset to first page when filters change
+  }, [malls, searchQuery, districtFilter, sort]);
+
+  // Get paginated data
+  const paginatedMalls = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    return filteredMalls.slice(start, end);
+  }, [filteredMalls, page, pageSize]);
+
+  // Get unique districts for filter
+  const districts = useMemo(() => {
+    const uniqueDistricts = [...new Set(malls.map(mall => mall.district).filter(Boolean))];
+    return uniqueDistricts.map(district => ({ label: district, value: district }));
+  }, [malls]);
+
+  // Get store count for a mall
+  const getStoreCount = (_mallId: string) => {
+    return stores.filter(storeItem => storeItem._mallId === _mallId).length;
+  };
+
+  // Handle delete
+  const handleDelete = async (_mallId: string) => {
+    try {
+      await deleteMall(_mallId);
+      
+      // Clear cache and refresh the data
+      clearMallsCache();
+      clearStoresCache();
+      const updatedMalls = await listMallsOptimized();
+      setMalls(updatedMalls);
+      
+      // อัปเดตข้อมูลทันที
+      onRefresh?.();
+      
+      // โหลดหน้าใหม่เพื่อให้แน่ใจว่าข้อมูลอัปเดต
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (err) {
+      console.error('Error deleting mall:', err);
+    }
+  };
+
+  const columns: Column<Mall>[] = useMemo(() => [
+    {
+      key: "displayName",
+      header: "ชื่อห้างสรรพสินค้า",
+      sortable: true,
+      width: "200px",
+      render: (mall) => (
+        <div className="flex items-center space-x-3">
+          <div className="flex-shrink-0">
+            <Building className="h-5 w-5 text-gray-400" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {mall.displayName || mall.name || 'ไม่มีชื่อ'}
+            </p>
+            {mall.name && (
+              <div className="text-sm text-gray-500">
+                <span className="font-medium">Slug:</span> {mall.name}
+              </div>
+            )}
+          </div>
+        </div>
+      )
+    },
+    {
+      key: "district",
+      header: "เขต",
+      sortable: true,
+      width: "120px",
+      render: (mall) => (
+        <span className="text-sm text-gray-900">
+          {mall.district || 'ไม่ระบุ'}
+        </span>
+      )
+    },
+    {
+      key: "floorCount",
+      header: "จำนวนชั้น",
+      sortable: true,
+      width: "120px",
+      render: (mall) => (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          {mallFloors[mall.id!] || 0} ชั้น
+        </span>
+      )
+    },
+    {
+      key: "storeCount",
+      header: "จำนวนร้าน",
+      sortable: true,
+      width: "120px",
+      render: (mall) => (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          {getStoreCount(mall.id)} ร้าน
+        </span>
+      )
+    },
+    {
+      key: "actions",
+      header: "จัดการ",
+      width: "200px",
+      render: (mall) => (
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/admin/malls/${mall.id}/edit`}
+            className="inline-flex items-center space-x-1 px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm"
+            aria-label={`แก้ไขห้าง: ${mall.displayName}`}
+            data-testid="edit-store-button"
+          >
+            <Edit className="h-4 w-4" />
+            <span>แก้ไข</span>
+          </Link>
+          <DeleteButton
+            id={mall.id}
+            name={mall.displayName || mall.name}
+            type="mall"
+            onDelete={handleDelete}
+            onSuccess={() => {
+              // Data is already refreshed in handleDelete
+            }}
+          />
+        </div>
+      )
+    }
+  ], [handleDelete, mallFloors]);
+
+  const handleReset = () => {
+    setSearchQuery('');
+    setDistrictFilter('');
+    setPage(1);
+  };
+
+  return (
+    <div className="space-y-4">
+      <TableToolbar
+        placeholder="ค้นหาห้างสรรพสินค้า..."
+        onSearch={setSearchQuery}
+        onReset={handleReset}
+        filters={[
+          {
+            label: "เขต",
+            key: "district",
+            value: districtFilter,
+            onChange: setDistrictFilter,
+            options: districts
+          }
+        ]}
+      />
+
+      <DataTable<Mall>
+        loading={loading}
+        error={error}
+        emptyType={searchQuery || districtFilter ? "search" : "malls"}
+        columns={columns}
+        rows={paginatedMalls}
+        sort={sort.dir ? { key: sort.key, dir: sort.dir } : undefined}
+        onSortChange={(key, dir) => setSort({ key, dir })}
+        rowKey={(mall) => mall.id}
+        data-testid="malls-table"
+        footer={
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={filteredMalls.length}
+            onPageChange={setPage}
+            onPageSizeChange={(newPageSize) => {
+              setPageSize(newPageSize);
+              setPage(1);
+            }}
+          />
+        }
+      />
+    </div>
+  );
+}
