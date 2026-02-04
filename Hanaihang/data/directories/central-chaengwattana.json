@@ -1,0 +1,685 @@
+{
+  "mallSlug": "central-chaengwattana",
+  "source": {
+    "name": "Central Chaengwattana Shop Directory (official)",
+    "url": "https://dg-directory-physical.cpn.co.th/directory/line/CWN/en/shoplist/",
+    "retrievedAt": "2026-02-04T10:34:44.336617Z"
+  },
+  "retrievedAt": "2026-02-04T10:34:44.336617Z",
+  "floorCount": 3,
+  "storeCount": 81,
+  "floors": [
+    {
+      "id": "G",
+      "label": "GF",
+      "name": "GF",
+      "order": 0,
+      "stores": [
+        {
+          "name": "LENSKART",
+          "category": "Services",
+          "categoryLabel": "Speciality",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "MR.D.I.Y.",
+          "category": "Services",
+          "categoryLabel": "Speciality",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "SAVE DRUG",
+          "category": "Services",
+          "categoryLabel": "Speciality",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "YUMEYA",
+          "category": "Services",
+          "categoryLabel": "Speciality",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "นวดรื่นฤดี",
+          "category": "Beauty",
+          "categoryLabel": "Beauty",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "HAIR GANIC",
+          "category": "Beauty",
+          "categoryLabel": "Beauty",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "HAIR GANIC",
+          "category": "Beauty",
+          "categoryLabel": "Beauty",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "NAIL IT",
+          "category": "Beauty",
+          "categoryLabel": "Beauty",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "BAKE A WISH",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "CHATRAMUE",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "MOLTO",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "PANG SIAM",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "QQ HEALTHY DESSERT",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "BOOST JUICE BAR",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "FUKU MATCHA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "OLINO CREPE & TEA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "FoodPatio",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "HAINHAN",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "KAREYA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "KHAMOOJAKKAPAD",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "NOODLEGARDEN",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "PADTHAIHOYTODSIAMUMPAVA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "SEFARKHANOMJEEN",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "100 DEGREES",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "EAT AM ARE",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "HAPPY PIG",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "HONAJI RAMEN",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "KATSUYA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "MOYU MEAW",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "ONE TO TWO",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "PEPPER LUNCH",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "SHUYI",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "SUKIYA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "YAMAZAKI",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "ZHANG LIANG",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "ก๋วยเตี๋ยวเรือกลางกรุง",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "BAKE A WISH",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "BOOST JUICE BAR",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "CHATRAMUE",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "EAT AM ARE",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "FoodPatio",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "FUKU MATCHA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "HAINHAN",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "HAIR GANIC",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "HAIR GANIC",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "HAPPY PIG",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "HONAJI RAMEN",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "KAREYA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "KATSUYA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "KHAMOOJAKKAPAD",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "LENSKART",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "MOLTO",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "MOYU MEAW",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "MR. SHAKE",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "MR.D.I.Y.",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "NAIL IT",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "NOODLEGARDEN",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "OLINO CREPE & TEA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "ONE TO TWO",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "PADTHAIHOYTODSIAMUMPAVA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "PANG SIAM",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "PEPPER LUNCH",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "POTATO CORNER",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "QQ HEALTHY DESSERT",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "SAVE DRUG",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "SEECHA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "SEFARKHANOMJEEN",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "SHUYI",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "SUKIYA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "TOPS",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "WARAPORN SALAPAO",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "WHITE STORY",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "YAMAZAKI",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "YOGURUTO",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "YUMEYA",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        },
+        {
+          "name": "ZHANG LIANG",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "GF",
+          "status": "Active"
+        }
+      ]
+    },
+    {
+      "id": "G",
+      "label": "G",
+      "name": "G",
+      "order": 0,
+      "stores": [
+        {
+          "name": "F",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "G",
+          "status": "Active"
+        },
+        {
+          "name": "6F",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "G",
+          "status": "Active"
+        },
+        {
+          "name": "All",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "G",
+          "floorLabel": "G",
+          "status": "Active"
+        }
+      ]
+    },
+    {
+      "id": "M",
+      "label": "M",
+      "name": "M",
+      "order": 0,
+      "stores": [
+        {
+          "name": "L",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "M",
+          "floorLabel": "M",
+          "status": "Active"
+        },
+        {
+          "name": "4F",
+          "category": "Food & Beverage",
+          "categoryLabel": "Food & Beverage",
+          "floorId": "M",
+          "floorLabel": "M",
+          "status": "Active"
+        }
+      ]
+    }
+  ]
+}

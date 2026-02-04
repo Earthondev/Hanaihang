@@ -267,6 +267,19 @@ const malls = [
 
     // --- CENTRAL GROUP (SUBURBAN/OTHERS) ---
     {
+        displayName: "Central Chaengwattana",
+        name: "central-chaengwattana",
+        address: "99/99 Chaeng Watthana Rd, Bang Talat, Pak Kret District, Nonthaburi 11120",
+        district: "Pak Kret",
+        lat: 13.9038,
+        lng: 100.5286,
+        openTime: "10:00",
+        closeTime: "22:00",
+        category: "shopping-center",
+        categoryLabel: "Shopping Center",
+        status: "Active"
+    },
+    {
         displayName: "Central Plaza Ladprao",
         name: "central-ladprao",
         address: "1693 Phahonyothin Rd, Chatuchak, Bangkok 10900",
