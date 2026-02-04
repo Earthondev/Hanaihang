@@ -19,6 +19,9 @@ defaults:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    env:
+      npm_config_platform: linux
+      npm_config_arch: x64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,6 +34,9 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      npm_config_platform: linux
+      npm_config_arch: x64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -100,6 +106,9 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      npm_config_platform: linux
+      npm_config_arch: x64
     outputs:
       mobile_perf: ${{ steps.score.outputs.mobile_perf }}
       mobile_a11y: ${{ steps.score.outputs.mobile_a11y }}
