@@ -40,6 +40,8 @@ jobs:
         run: npm cache clean --force
           
       - name: Install dependencies (safe for platform)
+        # NOTE: We use npm install instead of npm ci here due to npm + rollup 
+        # platform-specific binary snapshot issues (android-arm).
         run: npm install --no-optional
         
       - name: Generate build info
