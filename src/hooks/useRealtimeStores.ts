@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Store } from '../types/mall-system';
+import { isE2E } from '@/lib/e2e';
+import { E2E_ALL_STORES, getE2EStoresByMall } from '@/lib/e2e-fixtures';
 
 /**
  * Hook สำหรับดึงข้อมูลร้านแบบ real-time
  */
 export function useRealtimeStores(mallId: string) {
-  const [stores, setStores] = useState<Store[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [stores, setStores] = useState<Store[]>(() =>
+    isE2E && mallId ? getE2EStoresByMall(mallId) : [],
+  );
+  const [loading, setLoading] = useState(!isE2E);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -16,6 +20,13 @@ export function useRealtimeStores(mallId: string) {
       setStores([]);
       setLoading(false);
       return;
+    }
+
+    if (isE2E) {
+      setStores(getE2EStoresByMall(mallId));
+      setLoading(false);
+      setError(null);
+      return () => undefined;
     }
 
     console.log('🔄 เริ่มต้น real-time listener สำหรับร้านในห้าง:', mallId);
@@ -69,11 +80,30 @@ export function useRealtimeStores(mallId: string) {
  * Hook สำหรับดึงข้อมูลร้านทั้งหมดแบบ real-time
  */
 export function useRealtimeAllStores() {
-  const [stores, setStores] = useState<{ store: Store; mallId: string }[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [stores, setStores] = useState<{ store: Store; mallId: string }[]>(() =>
+    isE2E
+      ? E2E_ALL_STORES.map(store => ({
+          store,
+          mallId: store._mallId || store.mallId || 'unknown',
+        }))
+      : [],
+  );
+  const [loading, setLoading] = useState(!isE2E);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isE2E) {
+      setStores(
+        E2E_ALL_STORES.map(store => ({
+          store,
+          mallId: store._mallId || store.mallId || 'unknown',
+        })),
+      );
+      setLoading(false);
+      setError(null);
+      return () => undefined;
+    }
+
     console.log('🔄 เริ่มต้น real-time listener สำหรับร้านทั้งหมด...');
     
     // ใช้ collectionGroup เพื่อดึงร้านจากทุกห้าง

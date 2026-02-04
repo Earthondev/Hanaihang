@@ -12,6 +12,7 @@ interface TextFieldProps {
   autoComplete?: string;
   type?: string;
   className?: string;
+  dataTestId?: string;
 }
 
 export default function TextField({
@@ -23,6 +24,7 @@ export default function TextField({
   autoComplete = 'off',
   type = 'text',
   className = '',
+  dataTestId,
 }: TextFieldProps) {
   const {
     register,
@@ -73,6 +75,7 @@ export default function TextField({
             ? 'border-red-300 bg-red-50'
             : 'border-gray-300 bg-white hover:border-gray-400'
         }`}
+        data-testid={dataTestId}
         {...register(name, {
           onBlur: handleFieldChange,
         })}

@@ -68,3 +68,7 @@ branch1_floor*.jpg
 *.png
 !favicon.png
 !public/*.png
+
+# Playwright
+playwright-report/
+test-results/

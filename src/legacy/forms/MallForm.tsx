@@ -196,6 +196,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                   placeholder="เช่น Central Embassy, MBK Center, Terminal 21, Siam Paragon"
                   helper="ชื่อที่แสดงในแอปพลิเคชัน"
                   required
+                  dataTestId="mall-name-input"
                 />
 
                 <TextField
@@ -213,6 +214,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                   placeholder="79 Sathupradit Rd, Chong Nonsi, Yan Nawa, Bangkok"
                   helper="ที่อยู่เต็มของห้าง"
                   required
+                  dataTestId="mall-address-input"
                 />
 
                 <TextField
@@ -389,6 +391,7 @@ export default function MallForm({ mode, mall, onSuccess }: MallFormProps) {
                   disabled={isLoading || isSubmitting}
                   className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors flex items-center space-x-2"
                   aria-busy={isLoading || isSubmitting}
+                  data-testid="submit-mall-button"
                 >
                   {isLoading || isSubmitting ? (
                     <>

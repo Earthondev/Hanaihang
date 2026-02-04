@@ -25,6 +25,8 @@ import {
 import { MallInput } from '../validation/mall.schema';
 
 import { normalizeThai } from './thai-normalize';
+import { isE2E } from './e2e';
+import { getE2EFloorsByMall } from './e2e-fixtures';
 
 // Helper to create slug from display name
 export function toSlug(displayName: string): string {
@@ -264,6 +266,10 @@ export async function createFloor(
  * ดึงรายการ floors ของห้าง
  */
 export async function listFloors(_mallId: string): Promise<Floor[]> {
+  if (isE2E) {
+    return getE2EFloorsByMall(_mallId);
+  }
+
   const q = query(collection(db, 'malls', _mallId, 'floors'), orderBy('order'));
   const snapshot = await getDocs(q);
 

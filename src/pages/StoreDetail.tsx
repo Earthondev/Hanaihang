@@ -335,7 +335,10 @@ const StoreDetail: React.FC = () => {
                 <div className="flex-1">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
                     <div>
-                      <h1 className="text-4xl font-bold text-gray-900 mb-3">
+                      <h1
+                        data-testid="store-name"
+                        className="text-4xl font-bold text-gray-900 mb-3"
+                      >
                         {store.name}
                       </h1>
                       <p className="text-xl text-gray-700 mb-4 leading-relaxed">
@@ -399,9 +402,16 @@ const StoreDetail: React.FC = () => {
                     }`}>
                     {store.status === 'Active' ? 'เปิดอยู่' : 'ปิดชั่วคราว'}
                   </span>
-                  {resolvedStore?.floorLabel && (
-                    <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium">
-                      {['G', 'M'].includes(resolvedStore.floorLabel) ? `ชั้น ${resolvedStore.floorLabel}` : resolvedStore.floorLabel}
+                  {(resolvedStore?.floorLabel || store.floorId) && (
+                    <span
+                      data-testid="store-floor"
+                      className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium"
+                    >
+                      {resolvedStore?.floorLabel
+                        ? ['G', 'M'].includes(resolvedStore.floorLabel)
+                          ? `ชั้น ${resolvedStore.floorLabel}`
+                          : resolvedStore.floorLabel
+                        : `ชั้น ${store.floorId}`}
                     </span>
                   )}
                 </div>

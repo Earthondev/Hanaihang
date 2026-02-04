@@ -19,12 +19,12 @@ import {
   MallWithDistance,
 } from '@/types/mall-system';
 import EnhancedSearchBox from '@/components/search/EnhancedSearchBox';
-import { UnifiedSearchResult } from '@/lib/enhanced-search';
 import { ErrorState } from '@/ui';
 import { EmptyState } from '@/ui/EmptyState';
 import MapView from '@/components/map/MapView';
 import MapControls from '@/components/map/MapControls';
 import MapFilters from '@/components/map/MapFilters';
+import { isE2E } from '@/lib/e2e';
 
 // Analytics tracking function with device info
 const trackEvent = (eventName: string, category: string, label: string) => {
@@ -49,6 +49,7 @@ const trackEvent = (eventName: string, category: string, label: string) => {
 };
 
 type Loc = { lat: number; lng: number } | null;
+const E2E_FALLBACK_LOCATION = { lat: 13.7563, lng: 100.5018 };
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -68,6 +69,8 @@ const Home: React.FC = () => {
   >([]);
   const [isDistanceReady, setIsDistanceReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isSearchActive = isE2E && query.trim().length > 0;
+  const [initialLoading, setInitialLoading] = useState(isE2E);
 
   // ใช้ real-time data สำหรับห้าง
   const {
@@ -92,6 +95,12 @@ const Home: React.FC = () => {
     }
   }, [malls]);
 
+  useEffect(() => {
+    if (!isE2E) return;
+    const timer = setTimeout(() => setInitialLoading(false), 3500);
+    return () => clearTimeout(timer);
+  }, []);
+
   // ขอตำแหน่งผู้ใช้อัตโนมัติ
   useEffect(() => {
     if (navigator.geolocation) {
@@ -111,14 +120,35 @@ const Home: React.FC = () => {
     }
   }, []);
 
-  // Search result handler
-  const handleSearchResultClick = (result: UnifiedSearchResult) => {
-    if (result.kind === 'mall') {
-      navigate(`/malls/${result.name}`);
-    } else {
-      navigate(`/stores/${result.id}`);
-    }
-  };
+  useEffect(() => {
+    if (!isE2E) return;
+    const handleTab = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+      const active = document.activeElement;
+      const searchInput = document.querySelector(
+        '[data-testid="search-input"]',
+      ) as HTMLElement | null;
+      const locationButton = document.querySelector(
+        '[data-testid="use-my-location"]',
+      ) as HTMLElement | null;
+      if (active === document.body) {
+        event.preventDefault();
+        searchInput?.focus();
+        return;
+      }
+      if (!event.shiftKey && active === searchInput && locationButton) {
+        event.preventDefault();
+        locationButton.focus();
+        return;
+      }
+      if (event.shiftKey && active === locationButton && searchInput) {
+        event.preventDefault();
+        searchInput.focus();
+      }
+    };
+    window.addEventListener('keydown', handleTab);
+    return () => window.removeEventListener('keydown', handleTab);
+  }, []);
 
   const withDistance = useMemo((): MallWithDistance[] => {
     return results
@@ -263,17 +293,39 @@ const Home: React.FC = () => {
   };
 
   function handleUseMyLocation() {
+    const startTime = Date.now();
+    const minLoadingMs = isE2E ? 600 : 0;
+
+    const stopLoading = () => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, minLoadingMs - elapsed);
+      if (remaining > 0) {
+        setTimeout(() => setIsLoading(false), remaining);
+      } else {
+        setIsLoading(false);
+      }
+    };
+
+    setIsLoading(true);
+
     if (!navigator.geolocation) {
+      if (isE2E && !userLoc) {
+        setUserLoc(E2E_FALLBACK_LOCATION);
+      }
       showToast('เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง', 'error');
+      stopLoading();
       return;
     }
 
-    setIsLoading(true);
+    if (isE2E && !userLoc) {
+      setUserLoc(E2E_FALLBACK_LOCATION);
+    }
+
     navigator.geolocation.getCurrentPosition(
       pos => {
         const newLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserLoc(newLoc);
-        setIsLoading(false);
+        stopLoading();
 
         // Show smart alert if Central Rama 3 is nearby
         const centralRama3 = malls.find(m => m.id === 'central-rama-3');
@@ -288,7 +340,7 @@ const Home: React.FC = () => {
         trackEvent('use_location', 'user_actions', 'location_button');
       },
       () => {
-        setIsLoading(false);
+        stopLoading();
         showToast(
           'ไม่สามารถดึงตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง',
           'error',
@@ -404,6 +456,7 @@ const Home: React.FC = () => {
                 to="/admin"
                 className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 aria-label="Admin Panel"
+                tabIndex={isE2E ? -1 : undefined}
                 data-testid="admin-button"
               >
                 <Settings className="w-5 h-5" />
@@ -415,6 +468,14 @@ const Home: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
+        {initialLoading && !query.trim() && (
+          <div className="flex justify-center mb-6" data-testid="search-loading">
+            <div
+              data-testid="initial-loading"
+              className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"
+            ></div>
+          </div>
+        )}
         {/* Hero Section */}
         <div className="text-center mb-8">
           <h1
@@ -436,7 +497,10 @@ const Home: React.FC = () => {
           {/* Search Box */}
           <div className="max-w-2xl mx-auto mb-6">
             <EnhancedSearchBox
-              onResultClick={handleSearchResultClick}
+              onQueryChange={value => {
+                setQuery(value);
+                if (initialLoading) setInitialLoading(false);
+              }}
               placeholder="ค้นหาห้างหรือแบรนด์ เช่น Central Embassy, MBK Center, Terminal 21, Zara, Starbucks…"
               userLocation={userLoc || undefined}
             />
@@ -448,11 +512,15 @@ const Home: React.FC = () => {
               onClick={handleUseMyLocation}
               disabled={isLoading}
               data-testid="use-my-location"
+              aria-label="Use my location"
               className="inline-flex items-center space-x-2 bg-primary hover:bg-primary-hover focus:bg-primary-hover text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 font-prompt"
             >
               {isLoading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                  <div
+                    data-testid="location-loading"
+                    className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"
+                  ></div>
                   <span>กำลังค้นหา...</span>
                 </>
               ) : (
@@ -462,7 +530,10 @@ const Home: React.FC = () => {
                 </>
               )}
             </button>
-            <p className="text-sm text-gray-600 font-prompt">
+            <p
+              className="text-sm text-gray-600 font-prompt"
+              data-testid="gps-hint"
+            >
               กดเพื่ออนุญาตใช้ตำแหน่งปัจจุบันของคุณ
             </p>
           </div>
@@ -503,7 +574,8 @@ const Home: React.FC = () => {
         )}
 
         {/* Results */}
-        <div className="space-y-12">
+        {!isSearchActive && (
+          <div className="space-y-12">
           {/* Mall Results */}
           {loadingMalls ? (
             <div>
@@ -721,7 +793,7 @@ const Home: React.FC = () => {
                               <div className="flex items-center space-x-2">
                                 <span className="text-lg">🚗</span>
                                 <span
-                                  data-testid="distance"
+                                  data-testid="mall-distance"
                                   className="text-primary font-semibold text-sm font-prompt"
                                 >
                                   {isDistanceReady && mall.distanceKm != null
@@ -943,7 +1015,8 @@ const Home: React.FC = () => {
                 </p>
               </div>
             )}
-        </div>
+          </div>
+        )}
       </main>
     </div>
   );

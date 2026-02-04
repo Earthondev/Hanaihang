@@ -72,11 +72,25 @@ const MallForm: React.FC<MallFormProps> = ({
         setError(null);
 
         // Validation
-        if (!formData.displayName.trim()) return setError('กรุณาระบุชื่อห้างที่แสดงผล (Display Name)');
-        if (!formData.name.trim()) return setError('กรุณาระบุชื่อห้างภาษาอังกฤษ (Slug)');
+        if (!formData.displayName.trim()) {
+            return setError('กรุณาระบุชื่อห้างที่แสดงผล (Display Name)');
+        }
+
+        const toSlug = (value: string) =>
+            value
+                .toLowerCase()
+                .replace(/[^\u0E00-\u0E7Fa-z0-9\s-]/g, '')
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+
+        const payload: MallFormValues = {
+            ...formData,
+            name: formData.name.trim() || toSlug(formData.displayName),
+        };
 
         try {
-            await onSubmit(formData);
+            await onSubmit(payload);
         } catch (err: unknown) {
             if (err instanceof Error) {
                 setError(err.message);
@@ -119,6 +133,7 @@ const MallForm: React.FC<MallFormProps> = ({
                             value={formData.displayName}
                             onChange={handleChange}
                             placeholder="เช่น เซ็นทรัล พระราม 3"
+                            data-testid="mall-name-input"
                             className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                             required
                         />
@@ -198,6 +213,7 @@ const MallForm: React.FC<MallFormProps> = ({
                         value={formData.address}
                         onChange={handleChange}
                         placeholder="รายละเอียดที่อยู่..."
+                        data-testid="mall-address-input"
                         className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                     />
                 </div>
@@ -243,6 +259,7 @@ const MallForm: React.FC<MallFormProps> = ({
                     <button
                         type="submit"
                         disabled={isLoading}
+                        data-testid="submit-mall-button"
                         className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-colors shadow-sm disabled:opacity-50 flex items-center"
                     >
                         {isLoading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white mr-2"></div>}

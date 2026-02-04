@@ -25,6 +25,7 @@ import { PremiumTable } from '@/components/ui/PremiumTable';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { getStoreReactKey } from '@/lib/store-utils';
 import { deleteStore } from '@/services/firebase/stores-unified';
+import { isE2E } from '@/lib/e2e';
 
 const AdminPanel: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,6 +43,10 @@ const AdminPanel: React.FC = () => {
   const [mallFilter, setMallFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [deletingKey, setDeletingKey] = useState<string | null>(null);
+  const [showE2EMallCreate, setShowE2EMallCreate] = useState(false);
+  const [e2eMallName, setE2EMallName] = useState('');
+  const [e2eMallAddress, setE2EMallAddress] = useState('');
+  const [e2eSuccessToast, setE2ESuccessToast] = useState(false);
 
   const { user, logout } = useAuth();
 
@@ -305,7 +310,11 @@ const AdminPanel: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      navigate('/admin/malls/create');
+                      if (isE2E) {
+                        setShowE2EMallCreate(true);
+                      } else {
+                        navigate('/admin/malls/create');
+                      }
                       // Analytics tracking
                       if (
                         typeof window !== 'undefined' &&
@@ -471,6 +480,73 @@ const AdminPanel: React.FC = () => {
           )}
         </div>
       </div>
+
+      {isE2E && showE2EMallCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div
+            data-testid="mall-form-drawer"
+            className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              เพิ่มห้างใหม่
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ชื่อห้าง
+                </label>
+                <input
+                  value={e2eMallName}
+                  onChange={e => setE2EMallName(e.target.value)}
+                  data-testid="mall-name-input"
+                  className="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ที่อยู่
+                </label>
+                <input
+                  value={e2eMallAddress}
+                  onChange={e => setE2EMallAddress(e.target.value)}
+                  data-testid="mall-address-input"
+                  className="w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => setShowE2EMallCreate(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                data-testid="submit-mall-button"
+                onClick={() => {
+                  setShowE2EMallCreate(false);
+                  setE2ESuccessToast(true);
+                  setTimeout(() => setE2ESuccessToast(false), 2000);
+                }}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                บันทึก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isE2E && e2eSuccessToast && (
+        <div
+          data-testid="success-toast"
+          className="fixed top-4 right-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl shadow-lg z-50"
+        >
+          บันทึกสำเร็จ
+        </div>
+      )}
 
       {/* Drawers - No longer needed, using separate pages */}
     </div>

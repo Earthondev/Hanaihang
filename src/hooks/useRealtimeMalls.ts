@@ -2,17 +2,28 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Mall } from '../types/mall-system';
+import { isE2E } from '@/lib/e2e';
+import { E2E_MALLS, getE2EMallById } from '@/lib/e2e-fixtures';
 
 /**
  * Hook สำหรับดึงข้อมูลห้างแบบ real-time
  * ใช้ onSnapshot เพื่อ listen การเปลี่ยนแปลงข้อมูล
  */
 export function useRealtimeMalls() {
-  const [malls, setMalls] = useState<Mall[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [malls, setMalls] = useState<Mall[]>(() =>
+    isE2E ? E2E_MALLS : [],
+  );
+  const [loading, setLoading] = useState(!isE2E);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isE2E) {
+      setMalls(E2E_MALLS);
+      setError(null);
+      const timer = setTimeout(() => setLoading(false), 200);
+      return () => clearTimeout(timer);
+    }
+
     console.log('🔄 เริ่มต้น real-time listener สำหรับห้าง...');
     console.log('🔧 Firebase config projectId:', db.app.options.projectId);
     
@@ -65,8 +76,10 @@ export function useRealtimeMalls() {
  * Hook สำหรับดึงข้อมูลห้างเดียวแบบ real-time
  */
 export function useRealtimeMall(mallId: string) {
-  const [mall, setMall] = useState<Mall | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [mall, setMall] = useState<Mall | null>(() =>
+    isE2E && mallId ? (getE2EMallById(mallId) as Mall | null) : null,
+  );
+  const [loading, setLoading] = useState(!isE2E);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -74,6 +87,14 @@ export function useRealtimeMall(mallId: string) {
       setMall(null);
       setLoading(false);
       return;
+    }
+
+    if (isE2E) {
+      const found = getE2EMallById(mallId) || null;
+      setMall(found as Mall | null);
+      setLoading(false);
+      setError(found ? null : 'ไม่พบข้อมูลห้าง');
+      return () => undefined;
     }
 
     console.log('🔄 เริ่มต้น real-time listener สำหรับห้าง:', mallId);

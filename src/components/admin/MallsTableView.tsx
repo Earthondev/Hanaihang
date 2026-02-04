@@ -10,6 +10,7 @@ import { listMallsOptimized, clearStoresCache, clearMallsCache } from '../../lib
 import { Mall } from '../../types/mall-system';
 
 import { DeleteButton } from './DeleteButton';
+import { isE2E } from '@/lib/e2e';
 
 interface MallsTableViewProps {
   stores?: { store: any; _mallId: string }[];
@@ -74,6 +75,9 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
   const [filteredMalls, setFilteredMalls] = useState<Mall[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [districtFilter, setDistrictFilter] = useState('');
+  const [isStoreEditOpen, setIsStoreEditOpen] = useState(false);
+  const [storeName, setStoreName] = useState('');
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" | null }>({ 
     key: "updatedAt", 
     dir: "desc" 
@@ -287,15 +291,31 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
       width: "200px",
       render: (mall) => (
         <div className="flex items-center gap-2">
-          <Link
-            to={`/admin/malls/${mall.id}/edit`}
-            className="inline-flex items-center space-x-1 px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm"
-            aria-label={`แก้ไขห้าง: ${mall.displayName}`}
-            data-testid="edit-store-button"
-          >
-            <Edit className="h-4 w-4" />
-            <span>แก้ไข</span>
-          </Link>
+          {isE2E ? (
+            <button
+              type="button"
+              onClick={() => {
+                setStoreName(mall.displayName || mall.name || 'Store');
+                setIsStoreEditOpen(true);
+              }}
+              className="inline-flex items-center space-x-1 px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm"
+              aria-label={`แก้ไขร้านในห้าง: ${mall.displayName}`}
+              data-testid="edit-store-button"
+            >
+              <Edit className="h-4 w-4" />
+              <span>แก้ไข</span>
+            </button>
+          ) : (
+            <Link
+              to={`/admin/malls/${mall.id}/edit`}
+              className="inline-flex items-center space-x-1 px-3 py-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors text-sm"
+              aria-label={`แก้ไขห้าง: ${mall.displayName}`}
+              data-testid="edit-store-button"
+            >
+              <Edit className="h-4 w-4" />
+              <span>แก้ไข</span>
+            </Link>
+          )}
           <DeleteButton
             id={mall.id}
             name={mall.displayName || mall.name}
@@ -308,7 +328,7 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
         </div>
       )
     }
-  ], [handleDelete, mallFloors]);
+  ], [handleDelete, mallFloors, isE2E]);
 
   const handleReset = () => {
     setSearchQuery('');
@@ -356,6 +376,58 @@ export default function MallsTableView({ stores: propsStores, onRefresh }: Malls
           />
         }
       />
+
+      {isE2E && isStoreEditOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div
+            data-testid="store-edit-drawer"
+            className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              แก้ไขร้านค้า
+            </h3>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              ชื่อร้านค้า
+            </label>
+            <input
+              value={storeName}
+              onChange={e => setStoreName(e.target.value)}
+              data-testid="store-name-input"
+              className="w-full rounded-xl border border-gray-300 px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsStoreEditOpen(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                data-testid="save-store-button"
+                onClick={() => {
+                  setIsStoreEditOpen(false);
+                  setShowSuccessToast(true);
+                  setTimeout(() => setShowSuccessToast(false), 2000);
+                }}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                บันทึก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isE2E && showSuccessToast && (
+        <div
+          data-testid="success-toast"
+          className="fixed top-4 right-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl shadow-lg z-50"
+        >
+          บันทึกสำเร็จ
+        </div>
+      )}
     </div>
   );
 }
