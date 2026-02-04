@@ -9,19 +9,40 @@ on:
 jobs:
   verify-build-info:
     runs-on: ubuntu-latest
+    env:
+      npm_config_platform: linux
+      npm_config_arch: x64
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+      - name: Guard lockfile against android binaries
+        run: |
+          if grep -q "rollup-android" package-lock.json; then
+            echo "❌ Android-only rollup binary detected in lockfile"
+            exit 1
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          # cache: 'npm'
           
-      - name: Install dependencies
-        run: npm ci
+      - name: Debug lockfile content
+        run: |
+          echo "=== Commit ==="
+          git rev-parse HEAD
+          echo "=== grep rollup ==="
+          grep -R "rollup-android" package-lock.json || echo "no android rollup found"
+
+      - name: Clear npm cache
+        run: npm cache clean --force
+          
+      - name: Install dependencies (safe for platform)
+        # NOTE: We use npm install instead of npm ci here due to npm + rollup 
+        # platform-specific binary snapshot issues (android-arm).
+        run: npm install --no-optional
         
       - name: Generate build info
         run: npm run prebuild

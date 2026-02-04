@@ -19,25 +19,55 @@ defaults:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    env:
+      npm_config_platform: linux
+      npm_config_arch: x64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-      - run: npm ci
+          # cache: 'npm'
+      - name: Debug lockfile content
+        run: |
+          echo "=== Commit ==="
+          git rev-parse HEAD
+          echo "=== grep rollup ==="
+          grep -R "rollup-android" package-lock.json || echo "no android rollup found"
+      - name: Clear npm cache
+        run: npm cache clean --force
+      - name: Guard lockfile against android binaries
+        run: |
+          if grep -q "rollup-android" package-lock.json; then
+            echo "❌ Android-only rollup binary detected in lockfile"
+            exit 1
+          fi
+      # NOTE: We use npm install instead of npm ci here due to npm + rollup 
+      # platform-specific binary snapshot issues (android-arm).
+      - run: npm install --no-optional
 
   e2e:
     needs: setup
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      npm_config_platform: linux
+      npm_config_arch: x64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: 
           node-version: 20
           cache: 'npm'
-      - run: npm ci
+      - name: Guard lockfile against android binaries
+        run: |
+          if grep -q "rollup-android" package-lock.json; then
+            echo "❌ Android-only rollup binary detected in lockfile"
+            exit 1
+          fi
+      # NOTE: We use npm install instead of npm ci here due to npm + rollup 
+      # platform-specific binary snapshot issues (android-arm).
+      - run: npm install --no-optional
       - run: npx playwright install --with-deps
       
       # Resolve BASE_URL
@@ -100,6 +130,9 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      npm_config_platform: linux
+      npm_config_arch: x64
     outputs:
       mobile_perf: ${{ steps.score.outputs.mobile_perf }}
       mobile_a11y: ${{ steps.score.outputs.mobile_a11y }}
@@ -115,7 +148,15 @@ jobs:
         with: 
           node-version: 20
           cache: 'npm'
-      - run: npm ci
+      - name: Guard lockfile against android binaries
+        run: |
+          if grep -q "rollup-android" package-lock.json; then
+            echo "❌ Android-only rollup binary detected in lockfile"
+            exit 1
+          fi
+      # NOTE: We use npm install instead of npm ci here due to npm + rollup 
+      # platform-specific binary snapshot issues (android-arm).
+      - run: npm install --no-optional
       - name: Ensure artifacts directory
         run: mkdir -p artifacts/pa11y artifacts/lh
       
@@ -193,7 +234,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: 'npm' }
-      - run: npm ci
+      - name: Guard lockfile against android binaries
+        run: |
+          if grep -q "rollup-android" package-lock.json; then
+            echo "❌ Android-only rollup binary detected in lockfile"
+            exit 1
+          fi
+      # NOTE: We use npm install instead of npm ci here due to npm + rollup 
+      # platform-specific binary snapshot issues (android-arm).
+      - run: npm install --no-optional
 
       - name: Ensure artifacts directory
         run: mkdir -p artifacts/pa11y artifacts/lh
@@ -341,4 +390,3 @@ jobs:
             |---------|------|------|----|-----|
             | Mobile  | ${{ needs.audits.outputs.mobile_perf }} | ${{ needs.audits.outputs.mobile_a11y }} | ${{ needs.audits.outputs.mobile_bp }} | ${{ needs.audits.outputs.mobile_seo }} |
             | Desktop | ${{ needs.audits.outputs.desktop_perf }} | ${{ needs.audits.outputs.desktop_a11y }} | ${{ needs.audits.outputs.desktop_bp }} | ${{ needs.audits.outputs.desktop_seo }} |
-
