@@ -27,7 +27,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          # cache: 'npm'
+      - name: Debug lockfile content
+        run: |
+          echo "=== Commit ==="
+          git rev-parse HEAD
+          echo "=== grep rollup ==="
+          grep -R "rollup-android" package-lock.json || echo "no android rollup found"
+      - name: Clear npm cache
+        run: npm cache clean --force
       - name: Guard lockfile against android binaries
         run: |
           if grep -q "rollup-android" package-lock.json; then
