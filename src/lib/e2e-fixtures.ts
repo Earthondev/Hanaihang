@@ -1,0 +1,227 @@
+import { Floor, Mall, Store } from '@/types/mall-system';
+
+export const E2E_MALLS: Mall[] = [
+  {
+    id: 'central-rama-3',
+    name: 'central-rama-3',
+    displayName: 'Central Rama 3',
+    address: '123 Rama III Road, Bangkok',
+    district: 'Yan Nawa',
+    lat: 13.6891,
+    lng: 100.5441,
+    coords: { lat: 13.6891, lng: 100.5441 },
+    openTime: '10:00',
+    closeTime: '22:00',
+    category: 'shopping-center',
+    categoryLabel: 'ศูนย์การค้า',
+    storeCount: 3,
+    floorCount: 3,
+  },
+  {
+    id: 'central-world',
+    name: 'central-world',
+    displayName: 'Central World',
+    address: '999/9 Rama I Road, Bangkok',
+    district: 'Pathum Wan',
+    lat: 13.746,
+    lng: 100.5393,
+    coords: { lat: 13.746, lng: 100.5393 },
+    openTime: '10:00',
+    closeTime: '22:00',
+    category: 'shopping-center',
+    categoryLabel: 'ศูนย์การค้า',
+    storeCount: 2,
+    floorCount: 4,
+  },
+  {
+    id: 'central-embassy',
+    name: 'central-embassy',
+    displayName: 'Central Embassy',
+    address: '1031 Phloen Chit Rd, Bangkok',
+    district: 'Pathum Wan',
+    lat: 13.7446,
+    lng: 100.5467,
+    coords: { lat: 13.7446, lng: 100.5467 },
+    openTime: '10:00',
+    closeTime: '22:00',
+    category: 'high-end',
+    categoryLabel: 'ไฮเอนด์',
+    storeCount: 2,
+    floorCount: 6,
+  },
+  {
+    id: 'mystery-plaza',
+    name: 'mystery-plaza',
+    displayName: 'Mystery Plaza',
+    address: 'Unknown Address',
+    district: 'Unknown',
+    category: 'community-mall',
+    categoryLabel: 'คอมมูนิตี้มอลล์',
+    storeCount: 1,
+    floorCount: 1,
+  },
+];
+
+export const E2E_FLOORS_BY_MALL: Record<string, Floor[]> = {
+  'central-rama-3': [
+    { id: 'G', label: 'G', order: 0 },
+    { id: '1', label: '1', order: 1 },
+    { id: '2', label: '2', order: 2 },
+  ],
+  'central-world': [
+    { id: 'G', label: 'G', order: 0 },
+    { id: '1', label: '1', order: 1 },
+    { id: '2', label: '2', order: 2 },
+    { id: '3', label: '3', order: 3 },
+  ],
+  'central-embassy': [
+    { id: 'G', label: 'G', order: 0 },
+    { id: '1', label: '1', order: 1 },
+    { id: '2', label: '2', order: 2 },
+    { id: '3', label: '3', order: 3 },
+    { id: '4', label: '4', order: 4 },
+    { id: '5', label: '5', order: 5 },
+  ],
+  'mystery-plaza': [{ id: 'G', label: 'G', order: 0 }],
+};
+
+export const E2E_STORES_BY_MALL: Record<string, Store[]> = {
+  'central-rama-3': [
+    {
+      id: 'hm-central-rama-3',
+      name: 'H&M',
+      category: 'Fashion',
+      floorId: 'G',
+      floorLabel: 'G',
+      unit: 'G-12',
+      status: 'Active',
+      hours: '10:00-22:00',
+      mallId: 'central-rama-3',
+      _mallId: 'central-rama-3',
+      mallSlug: 'central-rama-3',
+      mallName: 'Central Rama 3',
+      location: { lat: 13.6894, lng: 100.5444 },
+    },
+    {
+      id: 'starbucks-central-rama-3',
+      name: 'Starbucks',
+      category: 'Food & Beverage',
+      floorId: '1',
+      floorLabel: '1',
+      unit: '1-05',
+      status: 'Active',
+      hours: '08:00-22:00',
+      mallId: 'central-rama-3',
+      _mallId: 'central-rama-3',
+      mallSlug: 'central-rama-3',
+      mallName: 'Central Rama 3',
+    },
+    {
+      id: 'uniqlo-central-rama-3',
+      name: 'Uniqlo',
+      category: 'Fashion',
+      floorId: '2',
+      floorLabel: '2',
+      unit: '2-10',
+      status: 'Active',
+      hours: '10:00-22:00',
+      mallId: 'central-rama-3',
+      _mallId: 'central-rama-3',
+      mallSlug: 'central-rama-3',
+      mallName: 'Central Rama 3',
+    },
+  ],
+  'central-world': [
+    {
+      id: 'zara-central-world',
+      name: 'Zara',
+      category: 'Fashion',
+      floorId: '1',
+      floorLabel: '1',
+      unit: '1-20',
+      status: 'Active',
+      hours: '10:00-22:00',
+      mallId: 'central-world',
+      _mallId: 'central-world',
+      mallSlug: 'central-world',
+      mallName: 'Central World',
+      location: { lat: 13.7459, lng: 100.539 },
+    },
+    {
+      id: 'apple-store-central-world',
+      name: 'Apple Store',
+      category: 'Electronics',
+      floorId: '2',
+      floorLabel: '2',
+      unit: '2-03',
+      status: 'Active',
+      hours: '10:00-22:00',
+      mallId: 'central-world',
+      _mallId: 'central-world',
+      mallSlug: 'central-world',
+      mallName: 'Central World',
+    },
+  ],
+  'central-embassy': [
+    {
+      id: 'gucci-central-embassy',
+      name: 'Gucci',
+      category: 'Fashion',
+      floorId: '2',
+      floorLabel: '2',
+      unit: '2-15',
+      status: 'Active',
+      hours: '10:00-22:00',
+      mallId: 'central-embassy',
+      _mallId: 'central-embassy',
+      mallSlug: 'central-embassy',
+      mallName: 'Central Embassy',
+      location: { lat: 13.7448, lng: 100.5464 },
+    },
+    {
+      id: 'starbucks-central-embassy',
+      name: 'Starbucks Reserve',
+      category: 'Food & Beverage',
+      floorId: '1',
+      floorLabel: '1',
+      unit: '1-02',
+      status: 'Active',
+      hours: '08:00-22:00',
+      mallId: 'central-embassy',
+      _mallId: 'central-embassy',
+      mallSlug: 'central-embassy',
+      mallName: 'Central Embassy',
+    },
+  ],
+  'mystery-plaza': [
+    {
+      id: 'hm-outlet-mystery',
+      name: 'H&M Outlet',
+      category: 'Fashion',
+      floorId: 'G',
+      floorLabel: 'G',
+      unit: 'G-01',
+      status: 'Active',
+      hours: '10:00-20:00',
+      mallId: 'mystery-plaza',
+      _mallId: 'mystery-plaza',
+      mallSlug: 'mystery-plaza',
+      mallName: 'Mystery Plaza',
+      // Intentionally missing coords for unknown distance
+    },
+  ],
+};
+
+export const E2E_ALL_STORES: Store[] = Object.values(E2E_STORES_BY_MALL).flat();
+
+export function getE2EMallById(mallId: string): Mall | undefined {
+  return E2E_MALLS.find(mall => mall.id === mallId || mall.name === mallId);
+}
+
+export function getE2EStoresByMall(mallId: string): Store[] {
+  return E2E_STORES_BY_MALL[mallId] || [];
+}
+
+export function getE2EFloorsByMall(mallId: string): Floor[] {
+  return E2E_FLOORS_BY_MALL[mallId] || [];
+}

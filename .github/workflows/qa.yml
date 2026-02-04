@@ -1,0 +1,344 @@
+name: QA
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: qa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+
+  e2e:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: 
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      
+      # Resolve BASE_URL
+      - name: Resolve BASE_URL
+        id: resolve
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            try {
+              const { owner, repo } = context.repo;
+              let preview = '';
+              if (context.eventName === 'pull_request') {
+                const pr = context.payload.pull_request.number;
+                const comments = await github.paginate(
+                  github.rest.issues.listComments,
+                  { owner, repo, issue_number: pr, per_page: 100 }
+                );
+                const body = comments.map(c => c.body || '').join('\n');
+                const re = /https:\/\/[a-z0-9-]+--[a-z0-9-]+\.netlify\.app/gi;
+                const matches = body.match(re);
+                if (matches?.length) {
+                  preview = matches[matches.length - 1];
+                  core.info(`Found Netlify preview in PR comments: ${preview}`);
+                }
+              }
+              core.setOutput('base_url', preview || 'https://hanaihang.netlify.app');
+            } catch (e) {
+              core.warning(`Failed to resolve BASE_URL: ${e.message}`);
+              core.setOutput('base_url', 'https://hanaihang.netlify.app');
+            }
+
+      - name: Export BASE_URL
+        id: export
+        run: |
+          BASE_URL="${{ steps.resolve.outputs.base_url }}"
+          : "${BASE_URL:=https://hanaihang.netlify.app}"
+          echo "BASE_URL=${BASE_URL}" >> $GITHUB_OUTPUT
+          echo "✅ Using BASE_URL=${BASE_URL}"
+      
+      - name: Run Playwright E2E
+        run: |
+          npm run test:e2e
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.sha }}
+          path: playwright-report/
+          if-no-files-found: ignore
+      - name: Upload Playwright traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ github.sha }}
+          path: test-results/
+          if-no-files-found: ignore
+
+  audits:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      mobile_perf: ${{ steps.score.outputs.mobile_perf }}
+      mobile_a11y: ${{ steps.score.outputs.mobile_a11y }}
+      mobile_bp:   ${{ steps.score.outputs.mobile_bp }}
+      mobile_seo:  ${{ steps.score.outputs.mobile_seo }}
+      desktop_perf: ${{ steps.score.outputs.desktop_perf }}
+      desktop_a11y: ${{ steps.score.outputs.desktop_a11y }}
+      desktop_bp:   ${{ steps.score.outputs.desktop_bp }}
+      desktop_seo:  ${{ steps.score.outputs.desktop_seo }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: 
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - name: Ensure artifacts directory
+        run: mkdir -p artifacts/pa11y artifacts/lh
+      
+      # Resolve BASE_URL
+      - name: Resolve BASE_URL
+        id: resolve
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            try {
+              const { owner, repo } = context.repo;
+              let preview = '';
+              if (context.eventName === 'pull_request') {
+                const pr = context.payload.pull_request.number;
+                const comments = await github.paginate(
+                  github.rest.issues.listComments,
+                  { owner, repo, issue_number: pr, per_page: 100 }
+                );
+                const body = comments.map(c => c.body || '').join('\n');
+                const re = /https:\/\/[a-z0-9-]+--[a-z0-9-]+\.netlify\.app/gi;
+                const matches = body.match(re);
+                if (matches?.length) {
+                  preview = matches[matches.length - 1];
+                  core.info(`Found Netlify preview in PR comments: ${preview}`);
+                }
+              }
+              core.setOutput('base_url', preview || 'https://hanaihang.netlify.app');
+            } catch (e) {
+              core.warning(`Failed to resolve BASE_URL: ${e.message}`);
+              core.setOutput('base_url', 'https://hanaihang.netlify.app');
+            }
+
+      - name: Export BASE_URL
+        id: export
+        run: |
+          BASE_URL="${{ steps.resolve.outputs.base_url }}"
+          : "${BASE_URL:=https://hanaihang.netlify.app}"
+          echo "BASE_URL=${BASE_URL}" >> $GITHUB_OUTPUT
+          echo "✅ Using BASE_URL=${BASE_URL}"
+      
+      - name: Lighthouse (mobile)
+        run: |
+          npm run lh:mobile
+      - name: Lighthouse (desktop)
+        run: |
+          npm run lh:desktop
+      - name: Upload Lighthouse artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-json-${{ github.sha }}
+          path: artifacts/*
+      - name: Extract Lighthouse scores
+        id: score
+        run: |
+          MOBILE=artifacts/lh-mobile.json
+          DESKTOP=artifacts/lh-desktop.json
+          parse () {
+            jq -r '
+              (.categories.performance.score        *100|round) as $perf |
+              (.categories.accessibility.score      *100|round) as $a11y |
+              (.categories["best-practices"].score  *100|round) as $bp   |
+              (.categories.seo.score                *100|round) as $seo  |
+              @sh "PERF=\($perf) A11Y=\($a11y) BP=\($bp) SEO=\($seo)"
+            ' "$1"
+          }
+          eval "$(parse "$MOBILE")"; echo "mobile_perf=$PERF"   >> $GITHUB_OUTPUT; echo "mobile_a11y=$A11Y" >> $GITHUB_OUTPUT; echo "mobile_bp=$BP" >> $GITHUB_OUTPUT; echo "mobile_seo=$SEO" >> $GITHUB_OUTPUT
+          eval "$(parse "$DESKTOP")"; echo "desktop_perf=$PERF" >> $GITHUB_OUTPUT; echo "desktop_a11y=$A11Y" >> $GITHUB_OUTPUT; echo "desktop_bp=$BP" >> $GITHUB_OUTPUT; echo "desktop_seo=$SEO" >> $GITHUB_OUTPUT
+
+  a11y:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'npm' }
+      - run: npm ci
+
+      - name: Ensure artifacts directory
+        run: mkdir -p artifacts/pa11y artifacts/lh
+
+      # Resolve BASE_URL
+      - name: Resolve BASE_URL
+        id: resolve
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            try {
+              const { owner, repo } = context.repo;
+              let preview = '';
+              if (context.eventName === 'pull_request') {
+                const pr = context.payload.pull_request.number;
+                const comments = await github.paginate(
+                  github.rest.issues.listComments,
+                  { owner, repo, issue_number: pr, per_page: 100 }
+                );
+                const body = comments.map(c => c.body || '').join('\n');
+                const re = /https:\/\/[a-z0-9-]+--[a-z0-9-]+\.netlify\.app/gi;
+                const matches = body.match(re);
+                if (matches?.length) {
+                  preview = matches[matches.length - 1];
+                  core.info(`Found Netlify preview in PR comments: ${preview}`);
+                }
+              }
+              core.setOutput('base_url', preview || 'https://hanaihang.netlify.app');
+            } catch (e) {
+              core.warning(`Failed to resolve BASE_URL: ${e.message}`);
+              core.setOutput('base_url', 'https://hanaihang.netlify.app');
+            }
+
+      - name: Export BASE_URL
+        id: export
+        run: |
+          BASE_URL="${{ steps.resolve.outputs.base_url }}"
+          : "${BASE_URL:=https://hanaihang.netlify.app}"
+          echo "BASE_URL=${BASE_URL}" >> $GITHUB_OUTPUT
+          echo "✅ Using BASE_URL=${BASE_URL}"
+
+      - name: Replace BASE_URL in pa11y config (optional)
+        run: |
+          if [ "${BASE_URL}" != "https://hanaihang.netlify.app" ]; then
+            sed -i 's#https://hanaihang.netlify.app#'"${BASE_URL}"'#g' .pa11yci.json
+          fi
+
+      # ✅ รันด้วย config และเก็บผลเป็น JSON (ใช้ chrome-launcher-options)
+      - name: Run Pa11y (JSON report)
+        id: pa11y
+        run: |
+          set +e
+          npx pa11y-ci -c .pa11yci.json \
+            --chrome-launcher-options='{"args":["--no-sandbox","--disable-setuid-sandbox","--disable-dev-shm-usage","--disable-gpu"]}' \
+            --reporter json > artifacts/pa11y/results.json
+          EXIT=$?
+          echo "exit_code=$EXIT" >> $GITHUB_OUTPUT
+          exit 0
+
+      - name: Upload Pa11y artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pa11y-artifacts-${{ github.sha }}
+          path: artifacts/pa11y/
+          if-no-files-found: warn
+
+      - name: Fail if Pa11y had errors
+        if: steps.pa11y.outputs.exit_code != '0'
+        run: |
+          echo "Pa11y reported errors. See artifacts/pa11y/results.json"
+          exit 1
+
+  gate:
+    needs: [e2e, audits, a11y]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compute & enforce thresholds
+        id: enforce
+        env:
+          MP:  ${{ needs.audits.outputs.mobile_perf }}
+          MA:  ${{ needs.audits.outputs.mobile_a11y }}
+          MBP: ${{ needs.audits.outputs.mobile_bp }}
+          MS:  ${{ needs.audits.outputs.mobile_seo }}
+          DP:  ${{ needs.audits.outputs.desktop_perf }}
+          DA:  ${{ needs.audits.outputs.desktop_a11y }}
+          DBP: ${{ needs.audits.outputs.desktop_bp }}
+          DS:  ${{ needs.audits.outputs.desktop_seo }}
+          TH_PERF: 85
+          TH_A11Y: 90
+          TH_BP:   90
+          TH_SEO:  90
+        run: |
+          echo "Mobile  -> Perf:$MP  A11y:$MA  BP:$MBP  SEO:$MS"
+          echo "Desktop -> Perf:$DP  A11y:$DA  BP:$DBP  SEO:$DS"
+          
+          fail=0
+          check () { name=$1 val=$2 th=$3; [ "${val:-0}" -ge "$th" ] || { echo "❌ $name < $th (got $val)"; fail=1; }; }
+          check "Mobile Performance"      "$MP"  "$TH_PERF"
+          check "Mobile Accessibility"    "$MA"  "$TH_A11Y"
+          check "Mobile Best Practices"   "$MBP" "$TH_BP"
+          check "Mobile SEO"              "$MS"  "$TH_SEO"
+          check "Desktop Performance"     "$DP"  "$TH_PERF"
+          check "Desktop Accessibility"   "$DA"  "$TH_A11Y"
+          check "Desktop Best Practices"  "$DBP" "$TH_BP"
+          check "Desktop SEO"             "$DS"  "$TH_SEO"
+          [ $fail -eq 0 ] || exit 1
+
+      - name: Post QA summary to PR
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          MP:  ${{ needs.audits.outputs.mobile_perf }}
+          MA:  ${{ needs.audits.outputs.mobile_a11y }}
+          MBP: ${{ needs.audits.outputs.mobile_bp }}
+          MS:  ${{ needs.audits.outputs.mobile_seo }}
+          DP:  ${{ needs.audits.outputs.desktop_perf }}
+          DA:  ${{ needs.audits.outputs.desktop_a11y }}
+          DBP: ${{ needs.audits.outputs.desktop_bp }}
+          DS:  ${{ needs.audits.outputs.desktop_seo }}
+        with:
+          script: |
+            const o = {
+              MP:  process.env.MP,  MA:  process.env.MA,  MBP: process.env.MBP, MS:  process.env.MS,
+              DP:  process.env.DP,  DA:  process.env.DA,  DBP: process.env.DBP, DS:  process.env.DS
+            };
+            core.summary.addHeading('QA Checks ✅');
+            core.summary.addTable([
+              [{data:'Target',header:true},{data:'Perf',header:true},{data:'A11y',header:true},{data:'BP',header:true},{data:'SEO',header:true}],
+              ['Mobile',  o.MP,  o.MA,  o.MBP,  o.MS],
+              ['Desktop', o.DP,  o.DA,  o.DBP,  o.DS],
+            ]);
+            await core.summary.write();
+      
+      - name: Comment QA result to PR
+        if: github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            **QA Checks ✅**
+            | Target  | Perf | A11y | BP | SEO |
+            |---------|------|------|----|-----|
+            | Mobile  | ${{ needs.audits.outputs.mobile_perf }} | ${{ needs.audits.outputs.mobile_a11y }} | ${{ needs.audits.outputs.mobile_bp }} | ${{ needs.audits.outputs.mobile_seo }} |
+            | Desktop | ${{ needs.audits.outputs.desktop_perf }} | ${{ needs.audits.outputs.desktop_a11y }} | ${{ needs.audits.outputs.desktop_bp }} | ${{ needs.audits.outputs.desktop_seo }} |
+

@@ -1,0 +1,25 @@
+rules_version = '2';
+
+// Craft rules based on data in your Firestore database
+// allow write: if firestore.get(
+//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow authenticated users to upload mall logos
+    match /mall_logos/{mallId} {
+      allow read: if true; // Anyone can read mall logos
+      allow write: if request.auth != null; // Only authenticated users can upload
+    }
+    
+    // Allow authenticated users to upload store logos
+    match /store_logos/{storeId} {
+      allow read: if true; // Anyone can read store logos
+      allow write: if request.auth != null; // Only authenticated users can upload
+    }
+    
+    // Default rule: deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

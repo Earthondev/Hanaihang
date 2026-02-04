@@ -1,0 +1,205 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Search, X } from 'lucide-react';
+
+import UnifiedSearchResults from './UnifiedSearchResults';
+
+import { useDebouncedSearch } from '@/lib/enhanced-search';
+
+interface EnhancedSearchBoxProps {
+  onResultSelect?: (type: 'store' | 'mall', data: unknown) => void;
+  onQueryChange?: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+  userLocation?: { lat: number; lng: number };
+}
+
+export default function EnhancedSearchBox({
+  onResultSelect: _onResultSelect,
+  onQueryChange,
+  placeholder = 'ค้นหาห้างหรือแบรนด์...',
+  className = '',
+  userLocation,
+}: EnhancedSearchBoxProps) {
+  const [query, setQuery] = useState('');
+  const [showResults, setShowResults] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem('recentSearches');
+      return raw ? (JSON.parse(raw) as string[]) : [];
+    } catch {
+      return [];
+    }
+  });
+  const inputRef = useRef<HTMLInputElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const lastSavedQueryRef = useRef('');
+
+  const { results, loading, error, networkUnavailable } = useDebouncedSearch(
+    query,
+    userLocation,
+  );
+
+  // Keep result visibility in sync with input changes (avoid delayed effect)
+
+  // Handle Enter key to scroll to results
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && query.trim()) {
+      e.preventDefault();
+      scrollToResults();
+    }
+  };
+
+  const scrollToResults = () => {
+    if (resultsRef.current) {
+      resultsRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
+  const clearSearch = () => {
+    setQuery('');
+    setShowResults(false);
+    onQueryChange?.('');
+    inputRef.current?.focus();
+  };
+
+  const persistRecentSearches = (term: string) => {
+    const trimmed = term.trim();
+    if (!trimmed) return;
+
+    setRecentSearches(prev => {
+      const next = [trimmed, ...prev.filter(item => item !== trimmed)].slice(
+        0,
+        5,
+      );
+      try {
+        localStorage.setItem('recentSearches', JSON.stringify(next));
+      } catch {
+        // ignore storage errors
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (!loading && query.trim() && lastSavedQueryRef.current !== query.trim()) {
+      persistRecentSearches(query);
+      lastSavedQueryRef.current = query.trim();
+    }
+  }, [loading, query]);
+
+  return (
+    <div className={`relative ${className}`}>
+      {/* Search Input */}
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
+        </div>
+
+        <input
+          ref={inputRef}
+          type="search"
+          value={query}
+          onChange={e => {
+            const next = e.target.value;
+            setQuery(next);
+            setShowResults(next.trim().length > 0);
+            onQueryChange?.(next);
+          }}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setFocused(true)}
+          onBlur={() => {
+            // Delay hiding results to allow clicks
+            setTimeout(() => setFocused(false), 150);
+          }}
+          placeholder={placeholder}
+          className="block w-full pl-12 pr-12 py-4 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 text-lg font-prompt"
+          autoComplete="off"
+          spellCheck="false"
+          data-testid="search-input"
+          aria-label="Search malls or stores"
+        />
+
+        {/* Clear Button */}
+        {query && (
+          <button
+            onClick={clearSearch}
+            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Clear search"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+
+      {/* Search Results */}
+      {showResults && (
+        <section
+          id="search-results"
+          ref={resultsRef}
+          className="mt-4"
+          aria-live="polite"
+        >
+          <UnifiedSearchResults
+            results={results}
+            query={query}
+            loading={loading}
+            error={error}
+            forceEmptyState={networkUnavailable}
+          />
+        </section>
+      )}
+
+      {/* Search Tips / Recent Searches */}
+      {!query && focused && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-lg p-4 z-10">
+          {recentSearches.length > 0 ? (
+            <div data-testid="recent-searches">
+              <div className="text-sm text-gray-600 mb-3 font-prompt">
+                <strong>ค้นหาล่าสุด</strong>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {recentSearches.map(item => (
+                  <button
+                    key={item}
+                    onClick={() => {
+                      setQuery(item);
+                      setShowResults(item.trim().length > 0);
+                      onQueryChange?.(item);
+                    }}
+                    className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-sm transition-colors font-prompt"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="text-sm text-gray-600 mb-3 font-prompt">
+                <strong>💡 เคล็ดลับการค้นหา:</strong>
+              </div>
+              <div className="space-y-2 text-sm text-gray-500 font-prompt">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                  <span>พิมพ์ชื่อห้าง เช่น "Central Embassy" หรือ "MBK Center"</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span>พิมพ์ชื่อแบรนด์ เช่น "Zara", "Starbucks"</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                  <span>กด Enter เพื่อดูผลลัพธ์ทั้งหมด</span>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

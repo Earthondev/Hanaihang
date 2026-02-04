@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HaaNaiHang - Build Status</title>
+  <style>
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      background: #f8fafc;
+      color: #1e293b;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #059669;
+      margin-bottom: 8px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .subtitle {
+      color: #64748b;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .status-loading { background: #f59e0b; }
+    .status-success { background: #10b981; }
+    .status-error { background: #ef4444; }
+    pre {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 16px 0;
+    }
+    .refresh-btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 16px;
+    }
+    .refresh-btn:hover {
+      background: #2563eb;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .info-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .info-label {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .info-value {
+      font-size: 14px;
+      color: #1e293b;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 HaaNaiHang Build Status</h1>
+    <p class="subtitle">ตรวจสอบสถานะการ build และ deployment</p>
+    
+    <div id="status">
+      <span class="status-indicator status-loading"></span>
+      <span>กำลังโหลดข้อมูล...</span>
+    </div>
+    
+    <div id="info-grid" class="info-grid" style="display: none;">
+      <!-- Dynamic info cards will be inserted here -->
+    </div>
+    
+    <pre id="raw-data" style="display: none;">Loading...</pre>
+    
+    <button class="refresh-btn" onclick="loadBuildInfo()">🔄 รีเฟรช</button>
+  </div>
+
+  <script>
+    function formatTimestamp(timestamp) {
+      try {
+        const date = new Date(timestamp);
+        return date.toLocaleString('th-TH', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          timeZone: 'Asia/Bangkok'
+        });
+      } catch {
+        return timestamp;
+      }
+    }
+
+    function createInfoCard(label, value) {
+      return `
+        <div class="info-card">
+          <div class="info-label">${label}</div>
+          <div class="info-value">${value}</div>
+        </div>
+      `;
+    }
+
+    function updateStatus(status, message) {
+      const statusEl = document.getElementById('status');
+      const indicator = statusEl.querySelector('.status-indicator');
+      
+      indicator.className = `status-indicator status-${status}`;
+      statusEl.innerHTML = `<span class="status-indicator status-${status}"></span><span>${message}</span>`;
+    }
+
+    function displayBuildInfo(data) {
+      updateStatus('success', 'ข้อมูล build พร้อมใช้งาน');
+      
+      // Show info grid
+      const infoGrid = document.getElementById('info-grid');
+      infoGrid.innerHTML = `
+        ${createInfoCard('Version', data.version)}
+        ${createInfoCard('Git SHA', data.sha)}
+        ${createInfoCard('Branch', data.branch)}
+        ${createInfoCard('Context', data.context)}
+        ${createInfoCard('Build ID', data.buildId)}
+        ${createInfoCard('Build Time', formatTimestamp(data.timestamp))}
+        ${createInfoCard('Platform', data.runtime?.platform || 'unknown')}
+        ${createInfoCard('Node Version', data.runtime?.node || 'unknown')}
+      `;
+      infoGrid.style.display = 'grid';
+      
+      // Show raw data
+      const rawData = document.getElementById('raw-data');
+      rawData.textContent = JSON.stringify(data, null, 2);
+      rawData.style.display = 'block';
+    }
+
+    function displayError(error) {
+      updateStatus('error', `เกิดข้อผิดพลาด: ${error}`);
+      
+      const rawData = document.getElementById('raw-data');
+      rawData.textContent = `Error: ${error}`;
+      rawData.style.display = 'block';
+    }
+
+    async function loadBuildInfo() {
+      try {
+        updateStatus('loading', 'กำลังโหลดข้อมูล...');
+        
+        const response = await fetch('/build.json', { 
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        displayBuildInfo(data);
+        
+      } catch (error) {
+        console.error('Failed to load build info:', error);
+        displayError(error.message);
+      }
+    }
+
+    // Load on page load
+    loadBuildInfo();
+    
+    // Auto refresh every 30 seconds
+    setInterval(loadBuildInfo, 30000);
+  </script>
+</body>
+</html>
