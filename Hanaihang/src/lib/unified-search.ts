@@ -3,12 +3,12 @@
  * Returns combined results with distance calculation support
  */
 
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, collectionGroup, query, where, getDocs, limit } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
 import { Mall, Store } from '../types/mall-system';
 
-import { createSearchQuery } from './thai-normalize';
+import { createSearchQuery, normalizeThai } from './thai-normalize';
 
 export interface UnifiedSearchResult {
   id: string;
@@ -35,46 +35,63 @@ export async function searchMallsAndStores(
     return [];
   }
 
+  const normalizedQuery = normalizeThai(query.trim());
+  const rawLower = query.trim().toLowerCase();
   const { start, end } = createSearchQuery(query.trim());
 
   try {
     // Search malls and stores in parallel
     const [mallsResults, storesResults] = await Promise.all([
-      searchMalls(start, end, Math.ceil(limitCount / 2)),
-      searchStores(start, end, Math.ceil(limitCount / 2)),
+      searchMalls(start, end, normalizedQuery, rawLower, Math.ceil(limitCount / 2)),
+      searchStores(start, end, normalizedQuery, rawLower, Math.ceil(limitCount / 2)),
     ]);
 
-    // Combine and format results
-    const results: UnifiedSearchResult[] = [
-      ...mallsResults.map(mall => ({
-        id: mall.id!,
-        kind: 'mall' as const,
-        name: mall.displayName || mall.name,
-        openHours: mall.hours
-          ? `${mall.hours.open}-${mall.hours.close}`
-          : undefined,
-        coords: mall.coords || (mall as unknown).location,
-        mallCoords: mall.coords || (mall as unknown).location,
-      })),
-      ...storesResults.map(store => ({
-        id: store.id!,
-        kind: 'store' as const,
-        name: store.name,
-        mallName: (store as unknown).mallName,
-        floorLabel: (store as unknown).floorLabel || store.floorId,
-        openHours: store.hours,
-        coords: { lat: 0, lng: 0 },
-        mallCoords: (store as unknown).mallCoords,
-        category: store.category,
-        status: store.status,
-      })),
-    ];
-
+    const results = mergeResults(mallsResults, storesResults);
     return results.slice(0, limitCount);
   } catch (error) {
     console.error('Error in unified search:', error);
     return [];
   }
+}
+
+function mergeResults(malls: Mall[], stores: Store[]): UnifiedSearchResult[] {
+  const results: UnifiedSearchResult[] = [
+    ...malls.map(mall => ({
+      id: mall.id!,
+      kind: 'mall' as const,
+      name: mall.displayName || mall.name,
+      openHours: mall.hours
+        ? `${mall.hours.open}-${mall.hours.close}`
+        : undefined,
+      coords: mall.coords || (mall as unknown).location,
+      mallCoords: mall.coords || (mall as unknown).location,
+    })),
+    ...stores.map(store => ({
+      id: store.id!,
+      kind: 'store' as const,
+      name: store.name,
+      mallName: (store as unknown).mallName,
+      floorLabel: (store as unknown).floorLabel || store.floorId,
+      openHours: store.hours,
+      coords: { lat: 0, lng: 0 },
+      mallCoords: (store as unknown).mallCoords,
+      category: store.category,
+      status: store.status,
+    })),
+  ];
+
+  const seen = new Set<string>();
+  const deduped: UnifiedSearchResult[] = [];
+  for (const item of results) {
+    const mallKey = item.mallName ? normalizeThai(item.mallName) : '';
+    const floorKey = item.floorLabel ? item.floorLabel.toLowerCase() : '';
+    const key = `${item.kind}:${item.id}:${normalizeThai(item.name)}:${mallKey}:${floorKey}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(item);
+  }
+
+  return deduped;
 }
 
 /**
@@ -83,24 +100,43 @@ export async function searchMallsAndStores(
 async function searchMalls(
   start: string,
   end: string,
+  normalizedQuery: string,
+  rawLower: string,
   limitCount: number,
 ): Promise<Mall[]> {
   try {
-    const q = query(
+    const byName = query(
       collection(db, 'malls'),
-      where('name_normalized', '>=', start),
-      where('name_normalized', '<=', end),
+      where('nameLower', '>=', start),
+      where('nameLower', '<=', end),
       limit(limitCount),
     );
 
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(
-      doc =>
-        ({
-          id: doc.id,
-          ...doc.data(),
-        }) as Mall,
-    );
+    const keywordToken = normalizedQuery || rawLower;
+    const byKeyword = keywordToken
+      ? query(
+          collection(db, 'malls'),
+          where('searchKeywords', 'array-contains', keywordToken),
+          limit(limitCount),
+        )
+      : null;
+
+    const [nameSnap, keywordSnap] = await Promise.all([
+      getDocs(byName),
+      byKeyword ? getDocs(byKeyword) : Promise.resolve(null),
+    ]);
+
+    const results = new Map<string, Mall>();
+    nameSnap.docs.forEach(doc => {
+      results.set(doc.id, { id: doc.id, ...doc.data() } as Mall);
+    });
+    if (keywordSnap) {
+      keywordSnap.docs.forEach(doc => {
+        results.set(doc.id, { id: doc.id, ...doc.data() } as Mall);
+      });
+    }
+
+    return Array.from(results.values());
   } catch (error) {
     console.error('Error searching malls:', error);
     return [];
@@ -113,39 +149,43 @@ async function searchMalls(
 async function searchStores(
   start: string,
   end: string,
+  normalizedQuery: string,
+  rawLower: string,
   limitCount: number,
 ): Promise<Store[]> {
   try {
-    // First get all malls to search their stores
-    const mallsSnapshot = await getDocs(collection(db, 'malls'));
-    const stores: Store[] = [];
+    const byName = query(
+      collectionGroup(db, 'stores'),
+      where('nameLower', '>=', start),
+      where('nameLower', '<=', end),
+      limit(limitCount),
+    );
 
-    for (const mallDoc of mallsSnapshot.docs) {
-      if (stores.length >= limitCount) break;
+    const keywordToken = normalizedQuery || rawLower;
+    const byKeyword = keywordToken
+      ? query(
+          collectionGroup(db, 'stores'),
+          where('searchKeywords', 'array-contains', keywordToken),
+          limit(limitCount),
+        )
+      : null;
 
-      const q = query(
-        collection(db, 'malls', mallDoc.id, 'stores'),
-        where('name_normalized', '>=', start),
-        where('name_normalized', '<=', end),
-        limit(limitCount - stores.length),
-      );
+    const [nameSnap, keywordSnap] = await Promise.all([
+      getDocs(byName),
+      byKeyword ? getDocs(byKeyword) : Promise.resolve(null),
+    ]);
 
-      const storesSnapshot = await getDocs(q);
-      const mallStores = storesSnapshot.docs.map(
-        doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            _mallId: mallDoc.id,
-          } as Store & { _mallId: string };
-        },
-      );
-
-      stores.push(...mallStores);
+    const results = new Map<string, Store>();
+    nameSnap.docs.forEach(doc => {
+      results.set(doc.id, { id: doc.id, ...doc.data() } as Store);
+    });
+    if (keywordSnap) {
+      keywordSnap.docs.forEach(doc => {
+        results.set(doc.id, { id: doc.id, ...doc.data() } as Store);
+      });
     }
 
-    return stores;
+    return Array.from(results.values());
   } catch (error) {
     console.error('Error searching stores:', error);
     return [];

@@ -62,7 +62,7 @@ serviceAccountKey.json
 *.avi
 *.mkv
 DJI_*/
-hanaihang/
+
 cloud-functions-example/
 branch1_floor*.jpg
 *.png

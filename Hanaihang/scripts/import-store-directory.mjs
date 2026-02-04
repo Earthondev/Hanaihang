@@ -108,6 +108,14 @@ const normalizeCategory = (raw) => {
   return 'Services';
 };
 
+const normalizeStoreKey = (value) =>
+  String(value || '')
+    .toLowerCase()
+    .replace(/[\u200b\u200c\u200d]/g, '')
+    .replace(/[^\p{L}\p{N}\s-]+/gu, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+
 const main = async () => {
   const payload = JSON.parse(await fs.readFile(filePath, 'utf8'));
   const mallSlug = payload.mallSlug;
@@ -210,8 +218,14 @@ const main = async () => {
   }
 
   const seenIds = new Set();
+  const seenKeys = new Set();
   for (const store of stores) {
     if (!store.name) continue;
+    const dedupeKey = `${normalizeStoreKey(store.name)}|${store.floorId || ''}|${store.unit || ''}`;
+    if (seenKeys.has(dedupeKey)) {
+      continue;
+    }
+    seenKeys.add(dedupeKey);
     const baseSlug = toSlug(store.name);
     let storeId = store.id || `${baseSlug}-${store.floorId}`;
     let counter = 1;
