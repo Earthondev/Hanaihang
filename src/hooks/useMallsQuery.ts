@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { listMallsWithStats, listAllStoresBatchOptimized } from '@/lib/optimized-firestore';
 import { Mall } from '@/types/mall-system';
 

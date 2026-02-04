@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+
 import MallForm, { MallFormValues } from './MallForm';
+
 import { getMall, updateMall } from '@/services/firebase/malls-unified';
 import { useInvalidateMalls } from '@/hooks/useMallsQuery';
 import FadeIn from '@/components/ui/FadeIn';

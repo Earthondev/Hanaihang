@@ -9,6 +9,7 @@ import {
     ChevronLeft,
     Grid
 } from 'lucide-react';
+
 import { useAuth } from '@/config/contexts/AuthContext';
 
 const Sidebar = () => {

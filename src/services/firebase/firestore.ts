@@ -29,6 +29,7 @@ import {
 } from '../../utils/firestore-helpers';
 
 import { db } from './firebase';
+
 import { isE2E } from '@/lib/e2e';
 import { E2E_MALLS, getE2EFloorsByMall } from '@/lib/e2e-fixtures';
 

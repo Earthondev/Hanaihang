@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/config/contexts/AuthContext';
 import { AlertCircle } from 'lucide-react';
+
+import { useAuth } from '@/config/contexts/AuthContext';
 
 interface AdminRouteProps {
     children: React.ReactNode;

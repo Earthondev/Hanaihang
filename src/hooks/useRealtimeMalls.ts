@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+
 import { db } from '../config/firebase';
 import { Mall } from '../types/mall-system';
+
 import { isE2E } from '@/lib/e2e';
 import { E2E_MALLS, getE2EMallById } from '@/lib/e2e-fixtures';
 

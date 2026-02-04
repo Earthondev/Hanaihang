@@ -10,6 +10,7 @@ import { listMallsOptimized, clearStoresCache, clearMallsCache } from '../../lib
 import { Mall } from '../../types/mall-system';
 
 import { DeleteButton } from './DeleteButton';
+
 import { isE2E } from '@/lib/e2e';
 
 interface MallsTableViewProps {

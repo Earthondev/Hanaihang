@@ -2,8 +2,10 @@ import {
   collection, collectionGroup, doc, getDoc, getDocs, query, where,
   setDoc, updateDoc, deleteDoc, orderBy, limit, serverTimestamp,
 } from 'firebase/firestore';
-import { db } from './firebase';
+
 import { StoreCategory, StoreStatus } from '../../types/mall-system';
+
+import { db } from './firebase';
 
 export type Store = {
   id?: string;

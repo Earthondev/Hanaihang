@@ -5,6 +5,7 @@ import {
   ChevronLeft, ChevronRight, Heart, Globe, Search, MessageSquare, Wifi, CheckCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+
 import FadeIn from '../components/ui/FadeIn';
 
 import { useRealtimeMall } from '@/hooks/useRealtimeMalls';

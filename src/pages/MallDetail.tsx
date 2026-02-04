@@ -6,6 +6,7 @@ import { useRealtimeMall } from '../hooks/useRealtimeMalls';
 import { useRealtimeStores } from '../hooks/useRealtimeStores';
 import { listFloors } from '../services/firebase/firestore';
 import { Store, Floor } from '../types/mall-system';
+
 import { isE2E } from '@/lib/e2e';
 import { getE2EStoresByMall } from '@/lib/e2e-fixtures';
 

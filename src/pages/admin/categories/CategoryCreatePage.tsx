@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import CategoryForm, { CategoryFormValues } from './CategoryForm';
+
 import { createCategory } from '@/services/firebase/categories-unified';
 import FadeIn from '@/components/ui/FadeIn';
 

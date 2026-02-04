@@ -4,7 +4,7 @@ import { listMalls } from '../services/firebase/firestore';
 import { searchStoresGlobally } from '../services/firebase/stores';
 
 import { normalizeThai } from './thai-normalize';
-import { isE2E } from './e2e';
+import { isE2E, E2E_CONFIG } from './e2e';
 import { E2E_ALL_STORES, E2E_MALLS } from './e2e-fixtures';
 
 // Cache system with stale-while-revalidate
@@ -79,7 +79,7 @@ type SearchResponse<T> = { data: T[]; hadError: boolean };
 
 // Search configuration
 const SEARCH_CONFIG = {
-  DEBOUNCE_MS: isE2E ? 0 : 120,
+  DEBOUNCE_MS: isE2E ? E2E_CONFIG.DEBOUNCE_MS : 120,
   MAX_RESULTS_PER_TYPE: 50,
   RANKING_WEIGHTS: {
     DISTANCE: 1.0,
@@ -89,12 +89,10 @@ const SEARCH_CONFIG = {
 };
 
 const MIN_LOADING_MS = 200;
-const FIRESTORE_CHECK_TTL = isE2E ? 0 : 1000;
+const FIRESTORE_CHECK_TTL = isE2E ? E2E_CONFIG.FIRESTORE_CHECK_TTL : 1000;
 const FIRESTORE_PING_URL =
   'https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen';
-const FIRESTORE_PING_TIMEOUT_MS = isE2E ? 250 : 120;
-const E2E_MIN_LOADING_MS = 120;
-const E2E_SHORT_QUERY_LOADING_MS = 400;
+const FIRESTORE_PING_TIMEOUT_MS = isE2E ? E2E_CONFIG.FIRESTORE_PING_TIMEOUT_MS : 120;
 let firestoreReachable: boolean | null = null;
 let firestoreReachableAt = 0;
 
@@ -183,8 +181,8 @@ export async function searchMallsAndStores(
       return [];
     }
 
-    let mallsRaw = mallsRes.data;
-    let storesRaw = storesRes.data;
+    const mallsRaw = mallsRes.data;
+    const storesRaw = storesRes.data;
 
     // เติม meta ของห้างให้ร้าน
     const storesEnriched = await enrichStoresWithMallMeta(storesRaw);
@@ -702,7 +700,7 @@ export function useDebouncedSearch(
           if (!abortControllerRef.current?.signal.aborted) {
             setLoading(false);
           }
-        }, E2E_SHORT_QUERY_LOADING_MS);
+        }, E2E_CONFIG.SHORT_QUERY_LOADING_MS);
         return () => {
           if (loadingTimer) {
             clearTimeout(loadingTimer);
@@ -750,7 +748,7 @@ export function useDebouncedSearch(
         if (!controller.signal.aborted) {
           setLoading(false);
         }
-      }, E2E_MIN_LOADING_MS);
+      }, E2E_CONFIG.MIN_LOADING_MS);
 
       updateNetworkAvailability();
 
@@ -827,9 +825,9 @@ export function useDebouncedSearch(
             setNetworkUnavailable(!reachable);
           }
         });
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          setError(err.message);
+      } catch (err: any) {
+        if (err?.name !== 'AbortError') {
+          setError(err?.message || 'An error occurred');
           setResults([]);
         }
       } finally {

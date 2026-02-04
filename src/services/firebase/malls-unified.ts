@@ -2,8 +2,11 @@ import {
     collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
     serverTimestamp, query, orderBy
 } from 'firebase/firestore';
-import { db } from './firebase';
+
 import { Mall } from '../../types/mall-system';
+
+import { db } from './firebase';
+
 import { isE2E } from '@/lib/e2e';
 import { E2E_MALLS } from '@/lib/e2e-fixtures';
 

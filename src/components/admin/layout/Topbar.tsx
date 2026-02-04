@@ -1,6 +1,7 @@
 import React from 'react';
-import { useAuth } from '@/config/contexts/AuthContext';
 import { Bell, Search, Menu } from 'lucide-react';
+
+import { useAuth } from '@/config/contexts/AuthContext';
 
 interface TopbarProps {
     onMenuClick?: () => void;

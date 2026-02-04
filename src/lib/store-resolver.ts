@@ -1,6 +1,7 @@
+import { Store, Mall, Floor } from "../types/mall-system";
+
 import { getMall, getFloorInfo } from "./malls";
 import { distanceKm } from "./geo";
-import { Store, Mall, Floor } from "../types/mall-system";
 
 export type ResolvedStore = {
   mallName: string;
